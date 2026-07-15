@@ -25,6 +25,10 @@ app.use((_req, res, next) => {
 
 app.use(express.static(dist, { index: false }));
 
+app.get("/healthz", (_req, res) => {
+  res.status(200).json({ ok: true });
+});
+
 app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(dist, "index.html"));
 });
