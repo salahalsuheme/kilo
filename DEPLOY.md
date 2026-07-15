@@ -19,6 +19,32 @@
 
 ---
 
+## ⚠️ إذا Railway أنشأ 5 خدمات تلقائياً
+
+أحياناً Railway يكتشف كل حزمة في الـ monorepo وينشئ خدمة لكل واحدة:
+`api-spec`, `api-client`, `kilo-app`, `api-server`, `kilo-landing`
+
+**لا تضغط Deploy في هذه الحالة.**
+
+المطلوب **خدمتان فقط** (بالإضافة إلى PostgreSQL):
+
+| احذفها | احتفظ بها / أنشئها |
+|--------|---------------------|
+| `@workspace/api-spec` | خدمة `kilo-app` → `Dockerfile` |
+| `@workspace/api-client-*` | خدمة `kilo-landing` → `Dockerfile.landing` |
+| `@workspace/kilo-app` (منفصلة) | PostgreSQL |
+| `@workspace/api-server` (منفصلة) | |
+
+**الخطوات:**
+1. احذف الخدمات الخمس من Railway (كل خدمة → ⋮ → Delete)
+2. **+ New** → **Database** → **PostgreSQL**
+3. **+ New** → **GitHub Repo** → `kilo` → اسمها `kilo-app`
+   - Settings → Build → Dockerfile Path = `Dockerfile`
+4. **+ New** → **GitHub Repo** → `kilo` → اسمها `kilo-landing`
+   - Settings → Build → Dockerfile Path = `Dockerfile.landing`
+
+---
+
 ## 1) إنشاء المشروع على Railway
 
 1. ادخل [railway.app](https://railway.app) وأنشئ مشروعاً جديداً.
