@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./lib/tenant-cache" },
+    { "path": "./lib/customers-domain" },
+    { "path": "./lib/users-domain" },
+    { "path": "./lib/settings-domain" },
+    { "path": "./lib/contracts-domain" },
+    { "path": "./lib/invoices-domain" },
+    { "path": "./lib/finance-domain" },
+    { "path": "./lib/notifications-domain" },
+    { "path": "./lib/api-client-react" },
+    { "path": "./lib/api-zod" },
+    { "path": "./artifacts/api-server" },
+    { "path": "./artifacts/kilo-app" }
+  ]
+}

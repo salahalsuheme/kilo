@@ -1,0 +1,26 @@
+{
+  "name": "kilo-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "codegen": "pnpm --filter @workspace/api-spec run codegen",
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --if-present run typecheck",
+    "typecheck:libs": "tsc --build",
+    "lint": "pnpm run lint:tenant-keys",
+    "lint:tenant-keys": "pnpm --filter @workspace/scripts run lint:tenant-keys",
+    "db:setup": "pnpm --filter @workspace/api-server run db:setup",
+    "dev": "pnpm --parallel --filter @workspace/api-server --filter @workspace/kilo-app run dev",
+    "build": "pnpm --filter @workspace/kilo-app run build",
+    "build:landing": "pnpm --filter @workspace/kilo-landing run build",
+    "start": "pnpm --filter @workspace/api-server run start",
+    "start:landing": "pnpm --filter @workspace/kilo-landing run start"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.2"
+  }
+}

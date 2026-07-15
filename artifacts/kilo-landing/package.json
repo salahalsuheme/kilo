@@ -1,0 +1,20 @@
+{
+  "name": "@workspace/kilo-landing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "tsx src/server.ts",
+    "dev": "pnpm run build && pnpm run start",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "catalog:",
+    "tsx": "catalog:"
+  }
+}

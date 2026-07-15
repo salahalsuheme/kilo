@@ -1,0 +1,2428 @@
+openapi: 3.1.0
+info:
+  title: Kilo Rental API
+  version: 1.0.0
+
+servers:
+  - url: /api
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [system]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                required: [ok]
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      responses:
+        "204":
+          description: Logged out
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+
+  /auth/profile:
+    put:
+      operationId: updateProfile
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+
+  /auth/password:
+    put:
+      operationId: changePassword
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordBody"
+      responses:
+        "204":
+          description: Password changed
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Dashboard KPIs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /activity-events:
+    get:
+      operationId: listActivityEvents
+      tags: [dashboard]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        "200":
+          description: Paginated activity log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ActivityEventList"
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      parameters:
+        - name: kind
+          in: query
+          schema:
+            $ref: "#/components/schemas/NotificationKind"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        "200":
+          description: Contract and vehicle document expiry notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationList"
+
+  /customers:
+    get:
+      operationId: listCustomers
+      tags: [customers]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: clientType
+          in: query
+          schema:
+            $ref: "#/components/schemas/CustomerType"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated customers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerList"
+    post:
+      operationId: createCustomer
+      tags: [customers]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomerBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "409":
+          description: Duplicate unique field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /customers/{id}:
+    get:
+      operationId: getCustomer
+      tags: [customers]
+      parameters:
+        - $ref: "#/components/parameters/CustomerId"
+      responses:
+        "200":
+          description: Customer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "404":
+          description: Not found
+    put:
+      operationId: updateCustomer
+      tags: [customers]
+      parameters:
+        - $ref: "#/components/parameters/CustomerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCustomerBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "409":
+          description: Duplicate unique field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+    delete:
+      operationId: deleteCustomer
+      tags: [customers]
+      parameters:
+        - $ref: "#/components/parameters/CustomerId"
+      responses:
+        "204":
+          description: Deleted
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            $ref: "#/components/schemas/UserRole"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated org users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgUserList"
+        "403":
+          description: Forbidden
+    post:
+      operationId: createUser
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrgUserBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgUser"
+        "403":
+          description: Forbidden
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: Org user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgUser"
+        "404":
+          description: Not found
+        "403":
+          description: Forbidden
+    put:
+      operationId: updateUser
+      tags: [users]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrgUserBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgUser"
+        "404":
+          description: Not found
+        "403":
+          description: Forbidden
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "204":
+          description: Deleted
+        "403":
+          description: Forbidden
+
+  /users/{id}/photo:
+    post:
+      operationId: uploadUserPhoto
+      tags: [users]
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        "200":
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photoUrl:
+                    type: string
+                required: [photoUrl]
+        "404":
+          description: Not found
+        "403":
+          description: Forbidden
+
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [vehicles]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/VehicleStatus"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated vehicles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleList"
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVehicleBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "409":
+          description: Duplicate unique field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /vehicles/{id}:
+    get:
+      operationId: getVehicle
+      tags: [vehicles]
+      parameters:
+        - $ref: "#/components/parameters/VehicleId"
+      responses:
+        "200":
+          description: Vehicle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "404":
+          description: Not found
+    put:
+      operationId: updateVehicle
+      tags: [vehicles]
+      parameters:
+        - $ref: "#/components/parameters/VehicleId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVehicleBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "409":
+          description: Duplicate unique field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      parameters:
+        - $ref: "#/components/parameters/VehicleId"
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          description: Business rule violation (e.g. rented vehicle)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+
+  /contracts:
+    get:
+      operationId: listContracts
+      tags: [contracts]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/ContractStatus"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated contracts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractList"
+    post:
+      operationId: createContract
+      tags: [contracts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContractBody"
+      responses:
+        "201":
+          description: Created draft contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+
+  /contracts/{id}:
+    get:
+      operationId: getContract
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "200":
+          description: Contract
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "404":
+          description: Not found
+    put:
+      operationId: updateContract
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContractBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+    delete:
+      operationId: deleteContract
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "204":
+          description: Deleted
+
+  /contracts/{id}/status:
+    patch:
+      operationId: updateContractStatus
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContractStatusBody"
+      responses:
+        "200":
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "400":
+          description: Business rule violation (e.g. delivery date passed)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+
+  /contracts/{id}/pdf:
+    get:
+      operationId: downloadContractPdf
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "200":
+          description: Contract PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+
+  /contract-templates:
+    get:
+      operationId: listContractTemplates
+      tags: [contract-templates]
+      responses:
+        "200":
+          description: Contract templates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractTemplateList"
+    post:
+      operationId: createContractTemplate
+      tags: [contract-templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContractTemplateBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractTemplate"
+
+  /contract-templates/{id}:
+    get:
+      operationId: getContractTemplate
+      tags: [contract-templates]
+      parameters:
+        - $ref: "#/components/parameters/ContractTemplateId"
+      responses:
+        "200":
+          description: Template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractTemplate"
+        "404":
+          description: Not found
+    put:
+      operationId: updateContractTemplate
+      tags: [contract-templates]
+      parameters:
+        - $ref: "#/components/parameters/ContractTemplateId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateContractTemplateBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContractTemplate"
+    delete:
+      operationId: deleteContractTemplate
+      tags: [contract-templates]
+      parameters:
+        - $ref: "#/components/parameters/ContractTemplateId"
+      responses:
+        "204":
+          description: Deleted
+
+  /invoices:
+    get:
+      operationId: listInvoices
+      tags: [invoices]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/InvoiceStatus"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated invoices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceList"
+
+  /invoices/{id}:
+    get:
+      operationId: getInvoice
+      tags: [invoices]
+      parameters:
+        - $ref: "#/components/parameters/InvoiceId"
+      responses:
+        "200":
+          description: Invoice detail for display and print
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceDetail"
+        "404":
+          description: Not found
+
+  /invoices/{id}/pdf:
+    get:
+      operationId: downloadInvoicePdf
+      tags: [invoices]
+      parameters:
+        - $ref: "#/components/parameters/InvoiceId"
+      responses:
+        "200":
+          description: Invoice PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+
+  /finance/reports:
+    get:
+      operationId: getFinanceReport
+      tags: [finance]
+      parameters:
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 2000
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+      responses:
+        "200":
+          description: Financial report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinanceReport"
+
+  /finance/purchases:
+    get:
+      operationId: listPurchases
+      tags: [finance]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/FinanceInvoiceStatus"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated purchases
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PurchaseList"
+    post:
+      operationId: createPurchase
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePurchaseBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+
+  /finance/purchases/{id}:
+    get:
+      operationId: getPurchase
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/PurchaseId"
+      responses:
+        "200":
+          description: Purchase
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+    put:
+      operationId: updatePurchase
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/PurchaseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePurchaseBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+    delete:
+      operationId: deletePurchase
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/PurchaseId"
+      responses:
+        "204":
+          description: Deleted
+
+  /finance/purchases/{id}/status:
+    patch:
+      operationId: updatePurchaseStatus
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/PurchaseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFinanceInvoiceStatusBody"
+      responses:
+        "200":
+          description: Updated status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Purchase"
+
+  /finance/fixed-subscriptions:
+    get:
+      operationId: listFixedSubscriptions
+      tags: [finance]
+      responses:
+        "200":
+          description: Fixed subscriptions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixedSubscriptionList"
+    post:
+      operationId: createFixedSubscription
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFixedSubscriptionBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixedSubscription"
+
+  /finance/fixed-subscriptions/{id}:
+    get:
+      operationId: getFixedSubscription
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/FixedSubscriptionId"
+      responses:
+        "200":
+          description: Fixed subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixedSubscription"
+    put:
+      operationId: updateFixedSubscription
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/FixedSubscriptionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFixedSubscriptionBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FixedSubscription"
+    delete:
+      operationId: deleteFixedSubscription
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/FixedSubscriptionId"
+      responses:
+        "204":
+          description: Deleted
+
+  /finance/subscription-invoices:
+    get:
+      operationId: listSubscriptionInvoices
+      tags: [finance]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: "#/components/schemas/FinanceInvoiceStatus"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated subscription invoices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionInvoiceList"
+
+  /finance/subscription-invoices/{id}/status:
+    patch:
+      operationId: updateSubscriptionInvoiceStatus
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/SubscriptionInvoiceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFinanceInvoiceStatusBody"
+      responses:
+        "200":
+          description: Updated status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionInvoice"
+
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [settings]
+      responses:
+        "200":
+          description: Org settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgSettings"
+    put:
+      operationId: putSettings
+      tags: [settings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutSettingsBody"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrgSettings"
+
+  /settings/logo:
+    post:
+      operationId: uploadSettingsLogo
+      tags: [settings]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        "200":
+          description: Logo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logoUrl:
+                    type: string
+                required: [logoUrl]
+
+  /auth/profile-photo:
+    post:
+      operationId: uploadProfilePhoto
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        "200":
+          description: Photo uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  photoUrl:
+                    type: string
+                required: [photoUrl]
+
+components:
+  parameters:
+    CustomerId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    VehicleId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    ContractId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    ContractTemplateId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    PurchaseId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    InvoiceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    FixedSubscriptionId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    SubscriptionInvoiceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  schemas:
+    ApiErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    LoginBody:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+      required: [email, password]
+
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        orgId:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        photoUrl:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required: [id, orgId, email, name, role]
+
+    UserRole:
+      type: string
+      enum: [employee, manager]
+      description: >
+        employee — موظف (وصول محدود).
+        manager — مدير (وصول كامل).
+
+    OrgUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        orgId:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        photoUrl:
+          type: string
+          nullable: true
+        role:
+          $ref: "#/components/schemas/UserRole"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, orgId, email, name, role, createdAt, updatedAt]
+
+    CreateOrgUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required: [name, email, password, role]
+
+    UpdateOrgUserBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required: [name, email, role]
+
+    OrgUserList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrgUser"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        photoUrl:
+          type: string
+          nullable: true
+      required: [name]
+
+    ChangePasswordBody:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+        newPassword:
+          type: string
+          minLength: 6
+      required: [currentPassword, newPassword]
+
+    CustomerType:
+      type: string
+      enum: [individual, institution, company, government]
+
+    InvoiceType:
+      type: string
+      enum: [simplified, standard]
+      description: >
+        simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي).
+        standard — فاتورة قياسية (مؤسسة/شركة/حكومي مع رقم ضريبي).
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: اسم السائق
+        clientType:
+          $ref: "#/components/schemas/CustomerType"
+        idNumber:
+          type: string
+        birthDate:
+          type: string
+          format: date
+          nullable: true
+        mobile:
+          type: string
+        licenseNumber:
+          type: string
+          nullable: true
+        nationality:
+          type: string
+        hasTaxNumber:
+          type: boolean
+        taxNumber:
+          type: string
+          nullable: true
+        establishmentName:
+          type: string
+          nullable: true
+          description: اسم المنشأة — مطلوب لغير الأفراد
+        establishmentNumber:
+          type: string
+          nullable: true
+          description: >
+            رقم المنشأة في وزارة الداخلية (يبدأ بـ 700).
+            يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.
+        invoiceType:
+          $ref: "#/components/schemas/InvoiceType"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - clientType
+        - idNumber
+        - mobile
+        - nationality
+        - hasTaxNumber
+        - invoiceType
+        - createdAt
+        - updatedAt
+
+    CreateCustomerBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: اسم السائق
+        clientType:
+          $ref: "#/components/schemas/CustomerType"
+        idNumber:
+          type: string
+          minLength: 1
+        birthDate:
+          type: string
+          format: date
+        mobile:
+          type: string
+          minLength: 1
+        licenseNumber:
+          type: string
+          minLength: 1
+        nationality:
+          type: string
+          minLength: 1
+        hasTaxNumber:
+          type: boolean
+          default: false
+        taxNumber:
+          type: string
+          nullable: true
+        establishmentName:
+          type: string
+          nullable: true
+          description: اسم المنشأة — مطلوب لغير الأفراد
+        establishmentNumber:
+          type: string
+          nullable: true
+          description: >
+            رقم المنشأة في وزارة الداخلية (يبدأ بـ 700).
+            يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.
+      required: [name, clientType, idNumber, birthDate, mobile, licenseNumber, nationality, hasTaxNumber]
+
+    UpdateCustomerBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateCustomerBody"
+
+    CustomerList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Customer"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    VehicleStatus:
+      type: string
+      enum: [available, rented, stopped, suspended]
+
+    VehicleCoolingType:
+      type: string
+      enum: [refrigerated, non_refrigerated]
+
+    VehiclePeriodicMaintenanceInterval:
+      type: string
+      enum: [every_1_month, every_2_months, every_3_months]
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        brand:
+          type: string
+        modelYear:
+          type: integer
+          minimum: 2015
+        coolingType:
+          $ref: "#/components/schemas/VehicleCoolingType"
+        registrationColor:
+          type: string
+        chassisNumber:
+          type: string
+        serialNumber:
+          type: string
+        plateNumber:
+          type: string
+        registrationExpiryDate:
+          type: string
+          format: date
+        inspectionExpiryDate:
+          type: string
+          format: date
+        odometer:
+          type: integer
+          minimum: 0
+        periodicMaintenanceInterval:
+          $ref: "#/components/schemas/VehiclePeriodicMaintenanceInterval"
+        remainingPeriodicMaintenanceDays:
+          type: integer
+          minimum: 0
+          readOnly: true
+        status:
+          $ref: "#/components/schemas/VehicleStatus"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - brand
+        - modelYear
+        - coolingType
+        - registrationColor
+        - chassisNumber
+        - serialNumber
+        - plateNumber
+        - registrationExpiryDate
+        - inspectionExpiryDate
+        - odometer
+        - periodicMaintenanceInterval
+        - remainingPeriodicMaintenanceDays
+        - status
+        - createdAt
+        - updatedAt
+
+    CreateVehicleBody:
+      type: object
+      properties:
+        brand:
+          type: string
+          minLength: 1
+        modelYear:
+          type: integer
+          minimum: 2015
+        coolingType:
+          $ref: "#/components/schemas/VehicleCoolingType"
+        registrationColor:
+          type: string
+          minLength: 1
+        chassisNumber:
+          type: string
+          minLength: 1
+        serialNumber:
+          type: string
+          minLength: 1
+        plateNumber:
+          type: string
+          minLength: 1
+        registrationExpiryDate:
+          type: string
+          format: date
+        inspectionExpiryDate:
+          type: string
+          format: date
+        odometer:
+          type: integer
+          minimum: 0
+        periodicMaintenanceInterval:
+          $ref: "#/components/schemas/VehiclePeriodicMaintenanceInterval"
+        status:
+          $ref: "#/components/schemas/VehicleStatus"
+      required:
+        - brand
+        - modelYear
+        - coolingType
+        - registrationColor
+        - chassisNumber
+        - serialNumber
+        - plateNumber
+        - registrationExpiryDate
+        - inspectionExpiryDate
+        - odometer
+        - periodicMaintenanceInterval
+        - status
+
+    UpdateVehicleBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateVehicleBody"
+
+    VehicleList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vehicle"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    ContractStatus:
+      type: string
+      enum: [draft, active, overdue, cancelled, closed]
+
+    Contract:
+      type: object
+      properties:
+        id:
+          type: integer
+        contractNumber:
+          type: string
+          description: "مثال: CT01-2026"
+        customerId:
+          type: integer
+        customerName:
+          type: string
+        carId:
+          type: integer
+        vehicleBrand:
+          type: string
+        vehiclePlateNumber:
+          type: string
+        vehicleCoolingType:
+          $ref: "#/components/schemas/VehicleCoolingType"
+        templateId:
+          type: integer
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        status:
+          $ref: "#/components/schemas/ContractStatus"
+        amountExVat:
+          type: number
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        totalInclVat:
+          type: number
+        rentalDurationDays:
+          type: integer
+        remainingDays:
+          type: integer
+        overdueDays:
+          type: integer
+          description: أيام التأخير (للعقود المتأخرة فقط)
+        penaltyTotal:
+          type: number
+          description: مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)
+        renderedContent:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - contractNumber
+        - customerId
+        - customerName
+        - carId
+        - vehicleBrand
+        - vehiclePlateNumber
+        - vehicleCoolingType
+        - templateId
+        - startAt
+        - endAt
+        - status
+        - amountExVat
+        - taxRate
+        - taxAmount
+        - totalInclVat
+        - rentalDurationDays
+        - remainingDays
+        - overdueDays
+        - penaltyTotal
+        - createdAt
+        - updatedAt
+
+    CreateContractBody:
+      type: object
+      properties:
+        customerId:
+          type: integer
+          minimum: 1
+        carId:
+          type: integer
+          minimum: 1
+        templateId:
+          type: integer
+          minimum: 1
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        amountExVat:
+          type: number
+          minimum: 0.01
+      required: [customerId, carId, templateId, startAt, endAt, amountExVat]
+
+    UpdateContractBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateContractBody"
+
+    UpdateContractStatusBody:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/ContractStatus"
+      required: [status]
+
+    ContractList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Contract"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    ContractTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        body:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, body, createdAt, updatedAt]
+
+    CreateContractTemplateBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        body:
+          type: string
+          minLength: 1
+      required: [name, body]
+
+    UpdateContractTemplateBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateContractTemplateBody"
+
+    ContractTemplateList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContractTemplate"
+      required: [data]
+
+    InvoiceStatus:
+      type: string
+      enum: [draft, paid]
+      description: >
+        draft — مسودة (مرتبطة بعقد مسودة).
+        paid — مدفوعة (بعد تنشيط العقد).
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoiceNumber:
+          type: string
+          description: "مثال: CT01-IN01-2026"
+        contractId:
+          type: integer
+        customerName:
+          type: string
+        vehicleBrand:
+          type: string
+        vehiclePlateNumber:
+          type: string
+        invoiceType:
+          $ref: "#/components/schemas/InvoiceType"
+        status:
+          $ref: "#/components/schemas/InvoiceStatus"
+        totalInclVat:
+          type: number
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - invoiceNumber
+        - contractId
+        - customerName
+        - vehicleBrand
+        - vehiclePlateNumber
+        - invoiceType
+        - status
+        - totalInclVat
+        - createdAt
+        - updatedAt
+
+    InvoiceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Invoice"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    InvoiceDetail:
+      allOf:
+        - $ref: "#/components/schemas/Invoice"
+        - type: object
+          properties:
+            amountExVat:
+              type: number
+            taxRate:
+              type: number
+            taxAmount:
+              type: number
+            customerIdNumber:
+              type: string
+            customerMobile:
+              type: string
+            customerTaxNumber:
+              type: string
+              nullable: true
+            customerEstablishmentName:
+              type: string
+              nullable: true
+            vehicleModelYear:
+              type: integer
+            contractNumber:
+              type: string
+            contractStartAt:
+              type: string
+              format: date-time
+            contractEndAt:
+              type: string
+              format: date-time
+            sellerBusinessName:
+              type: string
+            sellerLogoUrl:
+              type: string
+              nullable: true
+            sellerTaxNumber:
+              type: string
+              nullable: true
+          required:
+            - amountExVat
+            - taxRate
+            - taxAmount
+            - customerIdNumber
+            - customerMobile
+            - vehicleModelYear
+            - contractNumber
+            - contractStartAt
+            - contractEndAt
+            - sellerBusinessName
+
+    FinanceInvoiceStatus:
+      type: string
+      enum: [draft, paid]
+      description: >
+        draft — مسودة.
+        paid — مدفوعة.
+
+    BillingCycle:
+      type: string
+      enum: [monthly, yearly]
+
+    UpdateFinanceInvoiceStatusBody:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/FinanceInvoiceStatus"
+      required: [status]
+
+    SalesSummary:
+      type: object
+      properties:
+        count:
+          type: integer
+        amountExVat:
+          type: number
+        outputVat:
+          type: number
+        totalInclVat:
+          type: number
+      required: [count, amountExVat, outputVat, totalInclVat]
+
+    ExpenseSummary:
+      type: object
+      properties:
+        purchasesExVat:
+          type: number
+        purchasesInputVat:
+          type: number
+        subscriptionsExVat:
+          type: number
+        subscriptionsInputVat:
+          type: number
+        totalExpensesExVat:
+          type: number
+        totalExpensesInclVat:
+          type: number
+          description: إجمالي المصروفات شامل ضريبة القيمة المضافة
+        purchasesInclVat:
+          type: number
+        subscriptionsInclVat:
+          type: number
+        totalInputVat:
+          type: number
+      required:
+        - purchasesExVat
+        - purchasesInputVat
+        - subscriptionsExVat
+        - subscriptionsInputVat
+        - totalExpensesExVat
+        - totalExpensesInclVat
+        - purchasesInclVat
+        - subscriptionsInclVat
+        - totalInputVat
+
+    FinancePeriodReport:
+      type: object
+      description: ملخص مالي لفترة واحدة (شهر أو سنة)
+      properties:
+        sales:
+          $ref: "#/components/schemas/SalesSummary"
+        expenses:
+          $ref: "#/components/schemas/ExpenseSummary"
+        outputVat:
+          type: number
+          description: ضريبة المخرجات على المبيعات المدفوعة في الفترة
+        inputVat:
+          type: number
+          description: ضريبة المدخلات على المشتريات والاشتراكات المدفوعة في الفترة
+        vatPayable:
+          type: number
+          description: صافي ضريبة القيمة المضافة (المخرجات − المدخلات)؛ القيمة السالبة تعني رصيداً دائناً
+        netProfit:
+          type: number
+          description: صافي الربح (المبيعات شامل الضريبة − المصروفات شامل الضريبة − صافي ضريبة القيمة المضافة)
+      required:
+        - sales
+        - expenses
+        - outputVat
+        - inputVat
+        - vatPayable
+        - netProfit
+
+    FinanceReport:
+      type: object
+      properties:
+        year:
+          type: integer
+        month:
+          type: integer
+          nullable: true
+          description: الشهر المحدد للتقرير الشهري (1–12)
+        monthly:
+          $ref: "#/components/schemas/FinancePeriodReport"
+        annual:
+          $ref: "#/components/schemas/FinancePeriodReport"
+        currency:
+          type: string
+      required:
+        - year
+        - monthly
+        - annual
+        - currency
+
+    Purchase:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoiceDate:
+          type: string
+          format: date
+          description: تاريخ الفاتورة
+        referenceNumber:
+          type: string
+        companyName:
+          type: string
+        items:
+          type: string
+        amountExVat:
+          type: number
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        totalInclVat:
+          type: number
+        status:
+          $ref: "#/components/schemas/FinanceInvoiceStatus"
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - invoiceDate
+        - referenceNumber
+        - companyName
+        - items
+        - amountExVat
+        - taxRate
+        - taxAmount
+        - totalInclVat
+        - status
+        - createdAt
+        - updatedAt
+
+    CreatePurchaseBody:
+      type: object
+      properties:
+        invoiceDate:
+          type: string
+          format: date
+        referenceNumber:
+          type: string
+        companyName:
+          type: string
+        items:
+          type: string
+        totalInclVat:
+          type: number
+      required: [invoiceDate, referenceNumber, companyName, items, totalInclVat]
+
+    UpdatePurchaseBody:
+      allOf:
+        - $ref: "#/components/schemas/CreatePurchaseBody"
+
+    PurchaseList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Purchase"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    FixedSubscription:
+      type: object
+      properties:
+        id:
+          type: integer
+        invoiceDate:
+          type: string
+          format: date
+          description: تاريخ الفاتورة
+        referenceNumber:
+          type: string
+        companyName:
+          type: string
+        items:
+          type: string
+        billingCycle:
+          $ref: "#/components/schemas/BillingCycle"
+        amountExVat:
+          type: number
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        totalInclVat:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - invoiceDate
+        - referenceNumber
+        - companyName
+        - items
+        - billingCycle
+        - amountExVat
+        - taxRate
+        - taxAmount
+        - totalInclVat
+        - createdAt
+        - updatedAt
+
+    CreateFixedSubscriptionBody:
+      type: object
+      properties:
+        invoiceDate:
+          type: string
+          format: date
+        referenceNumber:
+          type: string
+        companyName:
+          type: string
+        items:
+          type: string
+        billingCycle:
+          $ref: "#/components/schemas/BillingCycle"
+        totalInclVat:
+          type: number
+      required: [invoiceDate, referenceNumber, companyName, items, billingCycle, totalInclVat]
+
+    UpdateFixedSubscriptionBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateFixedSubscriptionBody"
+
+    FixedSubscriptionList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/FixedSubscription"
+      required: [data]
+
+    SubscriptionInvoice:
+      type: object
+      properties:
+        id:
+          type: integer
+        subscriptionId:
+          type: integer
+        invoiceDate:
+          type: string
+          format: date
+          description: تاريخ الفاتورة
+        referenceNumber:
+          type: string
+        companyName:
+          type: string
+        items:
+          type: string
+        billingCycle:
+          $ref: "#/components/schemas/BillingCycle"
+        billingPeriod:
+          type: string
+        amountExVat:
+          type: number
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        totalInclVat:
+          type: number
+        status:
+          $ref: "#/components/schemas/FinanceInvoiceStatus"
+        paidAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - subscriptionId
+        - invoiceDate
+        - referenceNumber
+        - companyName
+        - items
+        - billingCycle
+        - billingPeriod
+        - amountExVat
+        - taxRate
+        - taxAmount
+        - totalInclVat
+        - status
+        - createdAt
+        - updatedAt
+
+    SubscriptionInvoiceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionInvoice"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    DashboardSummary:
+      type: object
+      properties:
+        customersCount:
+          type: integer
+        rentedCarsCount:
+          type: integer
+        availableCarsCount:
+          type: integer
+        stoppedCarsCount:
+          type: integer
+        financialStatus:
+          $ref: "#/components/schemas/FinancialStatus"
+      required:
+        - customersCount
+        - rentedCarsCount
+        - availableCarsCount
+        - stoppedCarsCount
+        - financialStatus
+
+    FinancialStatus:
+      type: object
+      properties:
+        totalRevenue:
+          type: number
+        pendingPayments:
+          type: number
+        currency:
+          type: string
+      required: [totalRevenue, pendingPayments, currency]
+
+    ActivityEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        kind:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, kind, message, createdAt]
+
+    ActivityEventList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityEvent"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    NotificationKind:
+      type: string
+      enum: [alert, warning, notice, maintenance]
+
+    NotificationSource:
+      type: string
+      enum: [contract, vehicle_document, vehicle_maintenance]
+      description: مصدر التنبيه — عقد تأجير أو وثيقة مركبة أو صيانة دورية
+
+    VehicleDocumentType:
+      type: string
+      enum: [registration, inspection]
+      description: نوع وثيقة المركبة — استمارة أو فحص دوري
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        source:
+          $ref: "#/components/schemas/NotificationSource"
+        kind:
+          $ref: "#/components/schemas/NotificationKind"
+        message:
+          type: string
+        contractId:
+          type: integer
+          nullable: true
+        contractNumber:
+          type: string
+          nullable: true
+          description: رقم العقد
+        carId:
+          type: integer
+          nullable: true
+          description: معرف المركبة (لتنبيهات الاستمارة والفحص)
+        vehicleDocumentType:
+          allOf:
+            - $ref: "#/components/schemas/VehicleDocumentType"
+          nullable: true
+        customerName:
+          type: string
+        vehiclePlateNumber:
+          type: string
+        endAt:
+          type: string
+          format: date-time
+        remainingDays:
+          type: integer
+          nullable: true
+        overdueDays:
+          type: integer
+          nullable: true
+          description: أيام التأخير (للعقود المتأخرة فقط)
+        penaltyTotal:
+          type: number
+          nullable: true
+          description: مجموع غرامات التأخير شاملة الضريبة
+        customerMobile:
+          type: string
+          description: رقم جوال العميل لإرسال التنبيه عبر واتساب
+      required:
+        - id
+        - source
+        - kind
+        - message
+        - customerName
+        - vehiclePlateNumber
+        - endAt
+        - customerMobile
+
+    NotificationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    OrgSettings:
+      type: object
+      properties:
+        businessName:
+          type: string
+        logoUrl:
+          type: string
+          nullable: true
+        taxEnabled:
+          type: boolean
+        taxRate:
+          type: number
+        taxNumber:
+          type: string
+          nullable: true
+          description: Organization VAT registration number for invoices (ZATCA)
+        notificationEmailEnabled:
+          type: boolean
+        notificationSmsEnabled:
+          type: boolean
+      required:
+        - businessName
+        - taxEnabled
+        - taxRate
+        - notificationEmailEnabled
+        - notificationSmsEnabled
+
+    PutSettingsBody:
+      type: object
+      properties:
+        businessName:
+          type: string
+        taxEnabled:
+          type: boolean
+        taxRate:
+          type: number
+        taxNumber:
+          type: string
+          nullable: true
+          description: Organization VAT registration number for invoices (ZATCA)
+        notificationEmailEnabled:
+          type: boolean
+        notificationSmsEnabled:
+          type: boolean

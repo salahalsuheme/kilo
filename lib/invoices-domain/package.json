@@ -1,0 +1,13 @@
+{
+  "name": "@workspace/invoices-domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@workspace/contracts-domain": "workspace:*",
+    "@workspace/customers-domain": "workspace:*"
+  }
+}

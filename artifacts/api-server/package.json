@@ -1,0 +1,48 @@
+{
+  "name": "@workspace/api-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "db:setup": "tsx scripts/setup-database.ts",
+    "postinstall": "playwright install chromium",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@workspace/api-zod": "workspace:*",
+    "@workspace/contracts-domain": "workspace:*",
+    "@workspace/invoices-domain": "workspace:*",
+    "@workspace/finance-domain": "workspace:*",
+    "@workspace/customers-domain": "workspace:*",
+    "@workspace/users-domain": "workspace:*",
+    "@workspace/settings-domain": "workspace:*",
+    "@workspace/vehicles-domain": "workspace:*",
+    "@workspace/notifications-domain": "workspace:*",
+    "@workspace/print-domain": "workspace:*",
+    "@workspace/tenant-cache": "workspace:*",
+    "bcryptjs": "^3.0.3",
+    "connect-pg-simple": "^10.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "catalog:",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "pg": "catalog:",
+    "playwright": "^1.61.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/connect-pg-simple": "^7.0.3",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
+    "@types/multer": "^2.1.0",
+    "@types/node": "catalog:",
+    "@types/pg": "^8.11.14",
+    "tsx": "catalog:"
+  }
+}

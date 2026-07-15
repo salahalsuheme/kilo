@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@source "../../../lib/**/src";
+@import "tw-animate-css";
+@import "./styles/targa-base.css";
+@import "./styles/mobile-shell.css";
+@plugin "@tailwindcss/typography";

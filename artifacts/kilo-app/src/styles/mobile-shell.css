@@ -1,0 +1,52 @@
+/* Mobile shell design tokens — imported via targa-base.css */
+:root {
+  --mobile-header-h: 3.5rem;
+  --mobile-page-px: 1rem;
+  --mobile-touch: 2.75rem;
+  --mobile-card-radius: 1rem;
+  --mobile-drawer-w: min(20rem, 88vw);
+}
+
+.mobile-shell-header {
+  height: var(--mobile-header-h);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.mobile-nav-drawer {
+  width: var(--mobile-drawer-w);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.mobile-page-padding {
+  padding-inline: var(--mobile-page-px);
+}
+
+.mobile-touch-target {
+  min-height: var(--mobile-touch);
+  min-width: var(--mobile-touch);
+}
+
+/* Stack toolbar rows on mobile; desktop row unchanged at md+ */
+.mobile-toolbar-row {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .mobile-toolbar-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-toolbar-row > button,
+  .mobile-toolbar-row > [data-slot="button"],
+  .mobile-toolbar-full {
+    width: 100%;
+  }
+}
