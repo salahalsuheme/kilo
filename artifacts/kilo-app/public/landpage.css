@@ -38,7 +38,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: url("/landpage-bg.png?v=van");
+  background-image: url("/landpage-bg.png?v=garage");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
