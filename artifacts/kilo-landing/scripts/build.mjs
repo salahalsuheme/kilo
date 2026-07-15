@@ -35,9 +35,12 @@ function buildLanding() {
 
   const landingHtml = fs.readFileSync(path.join(publicSrc, "landpage.html"), "utf8");
   fs.writeFileSync(path.join(dist, "index.html"), landingHtml, "utf8");
+  fs.writeFileSync(path.join(dist, "landpage.html"), landingHtml, "utf8");
 
-  const landingEnHtml = fs.readFileSync(path.join(publicSrc, "landpage-en.html"), "utf8");
-  fs.writeFileSync(path.join(dist, "en.html"), landingEnHtml, "utf8");
+  fs.copyFileSync(
+    path.join(publicSrc, "landpage-en.html"),
+    path.join(dist, "landpage-en.html"),
+  );
 
   for (const asset of ["fonts", "logo_kilo_white.webp", "kilo-logo.png", "login-bg.webp", "landpage.css", "landpage-bg.png"]) {
     const from = path.join(publicSrc, asset);

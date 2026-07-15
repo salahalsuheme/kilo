@@ -59,10 +59,17 @@
 ### خدمة اللاندينغ (www)
 
 6. أضف خدمة **Web** ثانية باسم `kilo-landing` من نفس المستودع.
-7. في Settings → Build:
+7. **Settings** → **Config-as-code** (أو **Railway Config File**):
+   - **Config file path** = `railway.landing.toml`
+   - ⚠️ **مهم جداً:** بدون هذا السطر، Railway يقرأ `railway.toml` الافتراضي (إعدادات API) فيشغّل السيرفر الخطأ ويفشل healthcheck على `/api/healthz`
+8. تأكد أيضاً في **Settings** → **Build**:
    - **Dockerfile Path** = `Dockerfile.landing`
-   - أو انسخ محتوى `railway.landing.toml` لإعدادات الخدمة
-8. لا تحتاج PostgreSQL لهذه الخدمة.
+9. لا تحتاج PostgreSQL لهذه الخدمة.
+
+| الخدمة | Config file | Dockerfile | Healthcheck |
+|--------|-------------|------------|-------------|
+| **kilo-app** | `railway.toml` (افتراضي) | `Dockerfile` | `/api/healthz` |
+| **kilo-landing** | **`railway.landing.toml`** | `Dockerfile.landing` | `/healthz` |
 
 ---
 
@@ -196,3 +203,5 @@ docker run --rm -p 8080:8080 \
 | الدومين لا يعمل | تحقق من DNS في Hostinger وانتظر الانتشار |
 | الصور تختفي | أضف Volume على `/data/uploads` |
 | PDF لا يُنشأ | Playwright مثبت في Docker image — راجع Logs |
+| اللاندينغ معلق على healthcheck | عيّن **Config file** = `railway.landing.toml` لخدمة kilo-landing ثم Redeploy |
+| اللاندينغ يطلب DATABASE_URL | نفس السبب — يشغّل API بدل اللاندينغ؛ صحّح Config file |

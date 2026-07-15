@@ -47,7 +47,7 @@ export default defineConfig({
         "lib/vehicles-domain/src/index.ts",
       ),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "@tanstack/react-query"],
   },
   server: {
     port: 5174,

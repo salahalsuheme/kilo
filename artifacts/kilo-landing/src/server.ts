@@ -23,13 +23,13 @@ app.use((_req, res, next) => {
   next();
 });
 
-app.use(express.static(dist, { index: false }));
+app.use(express.static(dist));
 
 app.get("/healthz", (_req, res) => {
   res.status(200).json({ ok: true });
 });
 
-app.get(/.*/, (_req, res) => {
+app.get("/", (_req, res) => {
   res.sendFile(path.join(dist, "index.html"));
 });
 

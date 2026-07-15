@@ -1,3 +1,5 @@
+# kilo-app (API + لوحة التحكم) — لا تستخدم هذا الملف لخدمة kilo-landing
+
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile"

@@ -1,3 +1,5 @@
+# kilo-landing (www.kilo-sa.com) — عيّن هذا المسار في Railway: Config file = railway.landing.toml
+
 [build]
 builder = "dockerfile"
 dockerfilePath = "Dockerfile.landing"
