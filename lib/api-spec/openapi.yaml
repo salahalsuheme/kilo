@@ -530,7 +530,7 @@ paths:
         - name: status
           in: query
           schema:
-            $ref: "#/components/schemas/ContractStatus"
+            $ref: "#/components/schemas/ContractListStatusFilter"
         - name: page
           in: query
           schema:
@@ -772,6 +772,60 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InvoiceDetail"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateInvoice
+      tags: [invoices]
+      parameters:
+        - $ref: "#/components/parameters/InvoiceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInvoiceBody"
+      responses:
+        "200":
+          description: Updated penalty draft invoice
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceDetail"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+
+  /invoices/{id}/status:
+    patch:
+      operationId: updateInvoiceStatus
+      tags: [invoices]
+      parameters:
+        - $ref: "#/components/parameters/InvoiceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateInvoiceStatusBody"
+      responses:
+        "200":
+          description: Updated invoice status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoiceDetail"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
         "404":
           description: Not found
 
@@ -1601,6 +1655,11 @@ components:
       type: string
       enum: [draft, active, overdue, cancelled, closed]
 
+    ContractListStatusFilter:
+      type: string
+      enum: [draft, active, overdue, cancelled, closed, expiring_soon]
+      description: مرشّح قائمة العقود؛ expiring_soon ليس حالة مخزّنة في قاعدة البيانات
+
     Contract:
       type: object
       properties:
@@ -1639,16 +1698,19 @@ components:
           type: number
         totalInclVat:
           type: number
+        authorizationNumber:
+          type: string
+          description: رقم التفويض
         rentalDurationDays:
           type: integer
         remainingDays:
           type: integer
         overdueDays:
           type: integer
-          description: أيام التأخير (للعقود المتأخرة فقط)
+          description: أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)
         penaltyTotal:
           type: number
-          description: مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)
+          description: مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)
         renderedContent:
           type: string
           nullable: true
@@ -1675,6 +1737,7 @@ components:
         - taxRate
         - taxAmount
         - totalInclVat
+        - authorizationNumber
         - rentalDurationDays
         - remainingDays
         - overdueDays
@@ -1703,7 +1766,11 @@ components:
         amountExVat:
           type: number
           minimum: 0.01
-      required: [customerId, carId, templateId, startAt, endAt, amountExVat]
+        authorizationNumber:
+          type: string
+          minLength: 1
+          description: رقم التفويض
+      required: [customerId, carId, templateId, startAt, endAt, amountExVat, authorizationNumber]
 
     UpdateContractBody:
       allOf:
@@ -1776,8 +1843,25 @@ components:
       type: string
       enum: [draft, paid]
       description: >
-        draft — مسودة (مرتبطة بعقد مسودة).
-        paid — مدفوعة (بعد تنشيط العقد).
+        draft — مسودة (إيجار مرتبط بعقد مسودة، أو غرامة تأخير قبل التسجيل).
+        paid — مدفوعة (إيجار بعد التنشيط، أو غرامة بعد التسجيل في المالية).
+
+    UpdateInvoiceBody:
+      type: object
+      properties:
+        totalInclVat:
+          type: number
+          minimum: 0.01
+          description: المبلغ شامل الضريبة
+      required: [totalInclVat]
+
+    UpdateInvoiceStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [paid]
+      required: [status]
 
     Invoice:
       type: object
@@ -1787,6 +1871,9 @@ components:
         invoiceNumber:
           type: string
           description: "مثال: CT01-IN01-2026"
+        invoiceSeq:
+          type: integer
+          description: "1 إيجار، 2 غرامة تأخير"
         contractId:
           type: integer
         customerName:
@@ -1814,6 +1901,7 @@ components:
       required:
         - id
         - invoiceNumber
+        - invoiceSeq
         - contractId
         - customerName
         - vehicleBrand
@@ -1878,6 +1966,8 @@ components:
             sellerTaxNumber:
               type: string
               nullable: true
+            sellerNationalAddress:
+              $ref: "#/components/schemas/NationalAddress"
           required:
             - amountExVat
             - taxRate
@@ -1889,6 +1979,7 @@ components:
             - contractStartAt
             - contractEndAt
             - sellerBusinessName
+            - sellerNationalAddress
 
     FinanceInvoiceStatus:
       type: string
@@ -2398,6 +2489,8 @@ components:
           type: string
           nullable: true
           description: Organization VAT registration number for invoices (ZATCA)
+        nationalAddress:
+          $ref: "#/components/schemas/NationalAddress"
         notificationEmailEnabled:
           type: boolean
         notificationSmsEnabled:
@@ -2406,8 +2499,82 @@ components:
         - businessName
         - taxEnabled
         - taxRate
+        - nationalAddress
         - notificationEmailEnabled
         - notificationSmsEnabled
+
+    NationalAddress:
+      type: object
+      properties:
+        region:
+          type: string
+          nullable: true
+          description: المنطقة
+        city:
+          type: string
+          nullable: true
+          description: المدينة
+        district:
+          type: string
+          nullable: true
+          description: الحي
+        street:
+          type: string
+          nullable: true
+          description: الشارع
+        buildingNumber:
+          type: string
+          nullable: true
+          description: رقم المبنى (4 أرقام)
+        additionalNumber:
+          type: string
+          nullable: true
+          description: الرقم الإضافي (4 أرقام)
+        postalCode:
+          type: string
+          nullable: true
+          description: الرمز البريدي (5 أرقام)
+        shortAddress:
+          type: string
+          nullable: true
+          description: العنوان المختصر (4 حروف + 4 أرقام)
+      required:
+        - region
+        - city
+        - district
+        - street
+        - buildingNumber
+        - additionalNumber
+        - postalCode
+        - shortAddress
+
+    PutNationalAddressBody:
+      type: object
+      properties:
+        region:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        district:
+          type: string
+          nullable: true
+        street:
+          type: string
+          nullable: true
+        buildingNumber:
+          type: string
+          nullable: true
+        additionalNumber:
+          type: string
+          nullable: true
+        postalCode:
+          type: string
+          nullable: true
+        shortAddress:
+          type: string
+          nullable: true
 
     PutSettingsBody:
       type: object
@@ -2422,6 +2589,8 @@ components:
           type: string
           nullable: true
           description: Organization VAT registration number for invoices (ZATCA)
+        nationalAddress:
+          $ref: "#/components/schemas/PutNationalAddressBody"
         notificationEmailEnabled:
           type: boolean
         notificationSmsEnabled:

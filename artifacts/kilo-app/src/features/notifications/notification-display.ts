@@ -7,7 +7,7 @@ export function notificationKindBadgeClass(kind: NotificationKind): string {
     case "alert":
       return "border-yellow-300 bg-yellow-100 text-yellow-800";
     case "warning":
-      return "bg-amber-500/10 text-amber-700 border-amber-200";
+      return "border-red-600 bg-red-600 text-white";
     case "maintenance":
       return "border-sky-300 bg-sky-50 text-sky-800";
   }
@@ -20,7 +20,7 @@ export function notificationKindIconClass(kind: NotificationKind): string {
     case "alert":
       return "text-yellow-800";
     case "warning":
-      return "text-amber-700";
+      return "text-red-600";
     case "maintenance":
       return "text-sky-700";
   }

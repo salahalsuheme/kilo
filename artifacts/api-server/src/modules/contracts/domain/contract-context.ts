@@ -113,6 +113,7 @@ export async function buildRenderedContractContent(
     },
     contract: {
       number: contractNumber,
+      authorizationNumber: body.authorizationNumber,
       startAt: body.startAt,
       endAt: body.endAt,
       rentalDays,

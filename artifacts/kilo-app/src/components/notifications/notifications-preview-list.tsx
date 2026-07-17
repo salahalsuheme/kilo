@@ -28,8 +28,8 @@ function RemainingDaysLabel({ notification }: { notification: Notification }) {
 
   if (notification.overdueDays != null) {
     return (
-      <span className="font-medium text-red-700">
-        متأخر {notification.overdueDays} يوم
+      <span className="font-medium text-red-600">
+        {notification.overdueDays} يوم
       </span>
     );
   }

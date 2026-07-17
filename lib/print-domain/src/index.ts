@@ -11,5 +11,6 @@ export {
   type ContractPrintInput,
   type OrgPrintSettings,
 } from "./build-contract-print-html.js";
+export { buildNationalAddressPrintHtml } from "./build-national-address-print-html.js";
 export { buildInvoicePrintHtml, type InvoicePrintInput } from "./build-invoice-print-html.js";
 export { buildPrintPageHtml, buildPdfPageHtml } from "./build-print-page.js";

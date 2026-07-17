@@ -515,6 +515,52 @@ WHERE invoice_date IS NULL;
 ALTER TABLE subscription_invoices ALTER COLUMN invoice_date SET NOT NULL;
 `;
 
+const CONTRACT_AUTHORIZATION_PATCH = `
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS authorization_number TEXT NOT NULL DEFAULT '';
+
+UPDATE contract_templates
+SET body = REPLACE(
+  body,
+  'رقم الهوية: {{customer.idNumber}}',
+  E'رقم الهوية: {{customer.idNumber}}\nرقم التفويض: {{contract.authorizationNumber}}'
+),
+updated_at = NOW()
+WHERE deleted_at IS NULL
+  AND body LIKE '%رقم الهوية: {{customer.idNumber}}%'
+  AND body NOT LIKE '%{{contract.authorizationNumber}}%';
+`;
+
+const CONTRACT_PENALTY_SNAPSHOT_PATCH = `
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS overdue_days INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS penalty_total NUMERIC(14, 2) NOT NULL DEFAULT 0;
+
+UPDATE contracts
+SET
+  overdue_days = CEIL(GREATEST(0, EXTRACT(EPOCH FROM (updated_at - end_at)) / 86400.0))::INTEGER,
+  penalty_total = CEIL(GREATEST(0, EXTRACT(EPOCH FROM (updated_at - end_at)) / 86400.0))::INTEGER * 150
+WHERE status = 'closed'
+  AND end_at < updated_at
+  AND penalty_total = 0
+  AND CEIL(GREATEST(0, EXTRACT(EPOCH FROM (updated_at - end_at)) / 86400.0))::INTEGER > 0;
+`;
+
+const ORG_SETTINGS_NATIONAL_ADDRESS_PATCH = `
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_region TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_city TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_district TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_street TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_building_number TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_additional_number TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_postal_code TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_short_address TEXT;
+`;
+
+const INVOICES_MULTI_PER_CONTRACT_PATCH = `
+ALTER TABLE invoices DROP CONSTRAINT IF EXISTS invoices_contract_id_key;
+CREATE UNIQUE INDEX IF NOT EXISTS invoices_org_contract_invoice_seq_uidx
+  ON invoices (org_id, contract_id, invoice_seq);
+`;
+
 const MIGRATION_LOCK_ID = 742_001;
 
 const SESSION_PATCH = `
@@ -620,11 +666,15 @@ export async function runMigrations(): Promise<void> {
     await pool.query(FINANCE_PATCH);
     await pool.query(FINANCE_ITEMS_PATCH);
     await pool.query(FINANCE_INVOICE_DATE_PATCH);
+    await pool.query(CONTRACT_AUTHORIZATION_PATCH);
     await pool.query(UNIQUE_FIELDS_PATCH);
     await pool.query(CONTRACT_STATUS_OVERDUE_PATCH);
     await pool.query(CONTRACT_STATUS_CLOSED_PATCH);
     await pool.query(CONTRACT_STATUS_MIGRATE_EXPIRED_PATCH);
     await pool.query(CONTRACT_STATUS_FIX_OVERDUE_PATCH);
+    await pool.query(CONTRACT_PENALTY_SNAPSHOT_PATCH);
+    await pool.query(ORG_SETTINGS_NATIONAL_ADDRESS_PATCH);
+    await pool.query(INVOICES_MULTI_PER_CONTRACT_PATCH);
     await pool.query(CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH);
     await pool.query(SESSION_PATCH);
     await assertSchemaReady();

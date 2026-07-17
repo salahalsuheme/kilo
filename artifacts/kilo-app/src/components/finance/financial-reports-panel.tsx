@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { FinancePeriodReport, FinanceReport } from "@/lib/api-client-react-tenant";
+import { formatCurrency } from "@workspace/invoices-domain";
 
 type ReportPeriod = "monthly" | "annual";
 
@@ -20,14 +21,6 @@ interface FinancialReportsPanelProps {
   onMonthChange: (month: number) => void;
   report: FinanceReport | undefined;
   isLoading: boolean;
-}
-
-function formatCurrency(value: number, currency = "SAR"): string {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency,
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 function MetricCard({

@@ -10,6 +10,7 @@
     "@workspace/contracts-domain": "workspace:*",
     "@workspace/customers-domain": "workspace:*",
     "@workspace/invoices-domain": "workspace:*",
+    "@workspace/settings-domain": "workspace:*",
     "qrcode": "^1.5.4"
   },
   "devDependencies": {

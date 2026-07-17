@@ -2,8 +2,12 @@ import type { Invoice } from "@/lib/api-client-react-tenant";
 import { INVOICE_TYPE_LABELS } from "@workspace/customers-domain";
 import {
   INVOICE_STATUS_LABELS,
+  PENALTY_INVOICE_LIST_HINT_LABEL,
+  formatSarCurrency,
   invoiceStatusBadgeClass,
+  isPenaltyInvoice,
 } from "@workspace/invoices-domain";
+import { penaltyInvoiceListHintClass } from "@/features/invoices/invoice-display";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -25,14 +29,9 @@ interface InvoicesTableProps {
   search: string;
   statusFilter: string;
   onPrint: (invoice: Invoice, mode: PrintMode) => void;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    minimumFractionDigits: 2,
-  }).format(value);
+  onEdit: (invoice: Invoice) => void;
+  onMarkPaid: (invoice: Invoice) => void;
+  statusIsPending?: boolean;
 }
 
 export function InvoicesTable({
@@ -41,6 +40,9 @@ export function InvoicesTable({
   search,
   statusFilter,
   onPrint,
+  onEdit,
+  onMarkPaid,
+  statusIsPending,
 }: InvoicesTableProps) {
   return (
     <Card>
@@ -77,8 +79,17 @@ export function InvoicesTable({
             ) : (
               invoices.map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell>
-                    <bdi className="text-sm font-medium tabular-nums">{invoice.invoiceNumber}</bdi>
+                  <TableCell className="align-top">
+                    <div className="min-w-0">
+                      <bdi className="text-sm font-medium tabular-nums">
+                        {invoice.invoiceNumber}
+                      </bdi>
+                      {isPenaltyInvoice(invoice.invoiceSeq) ? (
+                        <span className={penaltyInvoiceListHintClass()}>
+                          {PENALTY_INVOICE_LIST_HINT_LABEL}
+                        </span>
+                      ) : null}
+                    </div>
                   </TableCell>
                   <TableCell className="font-medium">{invoice.customerName}</TableCell>
                   <TableCell className="align-top">
@@ -90,7 +101,7 @@ export function InvoicesTable({
                     </div>
                   </TableCell>
                   <TableCell className="text-sm whitespace-nowrap">
-                    {formatCurrency(invoice.totalInclVat)}
+                    {formatSarCurrency(invoice.totalInclVat)}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -109,7 +120,13 @@ export function InvoicesTable({
                   </TableCell>
                   <TableCell className="p-2 align-middle">
                     <div className="flex justify-center">
-                      <InvoiceRowActionsMenu invoice={invoice} onPrint={onPrint} />
+                      <InvoiceRowActionsMenu
+                        invoice={invoice}
+                        onPrint={onPrint}
+                        onEdit={onEdit}
+                        onMarkPaid={onMarkPaid}
+                        statusIsPending={statusIsPending}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

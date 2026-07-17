@@ -2,7 +2,12 @@ import type { Request, Response } from "express";
 import { PutSettingsBody } from "@workspace/api-zod";
 import { getOrgId, getUserId, sendNotAuthenticated } from "../../lib/http.js";
 import { validateSettingsTaxNumber } from "./domain/org-tax.js";
+import {
+  mergeSettingsNationalAddress,
+  validateSettingsNationalAddress,
+} from "./domain/national-address.js";
 import { getOrCreateSettings, updateLogo, updateSettings } from "./service.js";
+import { EMPTY_NATIONAL_ADDRESS } from "@workspace/settings-domain";
 
 function requireSession(req: Request, res: Response): number | null {
   const orgId = getOrgId(req);
@@ -34,6 +39,19 @@ export async function handlePutSettings(req: Request, res: Response): Promise<vo
     const taxError = validateSettingsTaxNumber(parsed.data.taxNumber);
     if (taxError) {
       res.status(400).json({ message: taxError });
+      return;
+    }
+  }
+
+  if (parsed.data.nationalAddress) {
+    const current = await getOrCreateSettings(orgId);
+    const nextNationalAddress = mergeSettingsNationalAddress(
+      current.nationalAddress ?? EMPTY_NATIONAL_ADDRESS,
+      parsed.data.nationalAddress,
+    );
+    const nationalAddressError = validateSettingsNationalAddress(nextNationalAddress);
+    if (nationalAddressError) {
+      res.status(400).json({ message: nationalAddressError });
       return;
     }
   }

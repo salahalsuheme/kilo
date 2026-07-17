@@ -32,16 +32,9 @@ import {
   financeInvoiceStatusBadgeClass,
   formatInvoiceDate,
 } from "@workspace/finance-domain";
+import { formatSarCurrency } from "@workspace/invoices-domain";
 import type { FixedSubscription } from "@/lib/api-client-react-tenant";
 import { Plus, FileEdit, Trash2, CheckCircle } from "lucide-react";
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
 
 const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "all", label: "كل الحالات" },
@@ -153,7 +146,7 @@ export function FixedSubscriptionsPanel() {
                       <TableCell>
                         {BILLING_CYCLE_LABELS[subscription.billingCycle]}
                       </TableCell>
-                      <TableCell>{formatCurrency(subscription.totalInclVat)}</TableCell>
+                      <TableCell>{formatSarCurrency(subscription.totalInclVat)}</TableCell>
                       <TableCell>
                         <div className="flex items-center justify-center gap-2">
                           <Button
@@ -255,7 +248,7 @@ export function FixedSubscriptionsPanel() {
                         {billingPeriodLabel(invoice.billingPeriod, invoice.billingCycle)}
                       </TableCell>
                       <TableCell className="text-sm whitespace-nowrap">
-                        {formatCurrency(invoice.totalInclVat)}
+                        {formatSarCurrency(invoice.totalInclVat)}
                       </TableCell>
                       <TableCell>
                         <Badge

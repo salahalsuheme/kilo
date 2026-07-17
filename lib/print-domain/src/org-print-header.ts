@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { absoluteAssetUrl, escapeHtml } from "./html-utils.js";
+import { absoluteAssetUrl, buildPrintLabeledLine, escapeHtml } from "./html-utils.js";
 
 export interface OrgPrintHeaderInput {
   businessName: string;
@@ -20,7 +20,10 @@ export function buildOrgPrintHeaderHtml(
     : `<div class="print-header__logo-fallback" aria-hidden="true">${escapeHtml(initial)}</div>`;
 
   const taxLine = org.taxNumber
-    ? `<p class="print-header__meta">الرقم الضريبي: <span dir="ltr">${escapeHtml(org.taxNumber)}</span></p>`
+    ? buildPrintLabeledLine("الرقم الضريبي:", org.taxNumber, {
+        valueDir: "ltr",
+        className: "print-header__meta",
+      })
     : "";
 
   const qrBlock = qrDataUrl

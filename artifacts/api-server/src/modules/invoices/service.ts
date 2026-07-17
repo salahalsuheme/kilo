@@ -1,13 +1,24 @@
 import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 import type { z } from "zod";
 import { ListInvoicesQueryParams } from "@workspace/api-zod";
-import { formatInvoiceNumber } from "@workspace/invoices-domain";
-import type { InvoiceStatus } from "@workspace/invoices-domain";
+import { computeAmountsFromTotalInclVat } from "@workspace/finance-domain";
 import type { InvoiceType } from "@workspace/customers-domain";
 import { formatCustomerDisplayName } from "@workspace/customers-domain";
+import {
+  INVOICE_ERRORS,
+  PENALTY_INVOICE_SEQ,
+  RENTAL_INVOICE_SEQ,
+  canEditPenaltyInvoice,
+  canMarkPenaltyInvoicePaid,
+  formatInvoiceNumber,
+  type UpdateInvoiceBodyInput,
+  type UpdateInvoiceStatusBodyInput,
+} from "@workspace/invoices-domain";
+import type { InvoiceStatus } from "@workspace/invoices-domain";
 import { db } from "../../db/index.js";
 import { cars, contracts, customers, invoices } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
+import { getOrgTaxContext } from "../finance/domain/tax-context.js";
 import { getOrCreateSettings } from "../settings/service.js";
 
 type ListParams = z.infer<typeof ListInvoicesQueryParams>;
@@ -33,6 +44,7 @@ function mapInvoiceRow(
   return {
     id: row.id,
     invoiceNumber: row.invoiceNumber,
+    invoiceSeq: row.invoiceSeq,
     contractId: row.contractId,
     customerName,
     vehicleBrand,
@@ -44,6 +56,11 @@ function mapInvoiceRow(
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
+}
+
+async function resolveAmounts(orgId: number, totalInclVat: number) {
+  const tax = await getOrgTaxContext(orgId);
+  return computeAmountsFromTotalInclVat(totalInclVat, tax.taxEnabled, tax.taxRate);
 }
 
 export async function createDraftInvoiceForContract(
@@ -60,14 +77,14 @@ export async function createDraftInvoiceForContract(
   amounts: ContractInvoiceAmounts,
 ): Promise<void> {
   const year = contract.createdAt.getFullYear();
-  const invoiceNumber = formatInvoiceNumber(contract.contractSeq, 1, year);
+  const invoiceNumber = formatInvoiceNumber(contract.contractSeq, RENTAL_INVOICE_SEQ, year);
 
   await tx.insert(invoices).values({
     orgId,
     contractId: contract.id,
     customerId: contract.customerId,
     carId: contract.carId,
-    invoiceSeq: 1,
+    invoiceSeq: RENTAL_INVOICE_SEQ,
     invoiceNumber,
     invoiceType,
     status: "draft",
@@ -76,6 +93,83 @@ export async function createDraftInvoiceForContract(
     taxAmount: String(amounts.taxAmount),
     totalInclVat: String(amounts.totalInclVat),
   });
+}
+
+export async function createPenaltyDraftInvoiceForContract(
+  orgId: number,
+  contractId: number,
+  penaltyTotalInclVat: number,
+): Promise<void> {
+  if (penaltyTotalInclVat <= 0) return;
+
+  const [existing] = await db
+    .select({ id: invoices.id })
+    .from(invoices)
+    .where(
+      and(
+        eq(invoices.orgId, orgId),
+        eq(invoices.contractId, contractId),
+        eq(invoices.invoiceSeq, PENALTY_INVOICE_SEQ),
+      ),
+    )
+    .limit(1);
+  if (existing) return;
+
+  const [contract] = await db
+    .select({
+      contractSeq: contracts.contractSeq,
+      customerId: contracts.customerId,
+      carId: contracts.carId,
+      customerName: customers.name,
+      customerEstablishmentName: customers.establishmentName,
+      invoiceType: customers.invoiceType,
+    })
+    .from(contracts)
+    .innerJoin(customers, eq(contracts.customerId, customers.id))
+    .where(and(eq(contracts.orgId, orgId), eq(contracts.id, contractId)))
+    .limit(1);
+
+  if (!contract) return;
+
+  const amounts = await resolveAmounts(orgId, penaltyTotalInclVat);
+  const now = new Date();
+  const invoiceNumber = formatInvoiceNumber(
+    contract.contractSeq,
+    PENALTY_INVOICE_SEQ,
+    now.getFullYear(),
+  );
+  const customerName = formatCustomerDisplayName(
+    contract.customerName,
+    contract.customerEstablishmentName,
+  );
+
+  const [row] = await db
+    .insert(invoices)
+    .values({
+      orgId,
+      contractId,
+      customerId: contract.customerId,
+      carId: contract.carId,
+      invoiceSeq: PENALTY_INVOICE_SEQ,
+      invoiceNumber,
+      invoiceType: contract.invoiceType,
+      status: "draft",
+      amountExVat: String(amounts.amountExVat),
+      taxRate: String(amounts.taxRate),
+      taxAmount: String(amounts.taxAmount),
+      totalInclVat: String(amounts.totalInclVat),
+      createdAt: now,
+      updatedAt: now,
+    })
+    .returning({ invoiceNumber: invoices.invoiceNumber });
+
+  if (row) {
+    await recordActivity(
+      orgId,
+      "invoice",
+      `إصدار مسودة فاتورة غرامة: ${row.invoiceNumber} — ${customerName}`,
+    );
+  }
 }
 
 export async function deleteDraftInvoiceForContract(
@@ -88,6 +182,7 @@ export async function deleteDraftInvoiceForContract(
       and(
         eq(invoices.orgId, orgId),
         eq(invoices.contractId, contractId),
+        eq(invoices.invoiceSeq, RENTAL_INVOICE_SEQ),
         eq(invoices.status, "draft"),
       ),
     );
@@ -117,6 +212,7 @@ export async function syncDraftInvoiceForContract(
       and(
         eq(invoices.orgId, orgId),
         eq(invoices.contractId, contractId),
+        eq(invoices.invoiceSeq, RENTAL_INVOICE_SEQ),
         eq(invoices.status, "draft"),
       ),
     );
@@ -135,6 +231,7 @@ export async function markInvoicePaidForContract(
       and(
         eq(invoices.orgId, orgId),
         eq(invoices.contractId, contractId),
+        eq(invoices.invoiceSeq, RENTAL_INVOICE_SEQ),
         eq(invoices.status, "draft"),
       ),
     )
@@ -147,6 +244,68 @@ export async function markInvoicePaidForContract(
       `تسجيل فاتورة مدفوعة: ${row.invoiceNumber} — ${customerName}`,
     );
   }
+}
+
+export async function updateInvoice(
+  orgId: number,
+  id: number,
+  body: UpdateInvoiceBodyInput,
+) {
+  const existing = await getInvoice(orgId, id);
+  if (!existing) return null;
+
+  if (!canEditPenaltyInvoice(existing.invoiceSeq, existing.status)) {
+    return { error: INVOICE_ERRORS.editOnlyPenaltyDraft };
+  }
+
+  const amounts = await resolveAmounts(orgId, body.totalInclVat);
+  const [row] = await db
+    .update(invoices)
+    .set({
+      amountExVat: String(amounts.amountExVat),
+      taxRate: String(amounts.taxRate),
+      taxAmount: String(amounts.taxAmount),
+      totalInclVat: String(amounts.totalInclVat),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(invoices.orgId, orgId), eq(invoices.id, id)))
+    .returning({ id: invoices.id });
+
+  return row ? getInvoice(orgId, id) : null;
+}
+
+export async function updateInvoiceStatus(
+  orgId: number,
+  id: number,
+  body: UpdateInvoiceStatusBodyInput,
+) {
+  const existing = await getInvoice(orgId, id);
+  if (!existing) return null;
+
+  if (!canMarkPenaltyInvoicePaid(existing.invoiceSeq, existing.status)) {
+    return { error: INVOICE_ERRORS.markPaidOnlyPenaltyDraft };
+  }
+
+  if (body.status !== "paid") {
+    return { error: INVOICE_ERRORS.invalidStatusTransition };
+  }
+
+  const now = new Date();
+  const [row] = await db
+    .update(invoices)
+    .set({ status: "paid", paidAt: now, updatedAt: now })
+    .where(and(eq(invoices.orgId, orgId), eq(invoices.id, id)))
+    .returning({ invoiceNumber: invoices.invoiceNumber });
+
+  if (!row) return null;
+
+  await recordActivity(
+    orgId,
+    "invoice",
+    `تسجيل فاتورة غرامة مدفوعة: ${row.invoiceNumber} — ${existing.customerName}`,
+  );
+
+  return getInvoice(orgId, id);
 }
 
 export async function listInvoices(orgId: number, params: Partial<ListParams>) {
@@ -259,5 +418,6 @@ export async function getInvoice(orgId: number, id: number) {
     sellerBusinessName: settings.businessName,
     sellerLogoUrl: settings.logoUrl,
     sellerTaxNumber: settings.taxNumber,
+    sellerNationalAddress: settings.nationalAddress,
   };
 }

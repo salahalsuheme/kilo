@@ -10,6 +10,7 @@ import {
 } from "@/lib/api-client-react-tenant";
 import type {
   Contract,
+  ContractListStatusFilter,
   ContractStatus,
   CreateContractBody,
 } from "@/lib/api-client-react-tenant";
@@ -53,8 +54,8 @@ export function useContracts({
     "status",
   ] as const);
 
-  const status: ContractStatus | undefined =
-    statusFilter !== "all" ? (statusFilter as ContractStatus) : undefined;
+  const status: ContractListStatusFilter | undefined =
+    statusFilter !== "all" ? (statusFilter as ContractListStatusFilter) : undefined;
 
   const listQuery = useListContracts(
     { search: search || undefined, status, page, pageSize: PAGE_SIZE },
@@ -141,6 +142,7 @@ export function useContracts({
     startAt: toDateTimeLocalFromIso(contract.startAt),
     endAt: toDateTimeLocalFromIso(contract.endAt),
     amountExVat: String(contract.amountExVat),
+    authorizationNumber: contract.authorizationNumber,
   });
 
   return {
@@ -179,6 +181,7 @@ export function toContractBody(values: ContractFormValues): CreateContractBody {
     startAt: new Date(values.startAt).toISOString(),
     endAt: new Date(values.endAt).toISOString(),
     amountExVat: Number(values.amountExVat),
+    authorizationNumber: values.authorizationNumber.trim(),
   };
 }
 

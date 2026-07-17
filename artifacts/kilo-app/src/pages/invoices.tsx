@@ -8,6 +8,7 @@ import type { Invoice } from "@/lib/api-client-react-tenant";
 import type { PrintMode } from "@/lib/print/open-print-document";
 import { InvoicesToolbar } from "@/components/invoices/invoices-toolbar";
 import { InvoicesTable } from "@/components/invoices/invoices-table";
+import { InvoiceDialog } from "@/components/invoices/invoice-dialog";
 import { TenantPagination } from "@/components/tenant-pagination";
 import { mobileListPanelClass } from "@/components/mobile";
 
@@ -17,6 +18,7 @@ export default function InvoicesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
+  const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
   const { printInvoice } = useInvoicePrint();
 
   const handlePrintInvoice = async (invoice: Invoice, mode: PrintMode) => {
@@ -30,10 +32,25 @@ export default function InvoicesPage() {
     }
   };
 
-  const { invoices, total, isLoading, listError, PAGE_SIZE } = useInvoices({
+  const {
+    invoices,
+    total,
+    isLoading,
+    listError,
+    PAGE_SIZE,
+    updateIsPending,
+    statusIsPending,
+    updateError,
+    statusError,
+    buildEditDefaultValues,
+    submitUpdate,
+    submitMarkPaid,
+  } = useInvoices({
     search,
     statusFilter,
     page,
+    onUpdateSuccess: () => setEditingInvoice(null),
+    onStatusSuccess: () => setEditingInvoice(null),
   });
 
   useEffect(() => {
@@ -48,9 +65,11 @@ export default function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="الفواتير" description="فواتير عقود التأجير" />
+      <PageHeader title="الفواتير" description="فواتير عقود التأجير وغرامات التأخير" />
 
       <ApiErrorBanner message={listError} />
+      <ApiErrorBanner message={updateError} />
+      <ApiErrorBanner message={statusError} />
 
       <div className="flex flex-col">
         <div className={mobileListPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
@@ -71,6 +90,9 @@ export default function InvoicesPage() {
               search={search}
               statusFilter={statusFilter}
               onPrint={(invoice, mode) => void handlePrintInvoice(invoice, mode)}
+              onEdit={setEditingInvoice}
+              onMarkPaid={(invoice) => submitMarkPaid(invoice.id)}
+              statusIsPending={statusIsPending}
             />
             <TenantPagination
               page={page}
@@ -81,6 +103,27 @@ export default function InvoicesPage() {
           </div>
         </div>
       </div>
+
+      <InvoiceDialog
+        open={editingInvoice != null}
+        onOpenChange={(open) => {
+          if (!open) setEditingInvoice(null);
+        }}
+        title={
+          editingInvoice
+            ? `تعديل فاتورة الغرامة ${editingInvoice.invoiceNumber}`
+            : "تعديل فاتورة الغرامة"
+        }
+        defaultValues={
+          editingInvoice ? buildEditDefaultValues(editingInvoice) : { totalInclVat: 0 }
+        }
+        onSubmit={(values) => {
+          if (!editingInvoice) return;
+          submitUpdate(editingInvoice.id, values);
+        }}
+        isPending={updateIsPending}
+        errorMessage={updateError}
+      />
     </div>
   );
 }

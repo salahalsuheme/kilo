@@ -1,7 +1,9 @@
 import type { InvoiceType } from "@workspace/customers-domain";
 import { INVOICE_TYPE_LABELS } from "@workspace/customers-domain";
+import type { NationalAddress } from "@workspace/settings-domain";
 import {
   buildZatcaQrPayload,
+  buildRentalInvoiceLineDescription,
   formatSarCurrency,
   formatSarNumber,
   formatZatcaAmount,
@@ -10,7 +12,8 @@ import {
   ZATCA_INVOICE_TITLES_EN,
 } from "@workspace/invoices-domain";
 import { formatContractDateTime } from "@workspace/contracts-domain";
-import { escapeHtml } from "./html-utils.js";
+import { escapeHtml, buildPrintLabeledLine } from "./html-utils.js";
+import { buildNationalAddressPrintHtml } from "./build-national-address-print-html.js";
 import { buildOrgPrintHeaderHtml, buildQrDataUrl } from "./org-print-header.js";
 
 export interface InvoicePrintInput {
@@ -35,6 +38,7 @@ export interface InvoicePrintInput {
   sellerBusinessName: string;
   sellerLogoUrl?: string | null;
   sellerTaxNumber?: string | null;
+  sellerNationalAddress: NationalAddress;
 }
 
 function formatInvoiceDate(invoice: InvoicePrintInput): string {
@@ -74,14 +78,19 @@ export async function buildInvoicePrintHtml(
   );
 
   const buyerTax = invoice.customerTaxNumber
-    ? `<p><strong>الرقم الضريبي:</strong> <span dir="ltr">${escapeHtml(invoice.customerTaxNumber)}</span></p>`
+    ? buildPrintLabeledLine("الرقم الضريبي:", invoice.customerTaxNumber, { valueDir: "ltr" })
     : "";
 
   const establishment = invoice.customerEstablishmentName
-    ? `<p><strong>المنشأة:</strong> ${escapeHtml(invoice.customerEstablishmentName)}</p>`
+    ? buildPrintLabeledLine("المنشأة:", invoice.customerEstablishmentName)
     : "";
 
-  const lineDescription = `تأجير مركبة ${invoice.vehicleBrand} — لوحة ${invoice.vehiclePlateNumber} — عقد ${invoice.contractNumber}`;
+  const lineDescription = buildRentalInvoiceLineDescription({
+    vehicleBrand: invoice.vehicleBrand,
+    vehiclePlateNumber: invoice.vehiclePlateNumber,
+    contractNumber: invoice.contractNumber,
+  });
+  const sellerNationalAddressHtml = buildNationalAddressPrintHtml(invoice.sellerNationalAddress);
 
   return `
     ${header}
@@ -91,15 +100,15 @@ export async function buildInvoicePrintHtml(
     <div class="print-meta-grid">
       <div class="print-box">
         <p class="print-box__title">بيانات الفاتورة</p>
-        <p><strong>رقم الفاتورة:</strong> <span dir="ltr">${escapeHtml(invoice.invoiceNumber)}</span></p>
-        <p><strong>تاريخ الإصدار:</strong> ${escapeHtml(invoiceDate)}</p>
-        <p><strong>نوع الفاتورة:</strong> ${escapeHtml(INVOICE_TYPE_LABELS[invoice.invoiceType])}</p>
+        ${buildPrintLabeledLine("رقم الفاتورة:", invoice.invoiceNumber, { valueDir: "ltr" })}
+        ${buildPrintLabeledLine("تاريخ الإصدار:", invoiceDate)}
+        ${buildPrintLabeledLine("نوع الفاتورة:", INVOICE_TYPE_LABELS[invoice.invoiceType])}
       </div>
       <div class="print-box">
         <p class="print-box__title">بيانات العقد</p>
-        <p><strong>رقم العقد:</strong> <span dir="ltr">${escapeHtml(invoice.contractNumber)}</span></p>
-        <p><strong>من:</strong> ${escapeHtml(formatContractDateTime(invoice.contractStartAt))}</p>
-        <p><strong>إلى:</strong> ${escapeHtml(formatContractDateTime(invoice.contractEndAt))}</p>
+        ${buildPrintLabeledLine("رقم العقد:", invoice.contractNumber, { valueDir: "ltr" })}
+        ${buildPrintLabeledLine("من:", formatContractDateTime(invoice.contractStartAt))}
+        ${buildPrintLabeledLine("إلى:", formatContractDateTime(invoice.contractEndAt))}
       </div>
     </div>
 
@@ -109,15 +118,16 @@ export async function buildInvoicePrintHtml(
         <p><strong>${escapeHtml(invoice.sellerBusinessName)}</strong></p>
         ${
           invoice.sellerTaxNumber
-            ? `<p>الرقم الضريبي: <span dir="ltr">${escapeHtml(invoice.sellerTaxNumber)}</span></p>`
+            ? buildPrintLabeledLine("الرقم الضريبي:", invoice.sellerTaxNumber, { valueDir: "ltr" })
             : ""
         }
+        ${sellerNationalAddressHtml}
       </div>
       <div class="print-box">
         <p class="print-box__title">المشتري</p>
         <p><strong>${escapeHtml(invoice.customerName)}</strong></p>
-        <p>رقم الهوية: <span dir="ltr">${escapeHtml(invoice.customerIdNumber)}</span></p>
-        <p>الجوال: <span dir="ltr">${escapeHtml(invoice.customerMobile)}</span></p>
+        ${buildPrintLabeledLine("رقم الهوية:", invoice.customerIdNumber, { valueDir: "ltr" })}
+        ${buildPrintLabeledLine("الجوال:", invoice.customerMobile, { valueDir: "ltr" })}
         ${establishment}
         ${buyerTax}
       </div>
@@ -146,15 +156,15 @@ export async function buildInvoicePrintHtml(
 
     <div class="print-totals">
       <div class="print-totals__row">
-        <span>المجموع بدون ضريبة</span>
+        <strong>المجموع بدون ضريبة</strong>
         <span class="num">${escapeHtml(formatSarCurrency(invoice.amountExVat))}</span>
       </div>
       <div class="print-totals__row">
-        <span>ضريبة القيمة المضافة (${escapeHtml(String(invoice.taxRate))}%)</span>
+        <strong>ضريبة القيمة المضافة (${escapeHtml(String(invoice.taxRate))}%)</strong>
         <span class="num">${escapeHtml(formatSarCurrency(invoice.taxAmount))}</span>
       </div>
       <div class="print-totals__row">
-        <span>الإجمالي شامل الضريبة</span>
+        <strong>الإجمالي شامل الضريبة</strong>
         <span class="num">${escapeHtml(formatSarCurrency(invoice.totalInclVat))}</span>
       </div>
     </div>

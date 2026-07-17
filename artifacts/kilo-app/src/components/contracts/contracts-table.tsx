@@ -1,7 +1,9 @@
 import type { Contract, ContractStatus } from "@/lib/api-client-react-tenant";
 import { CONTRACT_STATUS_LABELS, formatContractDateTime } from "@workspace/contracts-domain";
+import { formatSarCurrency } from "@workspace/invoices-domain";
 import {
   CONTRACT_STATUS_BADGE_BASE_CLASS,
+  CONTRACT_EXPIRING_SOON_BADGE_BASE_CLASS,
   contractExpiringSoonBadgeClass,
   contractStatusBadgeClass,
   isContractExpiringSoonRemaining,
@@ -32,14 +34,6 @@ interface ContractsTableProps {
   onPrint: (contract: Contract, mode: PrintMode) => void;
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    minimumFractionDigits: 2,
-  }).format(value);
-}
-
 export function ContractsTable({
   contracts,
   isLoading,
@@ -56,15 +50,16 @@ export function ContractsTable({
         <Table className="table-fixed">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[10%]">رقم العقد</TableHead>
+              <TableHead className="w-[10%]">رقم العقد / التفويض</TableHead>
               <TableHead className="w-[12%]">اسم العميل</TableHead>
               <TableHead className="w-[12%]">المركبة</TableHead>
               <TableHead className="w-[13%]">بداية / نهاية العقد</TableHead>
               <TableHead className="w-[8%]">مدة التأجير</TableHead>
               <TableHead className="w-[7%]">المتبقي</TableHead>
-              <TableHead className="w-[8%]">التأخير</TableHead>
-              <TableHead className="w-[10%]">قيمة العقد</TableHead>
-              <TableHead className="w-[9%]">الحالة</TableHead>
+              <TableHead className="w-[7%]">التأخير</TableHead>
+              <TableHead className="w-[8%]">الغرامة</TableHead>
+              <TableHead className="w-[9%]">قيمة العقد</TableHead>
+              <TableHead className="w-[8%]">الحالة</TableHead>
               <TableHead className="w-16 text-center text-black">إجراء</TableHead>
             </TableRow>
           </TableHeader>
@@ -72,7 +67,7 @@ export function ContractsTable({
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 10 }).map((__, j) => (
+                  {Array.from({ length: 11 }).map((__, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
@@ -81,15 +76,24 @@ export function ContractsTable({
               ))
             ) : contracts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={11} className="h-32 text-center text-muted-foreground">
                   {search || statusFilter !== "all" ? "لا توجد نتائج" : "لا يوجد عقود"}
                 </TableCell>
               </TableRow>
             ) : (
               contracts.map((contract) => (
                 <TableRow key={contract.id}>
-                  <TableCell>
-                    <bdi className="text-sm font-medium tabular-nums">{contract.contractNumber}</bdi>
+                  <TableCell className="align-top">
+                    <div className="min-w-0 text-right" dir="ltr">
+                      <p className="text-sm font-medium tabular-nums leading-tight">
+                        {contract.contractNumber}
+                      </p>
+                      {contract.authorizationNumber ? (
+                        <p className="mt-0.5 text-xs text-muted-foreground tabular-nums leading-tight">
+                          {contract.authorizationNumber}
+                        </p>
+                      ) : null}
+                    </div>
                   </TableCell>
                   <TableCell className="font-medium">{contract.customerName}</TableCell>
                   <TableCell className="align-top">
@@ -111,21 +115,25 @@ export function ContractsTable({
                     {contract.status === "active" ? `${contract.remainingDays} يوم` : "—"}
                   </TableCell>
                   <TableCell className="text-sm">
-                    {contract.status === "overdue" ? (
-                      <div>
-                        <span className="font-medium text-amber-700">
-                          {contract.overdueDays} يوم
-                        </span>
-                        <span className="mt-0.5 block text-xs text-muted-foreground">
-                          {formatCurrency(contract.penaltyTotal)}
-                        </span>
-                      </div>
+                    {contract.overdueDays > 0 ? (
+                      <span className="font-medium text-red-600">
+                        {contract.overdueDays} يوم
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {contract.penaltyTotal > 0 ? (
+                      <span className="font-medium text-red-600">
+                        {formatSarCurrency(contract.penaltyTotal)}
+                      </span>
                     ) : (
                       "—"
                     )}
                   </TableCell>
                   <TableCell className="text-sm whitespace-nowrap">
-                    {formatCurrency(contract.totalInclVat)}
+                    {formatSarCurrency(contract.totalInclVat)}
                   </TableCell>
                   <TableCell>
                     <div className="flex min-w-0 flex-col items-start gap-1">
@@ -140,7 +148,7 @@ export function ContractsTable({
                       {isContractExpiringSoonRemaining(contract) ? (
                         <span
                           className={cn(
-                            CONTRACT_STATUS_BADGE_BASE_CLASS,
+                            CONTRACT_EXPIRING_SOON_BADGE_BASE_CLASS,
                             contractExpiringSoonBadgeClass(),
                           )}
                         >

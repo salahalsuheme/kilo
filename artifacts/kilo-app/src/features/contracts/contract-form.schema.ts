@@ -54,6 +54,10 @@ export const contractFormSchema = z
         const amount = Number(value);
         return !Number.isNaN(amount) && amount > 0;
       }, CONTRACT_FIELD_ERRORS.amountPositive),
+    authorizationNumber: z
+      .string()
+      .trim()
+      .min(1, CONTRACT_FIELD_ERRORS.authorizationNumber),
   })
   .superRefine(refineContractFormDates);
 
@@ -81,6 +85,7 @@ export function createEmptyContractValues(): ContractFormValues {
     startAt,
     endAt: startAt,
     amountExVat: "",
+    authorizationNumber: "",
   };
 }
 

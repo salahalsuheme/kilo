@@ -5,6 +5,9 @@ export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   paid: "مدفوعة",
 };
 
+/** نص توضيحي في قائمة الفواتير فقط — تحت رقم الفاتورة */
+export const PENALTY_INVOICE_LIST_HINT_LABEL = "فاتورة غرامة";
+
 export function invoiceStatusBadgeClass(status: InvoiceStatus): string {
   if (status === "draft") {
     return "bg-amber-500/10 text-amber-700 border-amber-200";

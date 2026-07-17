@@ -246,6 +246,9 @@ importers:
       '@workspace/print-domain':
         specifier: workspace:*
         version: link:../../lib/print-domain
+      '@workspace/settings-domain':
+        specifier: workspace:*
+        version: link:../../lib/settings-domain
       '@workspace/tenant-cache':
         specifier: workspace:*
         version: link:../../lib/tenant-cache
@@ -383,6 +386,9 @@ importers:
       '@workspace/customers-domain':
         specifier: workspace:*
         version: link:../customers-domain
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
 
   lib/notifications-domain:
     dependencies:
@@ -404,6 +410,9 @@ importers:
       '@workspace/invoices-domain':
         specifier: workspace:*
         version: link:../invoices-domain
+      '@workspace/settings-domain':
+        specifier: workspace:*
+        version: link:../settings-domain
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4

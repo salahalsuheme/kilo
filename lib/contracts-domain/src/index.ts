@@ -12,6 +12,11 @@ export {
   remainingRentalDays,
 } from "./contract-duration.js";
 export {
+  resolveContractPenaltySnapshot,
+  snapshotPenaltyAtClose,
+  type ContractPenaltySnapshot,
+} from "./contract-penalty-snapshot.js";
+export {
   PENALTY_PER_DAY_INCL_VAT,
   computePenaltyTotal,
   isRentalPeriodEnded,
@@ -49,6 +54,16 @@ export {
   isValidContractStatusTransition,
   type UpdateContractStatusBodyInput,
 } from "./contract-status.schema.js";
+export {
+  EXPIRING_SOON_THRESHOLD_DAYS,
+  isContractExpiringSoon,
+} from "./contract-expiring.js";
+export {
+  CONTRACT_LIST_STATUS_FILTER_LABELS,
+  CONTRACT_LIST_STATUS_FILTER_VALUES,
+  isContractListStatusFilter,
+  type ContractListStatusFilter,
+} from "./contract-list-filter.js";
 export {
   formatContractNumber,
   formatContractNumberWithYear,

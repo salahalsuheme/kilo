@@ -21,3 +21,16 @@ export function absoluteAssetUrl(
 export function sanitizePdfFilename(name: string): string {
   return name.replace(/[<>:"/\\|?*]+/g, "-").trim() || "document.pdf";
 }
+
+export function buildPrintLabeledLine(
+  label: string,
+  value: string,
+  options?: { valueDir?: "ltr"; className?: string },
+): string {
+  const valuePart =
+    options?.valueDir === "ltr"
+      ? `<span dir="ltr">${escapeHtml(value)}</span>`
+      : escapeHtml(value);
+  const classAttr = options?.className ? ` class="${options.className}"` : "";
+  return `<p${classAttr}><strong>${escapeHtml(label)}</strong> ${valuePart}</p>`;
+}

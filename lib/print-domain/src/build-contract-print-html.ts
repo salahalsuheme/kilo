@@ -1,4 +1,5 @@
 import { formatContractDateTime } from "@workspace/contracts-domain";
+import { formatSarCurrency } from "@workspace/invoices-domain";
 import { escapeHtml } from "./html-utils.js";
 import { buildOrgPrintHeaderHtml } from "./org-print-header.js";
 import { formatContractBodyHtml } from "./format-contract-body-html.js";
@@ -19,14 +20,6 @@ export interface OrgPrintSettings {
   businessName: string;
   logoUrl?: string | null;
   taxNumber?: string | null;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 export function buildContractPrintHtml(
@@ -64,7 +57,7 @@ export function buildContractPrintHtml(
         <p><strong>من:</strong> ${escapeHtml(formatContractDateTime(contract.startAt))}</p>
         <p><strong>إلى:</strong> ${escapeHtml(formatContractDateTime(contract.endAt))}</p>
         <p><strong>المدة:</strong> ${contract.rentalDurationDays} يوم</p>
-        <p><strong>الإجمالي:</strong> ${escapeHtml(formatCurrency(contract.totalInclVat))}</p>
+        <p><strong>الإجمالي:</strong> ${escapeHtml(formatSarCurrency(contract.totalInclVat))}</p>
       </div>
     </div>
     ${formatContractBodyHtml(bodyContent)}

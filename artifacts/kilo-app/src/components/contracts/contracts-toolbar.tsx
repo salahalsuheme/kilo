@@ -9,8 +9,7 @@ import {
   mobileToolbarSearchWrapClass,
   mobileToolbarSelectClass,
 } from "@/components/mobile";
-import { CONTRACT_STATUS_LABELS } from "@workspace/contracts-domain";
-import type { ContractStatus } from "@/lib/api-client-react-tenant";
+import { CONTRACT_LIST_STATUS_FILTER_LABELS, CONTRACT_LIST_STATUS_FILTER_VALUES } from "@workspace/contracts-domain";
 
 interface ContractsToolbarProps {
   search: string;
@@ -25,9 +24,10 @@ interface ContractsToolbarProps {
 
 const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "all", label: "كل الحالات" },
-  ...(Object.entries(CONTRACT_STATUS_LABELS) as Array<[ContractStatus, string]>).map(
-    ([value, label]) => ({ value, label }),
-  ),
+  ...CONTRACT_LIST_STATUS_FILTER_VALUES.map((value) => ({
+    value,
+    label: CONTRACT_LIST_STATUS_FILTER_LABELS[value],
+  })),
 ];
 
 export function ContractsToolbar({

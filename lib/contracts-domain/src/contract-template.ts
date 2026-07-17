@@ -35,6 +35,7 @@ export interface ContractTemplateContextInput {
   };
   contract: {
     number?: string;
+    authorizationNumber?: string;
     startAt: Date | string;
     endAt: Date | string;
     rentalDays: number;
@@ -62,6 +63,7 @@ export function buildContractTemplateVariables(
     "car.plateNumber": car.plateNumber,
     "car.coolingType": car.coolingTypeLabel,
     "contract.number": contract.number ?? "",
+    "contract.authorizationNumber": contract.authorizationNumber?.trim() ?? "",
     "contract.startAt": formatContractDateTime(contract.startAt),
     "contract.endAt": formatContractDateTime(contract.endAt),
     "contract.rentalDays": String(contract.rentalDays),

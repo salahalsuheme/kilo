@@ -1,12 +1,14 @@
 import {
   contractOverdueDays,
   computePenaltyTotal,
+  EXPIRING_SOON_THRESHOLD_DAYS,
+  isContractExpiringSoon,
   remainingRentalDays,
   type ContractStatus,
 } from "@workspace/contracts-domain";
 import type { NotificationKind } from "./types.js";
 
-export const EXPIRING_SOON_THRESHOLD_DAYS = 2;
+export { EXPIRING_SOON_THRESHOLD_DAYS, isContractExpiringSoon };
 
 export interface ContractNotificationInput {
   contractId: number;
@@ -28,16 +30,6 @@ export interface ContractNotification {
   remainingDays: number | null;
   overdueDays: number | null;
   penaltyTotal: number | null;
-}
-
-export function isContractExpiringSoon(
-  endAt: Date,
-  status: ContractStatus,
-  now: Date = new Date(),
-): boolean {
-  if (status !== "active") return false;
-  const remaining = remainingRentalDays(endAt, status, now);
-  return remaining > 0 && remaining <= EXPIRING_SOON_THRESHOLD_DAYS;
 }
 
 export function isContractOverdueNotification(status: ContractStatus): boolean {

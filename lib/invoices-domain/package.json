@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@workspace/contracts-domain": "workspace:*",
-    "@workspace/customers-domain": "workspace:*"
+    "@workspace/customers-domain": "workspace:*",
+    "zod": "catalog:"
   }
 }

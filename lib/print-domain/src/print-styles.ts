@@ -98,6 +98,9 @@ export const PRINT_BASE_STYLES = `
     font-size: 12px;
     line-height: 1.6;
   }
+  .print-box p strong {
+    font-weight: 700;
+  }
   .print-box p:last-child { margin-bottom: 0; }
   .print-table {
     width: 100%;
@@ -136,8 +139,8 @@ export const PRINT_BASE_STYLES = `
   }
   .print-totals__row:last-child {
     border-bottom: none;
-    background: #111827;
-    color: #fff;
+    background: #f3f4f6;
+    color: #374151;
     font-weight: 700;
     font-size: 13px;
   }

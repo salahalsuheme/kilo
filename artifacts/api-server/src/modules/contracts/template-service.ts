@@ -121,6 +121,7 @@ export async function ensureDefaultContractTemplate(orgId: number) {
 الطرف الأول (المؤجر): {{org.businessName}}
 الطرف الثاني (المستأجر): {{customer.name}}
 رقم الهوية: {{customer.idNumber}}
+رقم التفويض: {{contract.authorizationNumber}}
 الجوال: {{customer.mobile}}
 الجنسية: {{customer.nationality}}
 رقم الرخصة: {{customer.licenseNumber}}

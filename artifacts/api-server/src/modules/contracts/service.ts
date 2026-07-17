@@ -1,15 +1,16 @@
-import { and, count, desc, eq, gte, ilike, inArray, isNull, lt, max, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, gte, ilike, inArray, isNull, lt, lte, max, or, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { ListContractsQueryParams } from "@workspace/api-zod";
 import {
   CONTRACT_STATUS_ERRORS,
-  computePenaltyTotal,
-  contractOverdueDays,
+  EXPIRING_SOON_THRESHOLD_DAYS,
   formatContractNumberWithYear,
   getDraftActivationError,
   isValidContractStatusTransition,
   remainingRentalDays,
   rentalDurationDays,
+  resolveContractPenaltySnapshot,
+  snapshotPenaltyAtClose,
   type ContractStatus,
   type CreateContractBodyInput,
   type UpdateContractBodyInput,
@@ -23,6 +24,7 @@ import { cars, contracts, customers } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
 import {
   createDraftInvoiceForContract,
+  createPenaltyDraftInvoiceForContract,
   deleteDraftInvoiceForContract,
   markInvoicePaidForContract,
   syncDraftInvoiceForContract,
@@ -55,8 +57,12 @@ function mapContractRow(
   const startAt = row.startAt;
   const endAt = row.endAt;
   const status = row.status as ContractStatus;
-  const overdueDays = contractOverdueDays(endAt, status);
-  const penaltyTotal = computePenaltyTotal(overdueDays);
+  const { overdueDays, penaltyTotal } = resolveContractPenaltySnapshot({
+    endAt,
+    status,
+    storedOverdueDays: row.overdueDays,
+    storedPenaltyTotal: toNumber(row.penaltyTotal),
+  });
   return {
     id: row.id,
     contractNumber: row.contractNumber,
@@ -74,6 +80,7 @@ function mapContractRow(
     taxRate: toNumber(row.taxRate),
     taxAmount: toNumber(row.taxAmount),
     totalInclVat: toNumber(row.totalInclVat),
+    authorizationNumber: row.authorizationNumber,
     rentalDurationDays: rentalDurationDays(startAt, endAt),
     remainingDays: remainingRentalDays(endAt, status),
     overdueDays,
@@ -200,7 +207,16 @@ export async function listContracts(orgId: number, params: Partial<ListParams>) 
   const status = params.status;
 
   const filters = [eq(contracts.orgId, orgId), isNull(contracts.deletedAt)];
-  if (status) {
+  if (status === "expiring_soon") {
+    filters.push(eq(contracts.status, "active"));
+    filters.push(gt(contracts.endAt, sql`NOW()`));
+    filters.push(
+      lte(
+        contracts.endAt,
+        sql`NOW() + ${EXPIRING_SOON_THRESHOLD_DAYS} * INTERVAL '1 day'`,
+      ),
+    );
+  } else if (status) {
     filters.push(eq(contracts.status, status));
   }
   if (search) {
@@ -337,6 +353,7 @@ async function insertContract(orgId: number, body: CreateBody, status: ContractS
         taxRate: String(amounts.taxRate),
         taxAmount: String(amounts.taxAmount),
         totalInclVat: String(amounts.totalInclVat),
+        authorizationNumber: body.authorizationNumber.trim(),
         renderedContent,
         createdAt,
       })
@@ -401,6 +418,7 @@ export async function updateContract(orgId: number, id: number, body: UpdateBody
       taxRate: String(amounts.taxRate),
       taxAmount: String(amounts.taxAmount),
       totalInclVat: String(amounts.totalInclVat),
+      authorizationNumber: body.authorizationNumber.trim(),
       renderedContent,
       updatedAt: new Date(),
     })
@@ -475,9 +493,23 @@ export async function updateContractStatus(
     if (carError) return { error: carError };
   }
 
+  const closeSnapshot =
+    nextStatus === "closed" && existing.status === "overdue"
+      ? snapshotPenaltyAtClose(new Date(existing.endAt))
+      : null;
+
   const [row] = await db
     .update(contracts)
-    .set({ status: nextStatus, updatedAt: new Date() })
+    .set({
+      status: nextStatus,
+      updatedAt: new Date(),
+      ...(closeSnapshot
+        ? {
+            overdueDays: closeSnapshot.overdueDays,
+            penaltyTotal: closeSnapshot.penaltyTotal.toFixed(2),
+          }
+        : {}),
+    })
     .where(and(eq(contracts.orgId, orgId), eq(contracts.id, id), isNull(contracts.deletedAt)))
     .returning();
 
@@ -493,6 +525,10 @@ export async function updateContractStatus(
 
   if (nextStatus === "cancelled" || nextStatus === "closed") {
     await releaseCarIfIdle(orgId, existing.carId);
+  }
+
+  if (nextStatus === "closed" && closeSnapshot && closeSnapshot.penaltyTotal > 0) {
+    await createPenaltyDraftInvoiceForContract(orgId, id, closeSnapshot.penaltyTotal);
   }
 
   await recordActivity(

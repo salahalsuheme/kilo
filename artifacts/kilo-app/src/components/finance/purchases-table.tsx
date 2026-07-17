@@ -4,6 +4,7 @@ import {
   financeInvoiceStatusBadgeClass,
   formatInvoiceDate,
 } from "@workspace/finance-domain";
+import { formatSarCurrency } from "@workspace/invoices-domain";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -27,14 +28,6 @@ interface PurchasesTableProps {
   onDelete: (id: number) => void;
   onMarkPaid: (purchase: Purchase) => void;
   statusIsPending: boolean;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("ar-SA", {
-    style: "currency",
-    currency: "SAR",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 export function PurchasesTable({
@@ -91,7 +84,7 @@ export function PurchasesTable({
                   <TableCell className="font-medium">{purchase.companyName}</TableCell>
                   <TableCell className="text-sm truncate">{purchase.items}</TableCell>
                   <TableCell className="text-sm whitespace-nowrap">
-                    {formatCurrency(purchase.totalInclVat)}
+                    {formatSarCurrency(purchase.totalInclVat)}
                   </TableCell>
                   <TableCell>
                     <Badge

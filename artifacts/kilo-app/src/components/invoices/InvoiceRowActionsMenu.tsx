@@ -1,4 +1,5 @@
 import type { Invoice } from "@/lib/api-client-react-tenant";
+import { canEditPenaltyInvoice, canMarkPenaltyInvoicePaid } from "@workspace/invoices-domain";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,15 +7,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, MoreHorizontal, Printer } from "lucide-react";
+import { CheckCircle, Download, FileEdit, MoreHorizontal, Printer } from "lucide-react";
 import type { PrintMode } from "@/lib/print/open-print-document";
 
 interface InvoiceRowActionsMenuProps {
   invoice: Invoice;
   onPrint: (invoice: Invoice, mode: PrintMode) => void;
+  onEdit: (invoice: Invoice) => void;
+  onMarkPaid: (invoice: Invoice) => void;
+  statusIsPending?: boolean;
 }
 
-export function InvoiceRowActionsMenu({ invoice, onPrint }: InvoiceRowActionsMenuProps) {
+export function InvoiceRowActionsMenu({
+  invoice,
+  onPrint,
+  onEdit,
+  onMarkPaid,
+  statusIsPending,
+}: InvoiceRowActionsMenuProps) {
+  const canEdit = canEditPenaltyInvoice(invoice.invoiceSeq, invoice.status);
+  const canMarkPaid = canMarkPenaltyInvoicePaid(invoice.invoiceSeq, invoice.status);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -23,6 +36,29 @@ export function InvoiceRowActionsMenu({ invoice, onPrint }: InvoiceRowActionsMen
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
+        {canEdit ? (
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(invoice);
+            }}
+          >
+            <FileEdit className="h-4 w-4 me-2" />
+            تعديل
+          </DropdownMenuItem>
+        ) : null}
+        {canMarkPaid ? (
+          <DropdownMenuItem
+            disabled={statusIsPending}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMarkPaid(invoice);
+            }}
+          >
+            <CheckCircle className="h-4 w-4 me-2" />
+            تسجيل كمدفوعة
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem
           onClick={(e) => {
             e.stopPropagation();

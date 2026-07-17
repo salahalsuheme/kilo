@@ -17,6 +17,7 @@ interface BuildPreviewInput {
     startAt: string;
     endAt: string;
     amountExVat: number;
+    authorizationNumber: string;
   };
 }
 
@@ -63,6 +64,7 @@ export function buildContractPreviewContent({
     },
     contract: {
       number: contractNumber,
+      authorizationNumber: values.authorizationNumber,
       startAt,
       endAt,
       rentalDays: rentalDurationDays(startAt, endAt),

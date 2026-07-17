@@ -249,6 +249,21 @@ export const ContractStatus = {
   closed: 'closed',
 } as const;
 
+/**
+ * مرشّح قائمة العقود؛ expiring_soon ليس حالة مخزّنة في قاعدة البيانات
+ */
+export type ContractListStatusFilter = typeof ContractListStatusFilter[keyof typeof ContractListStatusFilter];
+
+
+export const ContractListStatusFilter = {
+  draft: 'draft',
+  active: 'active',
+  overdue: 'overdue',
+  cancelled: 'cancelled',
+  closed: 'closed',
+  expiring_soon: 'expiring_soon',
+} as const;
+
 export interface Contract {
   id: number;
   /** مثال: CT01-2026 */
@@ -267,11 +282,13 @@ export interface Contract {
   taxRate: number;
   taxAmount: number;
   totalInclVat: number;
+  /** رقم التفويض */
+  authorizationNumber: string;
   rentalDurationDays: number;
   remainingDays: number;
-  /** أيام التأخير (للعقود المتأخرة فقط) */
+  /** أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال) */
   overdueDays: number;
-  /** مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط) */
+  /** مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال) */
   penaltyTotal: number;
   renderedContent?: string | null;
   createdAt: string;
@@ -289,6 +306,11 @@ export interface CreateContractBody {
   endAt: string;
   /** @minimum 0.01 */
   amountExVat: number;
+  /**
+     * رقم التفويض
+     * @minLength 1
+     */
+  authorizationNumber: string;
 }
 
 export type UpdateContractBody = CreateContractBody;
@@ -326,7 +348,7 @@ export interface ContractTemplateList {
 }
 
 /**
- * draft — مسودة (مرتبطة بعقد مسودة). paid — مدفوعة (بعد تنشيط العقد).
+ * draft — مسودة (إيجار مرتبط بعقد مسودة، أو غرامة تأخير قبل التسجيل). paid — مدفوعة (إيجار بعد التنشيط، أو غرامة بعد التسجيل في المالية).
  */
 export type InvoiceStatus = typeof InvoiceStatus[keyof typeof InvoiceStatus];
 
@@ -336,10 +358,31 @@ export const InvoiceStatus = {
   paid: 'paid',
 } as const;
 
+export interface UpdateInvoiceBody {
+  /**
+     * المبلغ شامل الضريبة
+     * @minimum 0.01
+     */
+  totalInclVat: number;
+}
+
+export type UpdateInvoiceStatusBodyStatus = typeof UpdateInvoiceStatusBodyStatus[keyof typeof UpdateInvoiceStatusBodyStatus];
+
+
+export const UpdateInvoiceStatusBodyStatus = {
+  paid: 'paid',
+} as const;
+
+export interface UpdateInvoiceStatusBody {
+  status: UpdateInvoiceStatusBodyStatus;
+}
+
 export interface Invoice {
   id: number;
   /** مثال: CT01-IN01-2026 */
   invoiceNumber: string;
+  /** 1 إيجار، 2 غرامة تأخير */
+  invoiceSeq: number;
   contractId: number;
   customerName: string;
   vehicleBrand: string;
@@ -359,6 +402,25 @@ export interface InvoiceList {
   pageSize: number;
 }
 
+export interface NationalAddress {
+  /** المنطقة */
+  region: string | null;
+  /** المدينة */
+  city: string | null;
+  /** الحي */
+  district: string | null;
+  /** الشارع */
+  street: string | null;
+  /** رقم المبنى (4 أرقام) */
+  buildingNumber: string | null;
+  /** الرقم الإضافي (4 أرقام) */
+  additionalNumber: string | null;
+  /** الرمز البريدي (5 أرقام) */
+  postalCode: string | null;
+  /** العنوان المختصر (4 حروف + 4 أرقام) */
+  shortAddress: string | null;
+}
+
 export type InvoiceDetail = Invoice & ({
   amountExVat: number;
   taxRate: number;
@@ -374,6 +436,7 @@ export type InvoiceDetail = Invoice & ({
   sellerBusinessName: string;
   sellerLogoUrl?: string | null;
   sellerTaxNumber?: string | null;
+  sellerNationalAddress: NationalAddress;
 });
 
 /**
@@ -634,8 +697,20 @@ export interface OrgSettings {
   taxRate: number;
   /** Organization VAT registration number for invoices (ZATCA) */
   taxNumber?: string | null;
+  nationalAddress: NationalAddress;
   notificationEmailEnabled: boolean;
   notificationSmsEnabled: boolean;
+}
+
+export interface PutNationalAddressBody {
+  region?: string | null;
+  city?: string | null;
+  district?: string | null;
+  street?: string | null;
+  buildingNumber?: string | null;
+  additionalNumber?: string | null;
+  postalCode?: string | null;
+  shortAddress?: string | null;
 }
 
 export interface PutSettingsBody {
@@ -644,6 +719,7 @@ export interface PutSettingsBody {
   taxRate?: number;
   /** Organization VAT registration number for invoices (ZATCA) */
   taxNumber?: string | null;
+  nationalAddress?: PutNationalAddressBody;
   notificationEmailEnabled?: boolean;
   notificationSmsEnabled?: boolean;
 }
@@ -729,7 +805,7 @@ pageSize?: number;
 
 export type ListContractsParams = {
 search?: string;
-status?: ContractStatus;
+status?: ContractListStatusFilter;
 /**
  * @minimum 1
  */

@@ -6,6 +6,7 @@ import {
   computeContractAmounts,
   formatContractDateTime,
 } from "@workspace/contracts-domain";
+import { formatSarCurrency } from "@workspace/invoices-domain";
 import { VEHICLE_STATUS_LABELS } from "@workspace/vehicles-domain";
 import {
   useGetCustomer,
@@ -165,6 +166,7 @@ export function ContractDialog({
           startAt: watched.startAt,
           endAt: watched.endAt,
           amountExVat: Number(watched.amountExVat) || 0,
+          authorizationNumber: watched.authorizationNumber,
         },
       }),
     [
@@ -176,6 +178,7 @@ export function ContractDialog({
       watched.startAt,
       watched.endAt,
       watched.amountExVat,
+      watched.authorizationNumber,
     ],
   );
 
@@ -271,61 +274,77 @@ export function ContractDialog({
                 </div>
               )}
 
-              <FormField
-                control={form.control}
-                name="carId"
-                render={({ field }) => (
-                  <FormItem>
-                    <RequiredFormLabel>المركبة</RequiredFormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} dir="rtl">
-                      <FormControl>
-                        <SelectTrigger dir="rtl" className="text-right">
-                          <SelectValue placeholder="اختر المركبة" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent dir="rtl" className="text-right">
-                        {selectableVehicles.map((vehicle) => (
-                          <SelectItem key={vehicle.id} value={String(vehicle.id)} className="text-right">
-                            {vehicle.brand} — <bdi>{vehicle.plateNumber}</bdi>
-                            {vehicle.status !== "available" && (
-                              <span className="text-muted-foreground">
-                                {" "}
-                                ({VEHICLE_STATUS_LABELS[vehicle.status]})
-                              </span>
-                            )}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-3 gap-3">
+                <FormField
+                  control={form.control}
+                  name="carId"
+                  render={({ field }) => (
+                    <FormItem className="min-w-0">
+                      <RequiredFormLabel>المركبة</RequiredFormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} dir="rtl">
+                        <FormControl>
+                          <SelectTrigger dir="rtl" className="text-right">
+                            <SelectValue placeholder="اختر المركبة" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent dir="rtl" className="text-right">
+                          {selectableVehicles.map((vehicle) => (
+                            <SelectItem key={vehicle.id} value={String(vehicle.id)} className="text-right">
+                              {vehicle.brand} — <bdi>{vehicle.plateNumber}</bdi>
+                              {vehicle.status !== "available" && (
+                                <span className="text-muted-foreground">
+                                  {" "}
+                                  ({VEHICLE_STATUS_LABELS[vehicle.status]})
+                                </span>
+                              )}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="templateId"
-                render={({ field }) => (
-                  <FormItem>
-                    <RequiredFormLabel>قالب العقد</RequiredFormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} dir="rtl">
+                <FormField
+                  control={form.control}
+                  name="templateId"
+                  render={({ field }) => (
+                    <FormItem className="min-w-0">
+                      <RequiredFormLabel>قالب العقد</RequiredFormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} dir="rtl">
+                        <FormControl>
+                          <SelectTrigger dir="rtl" className="text-right">
+                            <SelectValue placeholder="اختر القالب" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent dir="rtl" className="text-right">
+                          {(templatesQuery.data?.data ?? []).map((template) => (
+                            <SelectItem key={template.id} value={String(template.id)} className="text-right">
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="authorizationNumber"
+                  render={({ field }) => (
+                    <FormItem className="min-w-0">
+                      <RequiredFormLabel>رقم التفويض</RequiredFormLabel>
                       <FormControl>
-                        <SelectTrigger dir="rtl" className="text-right">
-                          <SelectValue placeholder="اختر القالب" />
-                        </SelectTrigger>
+                        <Input dir="ltr" className="text-end" placeholder="رقم التفويض" {...field} />
                       </FormControl>
-                      <SelectContent dir="rtl" className="text-right">
-                        {(templatesQuery.data?.data ?? []).map((template) => (
-                          <SelectItem key={template.id} value={String(template.id)} className="text-right">
-                            {template.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
@@ -380,12 +399,10 @@ export function ContractDialog({
 
               <div className="rounded-lg border bg-muted/30 p-3 text-sm space-y-1">
                 <p>
-                  الضريبة ({amounts.taxRate}%):{" "}
-                  <bdi>{amounts.taxAmount.toFixed(2)}</bdi> ريال
+                  الضريبة ({amounts.taxRate}%): {formatSarCurrency(amounts.taxAmount)}
                 </p>
                 <p className="font-medium">
-                  الإجمالي شامل الضريبة:{" "}
-                  <bdi>{amounts.totalInclVat.toFixed(2)}</bdi> ريال
+                  الإجمالي شامل الضريبة: {formatSarCurrency(amounts.totalInclVat)}
                 </p>
               </div>
 

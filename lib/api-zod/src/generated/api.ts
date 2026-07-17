@@ -626,7 +626,7 @@ export const listContractsQueryPageSizeMax = 100;
 
 export const ListContractsQueryParams = zod.object({
   "search": zod.coerce.string().optional(),
-  "status": zod.enum(['draft', 'active', 'overdue', 'cancelled', 'closed']).optional(),
+  "status": zod.enum(['draft', 'active', 'overdue', 'cancelled', 'closed', 'expiring_soon']).optional(),
   "page": zod.coerce.number().min(1).default(listContractsQueryPageDefault),
   "pageSize": zod.coerce.number().min(1).max(listContractsQueryPageSizeMax).default(listContractsQueryPageSizeDefault)
 })
@@ -649,10 +649,11 @@ export const ListContractsResponse = zod.object({
   "taxRate": zod.number(),
   "taxAmount": zod.number(),
   "totalInclVat": zod.number(),
+  "authorizationNumber": zod.string().describe('رقم التفويض'),
   "rentalDurationDays": zod.number(),
   "remainingDays": zod.number(),
-  "overdueDays": zod.number().describe('أيام التأخير (للعقود المتأخرة فقط)'),
-  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)'),
+  "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -670,13 +671,15 @@ export const createContractBodyAmountExVatMin = 0.01;
 
 
 
+
 export const CreateContractBody = zod.object({
   "customerId": zod.number().min(1),
   "carId": zod.number().min(1),
   "templateId": zod.number().min(1),
   "startAt": zod.date(),
   "endAt": zod.date(),
-  "amountExVat": zod.number().min(createContractBodyAmountExVatMin)
+  "amountExVat": zod.number().min(createContractBodyAmountExVatMin),
+  "authorizationNumber": zod.string().min(1).describe('رقم التفويض')
 })
 
 export const CreateContractResponse = zod.object({
@@ -696,10 +699,11 @@ export const CreateContractResponse = zod.object({
   "taxRate": zod.number(),
   "taxAmount": zod.number(),
   "totalInclVat": zod.number(),
+  "authorizationNumber": zod.string().describe('رقم التفويض'),
   "rentalDurationDays": zod.number(),
   "remainingDays": zod.number(),
-  "overdueDays": zod.number().describe('أيام التأخير (للعقود المتأخرة فقط)'),
-  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)'),
+  "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -727,10 +731,11 @@ export const GetContractResponse = zod.object({
   "taxRate": zod.number(),
   "taxAmount": zod.number(),
   "totalInclVat": zod.number(),
+  "authorizationNumber": zod.string().describe('رقم التفويض'),
   "rentalDurationDays": zod.number(),
   "remainingDays": zod.number(),
-  "overdueDays": zod.number().describe('أيام التأخير (للعقود المتأخرة فقط)'),
-  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)'),
+  "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -748,13 +753,15 @@ export const updateContractBodyOneAmountExVatMin = 0.01;
 
 
 
+
 export const UpdateContractBody = zod.object({
   "customerId": zod.number().min(1),
   "carId": zod.number().min(1),
   "templateId": zod.number().min(1),
   "startAt": zod.date(),
   "endAt": zod.date(),
-  "amountExVat": zod.number().min(updateContractBodyOneAmountExVatMin)
+  "amountExVat": zod.number().min(updateContractBodyOneAmountExVatMin),
+  "authorizationNumber": zod.string().min(1).describe('رقم التفويض')
 })
 
 export const UpdateContractResponse = zod.object({
@@ -774,10 +781,11 @@ export const UpdateContractResponse = zod.object({
   "taxRate": zod.number(),
   "taxAmount": zod.number(),
   "totalInclVat": zod.number(),
+  "authorizationNumber": zod.string().describe('رقم التفويض'),
   "rentalDurationDays": zod.number(),
   "remainingDays": zod.number(),
-  "overdueDays": zod.number().describe('أيام التأخير (للعقود المتأخرة فقط)'),
-  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)'),
+  "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -816,10 +824,11 @@ export const UpdateContractStatusResponse = zod.object({
   "taxRate": zod.number(),
   "taxAmount": zod.number(),
   "totalInclVat": zod.number(),
+  "authorizationNumber": zod.string().describe('رقم التفويض'),
   "rentalDurationDays": zod.number(),
   "remainingDays": zod.number(),
-  "overdueDays": zod.number().describe('أيام التأخير (للعقود المتأخرة فقط)'),
-  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (للعقود المتأخرة فقط)'),
+  "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -922,12 +931,13 @@ export const ListInvoicesResponse = zod.object({
   "data": zod.array(zod.object({
   "id": zod.number(),
   "invoiceNumber": zod.string().describe('مثال: CT01-IN01-2026'),
+  "invoiceSeq": zod.number().describe('1 إيجار، 2 غرامة تأخير'),
   "contractId": zod.number(),
   "customerName": zod.string(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
-  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة (مرتبطة بعقد مسودة). paid — مدفوعة (بعد تنشيط العقد).\n'),
+  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة (إيجار مرتبط بعقد مسودة، أو غرامة تأخير قبل التسجيل). paid — مدفوعة (إيجار بعد التنشيط، أو غرامة بعد التسجيل في المالية).\n'),
   "totalInclVat": zod.number(),
   "paidAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
@@ -946,12 +956,13 @@ export const GetInvoiceParams = zod.object({
 export const GetInvoiceResponse = zod.object({
   "id": zod.number(),
   "invoiceNumber": zod.string().describe('مثال: CT01-IN01-2026'),
+  "invoiceSeq": zod.number().describe('1 إيجار، 2 غرامة تأخير'),
   "contractId": zod.number(),
   "customerName": zod.string(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
-  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة (مرتبطة بعقد مسودة). paid — مدفوعة (بعد تنشيط العقد).\n'),
+  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة (إيجار مرتبط بعقد مسودة، أو غرامة تأخير قبل التسجيل). paid — مدفوعة (إيجار بعد التنشيط، أو غرامة بعد التسجيل في المالية).\n'),
   "totalInclVat": zod.number(),
   "paidAt": zod.coerce.date().nullish(),
   "createdAt": zod.coerce.date(),
@@ -970,7 +981,121 @@ export const GetInvoiceResponse = zod.object({
   "contractEndAt": zod.coerce.date(),
   "sellerBusinessName": zod.string(),
   "sellerLogoUrl": zod.string().nullish(),
-  "sellerTaxNumber": zod.string().nullish()
+  "sellerTaxNumber": zod.string().nullish(),
+  "sellerNationalAddress": zod.object({
+  "region": zod.string().nullable().describe('المنطقة'),
+  "city": zod.string().nullable().describe('المدينة'),
+  "district": zod.string().nullable().describe('الحي'),
+  "street": zod.string().nullable().describe('الشارع'),
+  "buildingNumber": zod.string().nullable().describe('رقم المبنى (4 أرقام)'),
+  "additionalNumber": zod.string().nullable().describe('الرقم الإضافي (4 أرقام)'),
+  "postalCode": zod.string().nullable().describe('الرمز البريدي (5 أرقام)'),
+  "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
+})
+}))
+
+
+export const UpdateInvoiceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const updateInvoiceBodyTotalInclVatMin = 0.01;
+
+
+
+export const UpdateInvoiceBody = zod.object({
+  "totalInclVat": zod.number().min(updateInvoiceBodyTotalInclVatMin).describe('المبلغ شامل الضريبة')
+})
+
+export const UpdateInvoiceResponse = zod.object({
+  "id": zod.number(),
+  "invoiceNumber": zod.string().describe('مثال: CT01-IN01-2026'),
+  "invoiceSeq": zod.number().describe('1 إيجار، 2 غرامة تأخير'),
+  "contractId": zod.number(),
+  "customerName": zod.string(),
+  "vehicleBrand": zod.string(),
+  "vehiclePlateNumber": zod.string(),
+  "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
+  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة (إيجار مرتبط بعقد مسودة، أو غرامة تأخير قبل التسجيل). paid — مدفوعة (إيجار بعد التنشيط، أو غرامة بعد التسجيل في المالية).\n'),
+  "totalInclVat": zod.number(),
+  "paidAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "amountExVat": zod.number(),
+  "taxRate": zod.number(),
+  "taxAmount": zod.number(),
+  "customerIdNumber": zod.string(),
+  "customerMobile": zod.string(),
+  "customerTaxNumber": zod.string().nullish(),
+  "customerEstablishmentName": zod.string().nullish(),
+  "vehicleModelYear": zod.number(),
+  "contractNumber": zod.string(),
+  "contractStartAt": zod.coerce.date(),
+  "contractEndAt": zod.coerce.date(),
+  "sellerBusinessName": zod.string(),
+  "sellerLogoUrl": zod.string().nullish(),
+  "sellerTaxNumber": zod.string().nullish(),
+  "sellerNationalAddress": zod.object({
+  "region": zod.string().nullable().describe('المنطقة'),
+  "city": zod.string().nullable().describe('المدينة'),
+  "district": zod.string().nullable().describe('الحي'),
+  "street": zod.string().nullable().describe('الشارع'),
+  "buildingNumber": zod.string().nullable().describe('رقم المبنى (4 أرقام)'),
+  "additionalNumber": zod.string().nullable().describe('الرقم الإضافي (4 أرقام)'),
+  "postalCode": zod.string().nullable().describe('الرمز البريدي (5 أرقام)'),
+  "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
+})
+}))
+
+
+export const UpdateInvoiceStatusParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateInvoiceStatusBody = zod.object({
+  "status": zod.enum(['paid'])
+})
+
+export const UpdateInvoiceStatusResponse = zod.object({
+  "id": zod.number(),
+  "invoiceNumber": zod.string().describe('مثال: CT01-IN01-2026'),
+  "invoiceSeq": zod.number().describe('1 إيجار، 2 غرامة تأخير'),
+  "contractId": zod.number(),
+  "customerName": zod.string(),
+  "vehicleBrand": zod.string(),
+  "vehiclePlateNumber": zod.string(),
+  "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
+  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة (إيجار مرتبط بعقد مسودة، أو غرامة تأخير قبل التسجيل). paid — مدفوعة (إيجار بعد التنشيط، أو غرامة بعد التسجيل في المالية).\n'),
+  "totalInclVat": zod.number(),
+  "paidAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}).and(zod.object({
+  "amountExVat": zod.number(),
+  "taxRate": zod.number(),
+  "taxAmount": zod.number(),
+  "customerIdNumber": zod.string(),
+  "customerMobile": zod.string(),
+  "customerTaxNumber": zod.string().nullish(),
+  "customerEstablishmentName": zod.string().nullish(),
+  "vehicleModelYear": zod.number(),
+  "contractNumber": zod.string(),
+  "contractStartAt": zod.coerce.date(),
+  "contractEndAt": zod.coerce.date(),
+  "sellerBusinessName": zod.string(),
+  "sellerLogoUrl": zod.string().nullish(),
+  "sellerTaxNumber": zod.string().nullish(),
+  "sellerNationalAddress": zod.object({
+  "region": zod.string().nullable().describe('المنطقة'),
+  "city": zod.string().nullable().describe('المدينة'),
+  "district": zod.string().nullable().describe('الحي'),
+  "street": zod.string().nullable().describe('الشارع'),
+  "buildingNumber": zod.string().nullable().describe('رقم المبنى (4 أرقام)'),
+  "additionalNumber": zod.string().nullable().describe('الرقم الإضافي (4 أرقام)'),
+  "postalCode": zod.string().nullable().describe('الرمز البريدي (5 أرقام)'),
+  "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
+})
 }))
 
 
@@ -1360,6 +1485,16 @@ export const GetSettingsResponse = zod.object({
   "taxEnabled": zod.boolean(),
   "taxRate": zod.number(),
   "taxNumber": zod.string().nullish().describe('Organization VAT registration number for invoices (ZATCA)'),
+  "nationalAddress": zod.object({
+  "region": zod.string().nullable().describe('المنطقة'),
+  "city": zod.string().nullable().describe('المدينة'),
+  "district": zod.string().nullable().describe('الحي'),
+  "street": zod.string().nullable().describe('الشارع'),
+  "buildingNumber": zod.string().nullable().describe('رقم المبنى (4 أرقام)'),
+  "additionalNumber": zod.string().nullable().describe('الرقم الإضافي (4 أرقام)'),
+  "postalCode": zod.string().nullable().describe('الرمز البريدي (5 أرقام)'),
+  "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
+}),
   "notificationEmailEnabled": zod.boolean(),
   "notificationSmsEnabled": zod.boolean()
 })
@@ -1370,6 +1505,16 @@ export const PutSettingsBody = zod.object({
   "taxEnabled": zod.boolean().optional(),
   "taxRate": zod.number().optional(),
   "taxNumber": zod.string().nullish().describe('Organization VAT registration number for invoices (ZATCA)'),
+  "nationalAddress": zod.object({
+  "region": zod.string().nullish(),
+  "city": zod.string().nullish(),
+  "district": zod.string().nullish(),
+  "street": zod.string().nullish(),
+  "buildingNumber": zod.string().nullish(),
+  "additionalNumber": zod.string().nullish(),
+  "postalCode": zod.string().nullish(),
+  "shortAddress": zod.string().nullish()
+}).optional(),
   "notificationEmailEnabled": zod.boolean().optional(),
   "notificationSmsEnabled": zod.boolean().optional()
 })
@@ -1380,6 +1525,16 @@ export const PutSettingsResponse = zod.object({
   "taxEnabled": zod.boolean(),
   "taxRate": zod.number(),
   "taxNumber": zod.string().nullish().describe('Organization VAT registration number for invoices (ZATCA)'),
+  "nationalAddress": zod.object({
+  "region": zod.string().nullable().describe('المنطقة'),
+  "city": zod.string().nullable().describe('المدينة'),
+  "district": zod.string().nullable().describe('الحي'),
+  "street": zod.string().nullable().describe('الشارع'),
+  "buildingNumber": zod.string().nullable().describe('رقم المبنى (4 أرقام)'),
+  "additionalNumber": zod.string().nullable().describe('الرقم الإضافي (4 أرقام)'),
+  "postalCode": zod.string().nullable().describe('الرمز البريدي (5 أرقام)'),
+  "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
+}),
   "notificationEmailEnabled": zod.boolean(),
   "notificationSmsEnabled": zod.boolean()
 })

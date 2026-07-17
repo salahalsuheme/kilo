@@ -35,6 +35,7 @@
     "@workspace/invoices-domain": "workspace:*",
     "@workspace/notifications-domain": "workspace:*",
     "@workspace/print-domain": "workspace:*",
+    "@workspace/settings-domain": "workspace:*",
     "@workspace/tenant-cache": "workspace:*",
     "@workspace/users-domain": "workspace:*",
     "@workspace/vehicles-domain": "workspace:*",

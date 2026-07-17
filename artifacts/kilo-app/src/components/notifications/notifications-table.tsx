@@ -98,20 +98,9 @@ export function NotificationsTable({
                         {notification.remainingDays} يوم
                       </span>
                     ) : notification.overdueDays != null ? (
-                      <div>
-                        <span className="font-medium text-amber-700">
-                          {notification.overdueDays} يوم
-                        </span>
-                        {notification.penaltyTotal != null && (
-                          <span className="mt-0.5 block text-xs text-muted-foreground">
-                            {new Intl.NumberFormat("ar-SA", {
-                              style: "currency",
-                              currency: "SAR",
-                              minimumFractionDigits: 2,
-                            }).format(notification.penaltyTotal)}
-                          </span>
-                        )}
-                      </div>
+                      <span className="font-medium text-red-600">
+                        {notification.overdueDays} يوم
+                      </span>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}

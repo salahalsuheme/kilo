@@ -7,6 +7,7 @@ export const CONTRACT_FIELD_ERRORS = {
   endBeforeStart: "تاريخ النهاية يجب أن يكون بعد تاريخ البداية",
   amountExVat: "قيمة العقد مطلوبة",
   amountPositive: "قيمة العقد يجب أن تكون أكبر من صفر",
+  authorizationNumber: "رقم التفويض مطلوب",
 } as const;
 
 export const CONTRACT_BODY_INVALID = "بيانات العقد غير صالحة";

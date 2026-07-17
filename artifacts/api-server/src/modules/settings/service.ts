@@ -1,9 +1,14 @@
 import { eq } from "drizzle-orm";
 import { PutSettingsBody } from "@workspace/api-zod";
+import { EMPTY_NATIONAL_ADDRESS } from "@workspace/settings-domain";
 import type { z } from "zod";
 import { db } from "../../db/index.js";
 import { orgSettings, organizations } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
+import {
+  mapNationalAddressRow,
+  mergeSettingsNationalAddress,
+} from "./domain/national-address.js";
 import { resolveSettingsTaxNumber } from "./domain/org-tax.js";
 
 function mapSettings(row: typeof orgSettings.$inferSelect) {
@@ -13,8 +18,22 @@ function mapSettings(row: typeof orgSettings.$inferSelect) {
     taxEnabled: row.taxEnabled,
     taxRate: Number(row.taxRate),
     taxNumber: row.taxNumber,
+    nationalAddress: mapNationalAddressRow(row),
     notificationEmailEnabled: row.notificationEmailEnabled,
     notificationSmsEnabled: row.notificationSmsEnabled,
+  };
+}
+
+function nationalAddressToColumns(address: ReturnType<typeof mapNationalAddressRow>) {
+  return {
+    nationalAddressRegion: address.region,
+    nationalAddressCity: address.city,
+    nationalAddressDistrict: address.district,
+    nationalAddressStreet: address.street,
+    nationalAddressBuildingNumber: address.buildingNumber,
+    nationalAddressAdditionalNumber: address.additionalNumber,
+    nationalAddressPostalCode: address.postalCode,
+    nationalAddressShortAddress: address.shortAddress,
   };
 }
 
@@ -44,6 +63,12 @@ export async function getOrCreateSettings(orgId: number) {
 }
 
 export async function updateSettings(orgId: number, body: z.infer<typeof PutSettingsBody>) {
+  const current = await getOrCreateSettings(orgId);
+  const nextNationalAddress = mergeSettingsNationalAddress(
+    current.nationalAddress ?? EMPTY_NATIONAL_ADDRESS,
+    body.nationalAddress ?? undefined,
+  );
+
   const [row] = await db
     .update(orgSettings)
     .set({
@@ -52,6 +77,9 @@ export async function updateSettings(orgId: number, body: z.infer<typeof PutSett
       taxRate: body.taxRate != null ? String(body.taxRate) : undefined,
       taxNumber:
         body.taxNumber !== undefined ? resolveSettingsTaxNumber(body.taxNumber) : undefined,
+      ...(body.nationalAddress
+        ? nationalAddressToColumns(nextNationalAddress)
+        : {}),
       notificationEmailEnabled: body.notificationEmailEnabled ?? undefined,
       notificationSmsEnabled: body.notificationSmsEnabled ?? undefined,
       updatedAt: new Date(),

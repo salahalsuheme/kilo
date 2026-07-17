@@ -10,6 +10,10 @@ export const ContractBodyObjectSchema = z.object({
   amountExVat: z.coerce
     .number({ message: CONTRACT_FIELD_ERRORS.amountExVat })
     .positive(CONTRACT_FIELD_ERRORS.amountPositive),
+  authorizationNumber: z
+    .string()
+    .trim()
+    .min(1, CONTRACT_FIELD_ERRORS.authorizationNumber),
 });
 
 export const CreateContractBodySchema = ContractBodyObjectSchema.superRefine((data, ctx) => {
