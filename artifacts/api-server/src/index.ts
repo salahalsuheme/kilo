@@ -7,9 +7,11 @@ import { createApp } from "./app.js";
 import { runMigrations } from "./db/migrate.js";
 import { getListenPort, validateProductionEnv } from "./env.js";
 import { ensureSeedData } from "./modules/bootstrap/service.js";
+import { ensureUploadsStorageReady } from "./storage/uploads-runtime.js";
 
 async function main() {
   validateProductionEnv();
+  ensureUploadsStorageReady();
 
   await runMigrations();
   await ensureSeedData();

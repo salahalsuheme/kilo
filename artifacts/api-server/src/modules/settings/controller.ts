@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import { PutSettingsBody } from "@workspace/api-zod";
 import { getOrgId, getUserId, sendNotAuthenticated } from "../../lib/http.js";
+import { buildUploadFilename } from "@workspace/storage-domain";
+import { persistUploadedFile } from "../../storage/uploads-runtime.js";
 import { validateSettingsTaxNumber } from "./domain/org-tax.js";
 import {
   mergeSettingsNationalAddress,
@@ -68,6 +70,7 @@ export async function handleUploadLogo(req: Request, res: Response): Promise<voi
     res.status(400).json({ message: "لم يتم رفع ملف" });
     return;
   }
-  const logoUrl = `/uploads/${file.filename}`;
+  const key = file.filename ?? buildUploadFilename("logo", file.originalname);
+  const logoUrl = await persistUploadedFile(file, key);
   res.json(await updateLogo(orgId, logoUrl));
 }

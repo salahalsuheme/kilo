@@ -95,7 +95,8 @@
 | `CORS_ORIGIN` | نعم | `https://app.kilo-sa.com` |
 | `KILO_ADMIN_EMAIL` | نعم | بريد المدير الأول |
 | `KILO_ADMIN_PASSWORD` | نعم | كلمة مرور قوية للمدير الأول (مرة واحدة عند الإنشاء) |
-| `UPLOADS_DIR` | موصى به | `/data/uploads` مع Volume |
+
+**مهم:** `UPLOADS_DIR` وحده **لا يحفظ** الصور بعد إعادة النشر. يجب إنشاء **Railway Volume** (القسم 4).
 
 **مهم:** لا تضع هذه القيم في `.env` داخل المستودع أبداً.
 
@@ -109,12 +110,33 @@
 
 ---
 
-## 4) Volume للملفات المرفوعة
+## 4) تخزين الصور (إلزامي في الإنتاج)
 
-صور الشعار والملفات تُحفظ على القرص. بدون Volume تُفقد بعد إعادة التشغيل.
+الصور **لا تُحفظ** داخل الحاوية. `UPLOADS_DIR` في Variables لا يكفي وحده.
 
-1. في خدمة الـ Web: **Volumes** → Mount path: `/data/uploads`
-2. تأكد أن `UPLOADS_DIR=/data/uploads`
+### الطريقة الموصى بها: Storage Bucket
+
+1. في مشروع Railway على اللوحة (Canvas) اضغط **+ New** → **Bucket**
+2. أنشئ الـ Bucket واختر المنطقة
+3. افتح خدمة **kilo-app** → **Variables**
+4. من تبويب الـ Bucket → **Credentials** → **Add Variable References** (أو Auto-inject لـ AWS SDK)
+5. يجب أن تظهر متغيرات مثل:
+   - `AWS_ENDPOINT_URL`
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - `AWS_S3_BUCKET_NAME`
+   - `AWS_DEFAULT_REGION`
+6. أعد النشر ثم أعد رفع الشعار والصور
+
+السيرفر يخزّن الملفات في الـ Bucket ويعرضها عبر `/uploads/...` كما قبل — لا تغيير في الواجهة.
+
+### بديل: Volume (إن وُجد في خطتك)
+
+من **⌘K** → **Create Volume** → Mount path: `/data/uploads`
+
+| متغير Railway (تلقائي بعد Volume) | القيمة |
+|-----------------------------------|--------|
+| `RAILWAY_VOLUME_MOUNT_PATH` | `/data/uploads` |
 
 ---
 
@@ -201,7 +223,7 @@ docker run --rm -p 8080:8080 \
 | فشل الاتصال بقاعدة البيانات | تحقق من Reference لـ `DATABASE_URL` |
 | 502 بعد النشر | راجع Logs — غالباً `SESSION_SECRET` ناقص أو قصير |
 | الدومين لا يعمل | تحقق من DNS في Hostinger وانتظر الانتشار |
-| الصور تختفي | أضف Volume على `/data/uploads` |
+| الصور مكسورة / 404 على `/uploads/` | أنشئ **Storage Bucket** واربط credentials بالخدمة (القسم 4) ثم أعد رفع الصور |
 | PDF لا يُنشأ | Playwright مثبت في Docker image — راجع Logs |
 | اللاندينغ معلق على healthcheck | عيّن **Config file** = `railway.landing.toml` لخدمة kilo-landing ثم Redeploy |
 | اللاندينغ يطلب DATABASE_URL | نفس السبب — يشغّل API بدل اللاندينغ؛ صحّح Config file |

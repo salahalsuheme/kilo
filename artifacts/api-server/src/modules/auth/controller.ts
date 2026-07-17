@@ -9,6 +9,8 @@ import {
 import { db } from "../../db/index.js";
 import { users } from "../../db/schema.js";
 import { getOrgId, getUserId, sendNotAuthenticated } from "../../lib/http.js";
+import { buildUploadFilename } from "@workspace/storage-domain";
+import { persistUploadedFile } from "../../storage/uploads-runtime.js";
 import { normalizeUserRole } from "@workspace/users-domain";
 import { recordActivity } from "../bootstrap/service.js";
 
@@ -161,7 +163,8 @@ export async function handleUploadProfilePhoto(req: Request, res: Response): Pro
     res.status(400).json({ message: "لم يتم رفع ملف" });
     return;
   }
-  const photoUrl = `/uploads/${file.filename}`;
+  const key = file.filename ?? buildUploadFilename("profile", file.originalname);
+  const photoUrl = await persistUploadedFile(file, key);
   const [user] = await db
     .update(users)
     .set({ photoUrl, updatedAt: new Date() })

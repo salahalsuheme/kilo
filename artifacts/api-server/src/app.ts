@@ -18,7 +18,7 @@ import invoicesRouter from "./modules/invoices/routes.js";
 import financeRouter from "./modules/finance/routes.js";
 import notificationsRouter from "./modules/notifications/routes.js";
 import { securityHeaders } from "./security-headers.js";
-import { resolveUploadsDir } from "./uploads-path.js";
+import { getResolvedUploadsDir, getUploadsStorageMode, handleServeUploadedFile } from "./storage/uploads-runtime.js";
 
 const PgSession = connectPgSimple(session);
 const isProduction = process.env.NODE_ENV === "production";
@@ -58,7 +58,7 @@ export function createApp() {
   );
   app.use(express.json({ limit: "2mb" }));
 
-  const uploadsPath = resolveUploadsDir();
+  const uploadsPath = getResolvedUploadsDir();
   fs.mkdirSync(uploadsPath, { recursive: true });
 
   app.use(
@@ -78,7 +78,13 @@ export function createApp() {
     }),
   );
 
-  app.use("/uploads", express.static(uploadsPath));
+  if (getUploadsStorageMode() === "s3") {
+    app.get("/uploads/:filename", (req, res) => {
+      void handleServeUploadedFile(req, res);
+    });
+  } else {
+    app.use("/uploads", express.static(uploadsPath));
+  }
 
   const api = express.Router();
   api.get("/healthz", (_req, res) => res.json({ ok: true }));

@@ -11,6 +11,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.888.0",
     "@workspace/api-zod": "workspace:*",
     "@workspace/contracts-domain": "workspace:*",
     "@workspace/invoices-domain": "workspace:*",
@@ -18,6 +19,7 @@
     "@workspace/customers-domain": "workspace:*",
     "@workspace/users-domain": "workspace:*",
     "@workspace/settings-domain": "workspace:*",
+    "@workspace/storage-domain": "workspace:*",
     "@workspace/vehicles-domain": "workspace:*",
     "@workspace/notifications-domain": "workspace:*",
     "@workspace/print-domain": "workspace:*",

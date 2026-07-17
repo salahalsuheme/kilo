@@ -75,10 +75,6 @@ export function getListenPort(): number {
   return port;
 }
 
-export function getUploadsDir(): string {
-  return process.env.UPLOADS_DIR?.trim() || "uploads";
-}
-
 export function getBootstrapAdminEmail(): string {
   return process.env.KILO_ADMIN_EMAIL?.trim() || "admin@kilo-sa.com";
 }

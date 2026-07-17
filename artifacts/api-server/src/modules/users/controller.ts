@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import path from "path";
 import { ListUsersQueryParams } from "@workspace/api-zod";
 import {
   CreateOrgUserBodySchema,
@@ -14,6 +15,7 @@ import {
   sendNotAuthenticated,
   sendNotFound,
 } from "../../lib/http.js";
+import { persistUploadedFile } from "../../storage/uploads-runtime.js";
 import { isPgUniqueViolation } from "../../lib/pg-unique-violation.js";
 import {
   createUser,
@@ -137,7 +139,10 @@ export async function handleUploadUserPhoto(req: Request, res: Response): Promis
     return;
   }
 
-  const photoUrl = `/uploads/${file.filename}`;
+  const key =
+    file.filename ??
+    `user-${id}-${Date.now()}${path.extname(file.originalname)}`;
+  const photoUrl = await persistUploadedFile(file, key);
   const user = await setUserPhoto(session.orgId, id, photoUrl);
   if (!user) {
     sendNotFound(res);
