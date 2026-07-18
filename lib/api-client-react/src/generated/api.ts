@@ -83,6 +83,8 @@ import type {
   UploadUserPhoto200,
   UploadUserPhotoBody,
   Vehicle,
+  VehicleDamageForm,
+  VehicleDamageFormBody,
   VehicleList
 } from './api.schemas';
 
@@ -2462,6 +2464,208 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getUploadContractSignedAttachmentMutationOptions(options));
+    }
+
+export const getGetContractVehicleDamageFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/vehicle-damage-form`
+}
+
+export const getContractVehicleDamageForm = async (id: number, options?: RequestInit): Promise<VehicleDamageForm> => {
+
+  return customFetch<VehicleDamageForm>(getGetContractVehicleDamageFormUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetContractVehicleDamageFormQueryKey = (id: number,) => {
+    return [
+    `/api/contracts/${id}/vehicle-damage-form`
+    ] as const;
+    }
+
+
+export const getGetContractVehicleDamageFormQueryOptions = <TData = Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetContractVehicleDamageFormQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getContractVehicleDamageForm>>> = ({ signal }) => getContractVehicleDamageForm(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetContractVehicleDamageFormQueryResult = NonNullable<Awaited<ReturnType<typeof getContractVehicleDamageForm>>>
+export type GetContractVehicleDamageFormQueryError = ErrorType<void>
+
+
+
+export function useGetContractVehicleDamageForm<TData = Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetContractVehicleDamageFormQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpsertContractVehicleDamageFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/vehicle-damage-form`
+}
+
+export const upsertContractVehicleDamageForm = async (id: number,
+    vehicleDamageFormBody: VehicleDamageFormBody, options?: RequestInit): Promise<VehicleDamageForm> => {
+
+  return customFetch<VehicleDamageForm>(getUpsertContractVehicleDamageFormUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(vehicleDamageFormBody)
+  }
+);}
+
+
+
+
+
+export const getUpsertContractVehicleDamageFormMutationOptions = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext> => {
+
+const mutationKey = ['upsertContractVehicleDamageForm'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>, {id: number;data: BodyType<VehicleDamageFormBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  upsertContractVehicleDamageForm(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertContractVehicleDamageFormMutationResult = NonNullable<Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>>
+    export type UpsertContractVehicleDamageFormMutationBody = BodyType<VehicleDamageFormBody>
+    export type UpsertContractVehicleDamageFormMutationError = ErrorType<ApiErrorMessage | void>
+
+    export const useUpsertContractVehicleDamageForm = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>,
+        TError,
+        {id: number;data: BodyType<VehicleDamageFormBody>},
+        TContext
+      > => {
+      return useMutation(getUpsertContractVehicleDamageFormMutationOptions(options));
+    }
+
+export const getDeleteContractVehicleDamageFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/vehicle-damage-form`
+}
+
+export const deleteContractVehicleDamageForm = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteContractVehicleDamageFormUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteContractVehicleDamageFormMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteContractVehicleDamageForm>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteContractVehicleDamageForm>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteContractVehicleDamageForm'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteContractVehicleDamageForm>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteContractVehicleDamageForm(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteContractVehicleDamageFormMutationResult = NonNullable<Awaited<ReturnType<typeof deleteContractVehicleDamageForm>>>
+
+    export type DeleteContractVehicleDamageFormMutationError = ErrorType<void>
+
+    export const useDeleteContractVehicleDamageForm = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteContractVehicleDamageForm>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteContractVehicleDamageForm>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteContractVehicleDamageFormMutationOptions(options));
     }
 
 export const getListContractTemplatesUrl = () => {

@@ -703,6 +703,58 @@ paths:
         "404":
           description: Not found
 
+  /contracts/{id}/vehicle-damage-form:
+    get:
+      operationId: getContractVehicleDamageForm
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "200":
+          description: Vehicle damage form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleDamageForm"
+        "404":
+          description: Not found
+    put:
+      operationId: upsertContractVehicleDamageForm
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleDamageFormBody"
+      responses:
+        "200":
+          description: Saved vehicle damage form
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleDamageForm"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Contract not found
+    delete:
+      operationId: deleteContractVehicleDamageForm
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
   /contract-templates:
     get:
       operationId: listContractTemplates
@@ -1765,6 +1817,9 @@ components:
         isSigned:
           type: boolean
           description: هل تم رفع العقد الموقع من العميل
+        hasVehicleDamageForm:
+          type: boolean
+          description: هل يوجد نموذج أضرار مركبة محفوظ
         createdAt:
           type: string
           format: date-time
@@ -1794,8 +1849,47 @@ components:
         - overdueDays
         - penaltyTotal
         - isSigned
+        - hasVehicleDamageForm
         - createdAt
         - updatedAt
+
+    VehicleDamageMarker:
+      type: object
+      properties:
+        x:
+          type: number
+          minimum: 0
+          maximum: 1
+        y:
+          type: number
+          minimum: 0
+          maximum: 1
+      required: [x, y]
+
+    VehicleDamageFormBody:
+      type: object
+      properties:
+        markers:
+          type: array
+          items:
+            $ref: "#/components/schemas/VehicleDamageMarker"
+      required: [markers]
+
+    VehicleDamageForm:
+      type: object
+      properties:
+        contractId:
+          type: integer
+        contractNumber:
+          type: string
+        markers:
+          type: array
+          items:
+            $ref: "#/components/schemas/VehicleDamageMarker"
+        updatedAt:
+          type: string
+          format: date-time
+      required: [contractId, contractNumber, markers, updatedAt]
 
     CreateContractBody:
       type: object

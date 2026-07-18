@@ -16,6 +16,11 @@ export const SIGNED_CONTRACT_ATTACHMENT_ERRORS = {
   tooLarge: "حجم الملف كبير جداً (الحد الأقصى 10 ميجابايت)",
 } as const;
 
+export const VEHICLE_DAMAGE_FORM_ERRORS = {
+  notFound: "لا يوجد نموذج أضرار مركبة",
+  emptyMarkers: "أضف نقطة واحدة على الأقل لحفظ النموذج",
+} as const;
+
 export const CONTRACT_BODY_INVALID = "بيانات العقد غير صالحة";
 export const CONTRACT_TEMPLATE_BODY_INVALID = "بيانات قالب العقد غير صالحة";
 

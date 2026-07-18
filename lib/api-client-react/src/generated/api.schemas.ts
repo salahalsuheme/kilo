@@ -293,7 +293,33 @@ export interface Contract {
   renderedContent?: string | null;
   /** هل تم رفع العقد الموقع من العميل */
   isSigned: boolean;
+  /** هل يوجد نموذج أضرار مركبة محفوظ */
+  hasVehicleDamageForm: boolean;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface VehicleDamageMarker {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  x: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  y: number;
+}
+
+export interface VehicleDamageFormBody {
+  markers: VehicleDamageMarker[];
+}
+
+export interface VehicleDamageForm {
+  contractId: number;
+  contractNumber: string;
+  markers: VehicleDamageMarker[];
   updatedAt: string;
 }
 

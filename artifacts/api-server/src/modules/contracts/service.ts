@@ -8,6 +8,7 @@ import {
   getDraftActivationError,
   isValidContractStatusTransition,
   isContractSigned,
+  hasVehicleDamageForm,
   remainingRentalDays,
   rentalDurationDays,
   resolveContractPenaltySnapshot,
@@ -89,6 +90,7 @@ function mapContractRow(
     penaltyTotal,
     renderedContent: row.renderedContent,
     isSigned: isContractSigned(row.signedAttachmentUrl),
+    hasVehicleDamageForm: hasVehicleDamageForm(row.vehicleDamageMarkers ?? undefined),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

@@ -8,6 +8,7 @@ import {
   UpdateContractBodySchema,
   UpdateContractTemplateBodySchema,
   UpdateContractStatusBodySchema,
+  VehicleDamageFormBodySchema,
 } from "@workspace/contracts-domain";
 import {
   firstZodErrorMessage,
@@ -34,6 +35,11 @@ import {
   updateContractTemplate,
 } from "./template-service.js";
 import { buildContractPdf } from "../print/pdf-service.js";
+import {
+  deleteContractVehicleDamageForm,
+  getContractVehicleDamageForm,
+  upsertContractVehicleDamageForm,
+} from "./vehicle-damage-form-service.js";
 
 function requireSession(req: Request, res: Response): number | null {
   const orgId = getOrgId(req);
@@ -135,6 +141,61 @@ export async function handleDownloadContractSignedAttachment(
   res.setHeader("Content-Type", result.contentType);
   res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
   res.send(result.body);
+}
+
+export async function handleGetContractVehicleDamageForm(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const id = Number(req.params.id);
+  const form = await getContractVehicleDamageForm(orgId, id);
+  if (!form) {
+    sendNotFound(res);
+    return;
+  }
+  res.json(form);
+}
+
+export async function handleUpsertContractVehicleDamageForm(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const parsed = VehicleDamageFormBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ message: firstZodErrorMessage(parsed.error, CONTRACT_BODY_INVALID) });
+    return;
+  }
+
+  const id = Number(req.params.id);
+  const result = await upsertContractVehicleDamageForm(orgId, id, parsed.data);
+  if (!result) {
+    sendNotFound(res);
+    return;
+  }
+  if (sendServiceError(res, result)) return;
+  res.json(result.data);
+}
+
+export async function handleDeleteContractVehicleDamageForm(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const id = Number(req.params.id);
+  const ok = await deleteContractVehicleDamageForm(orgId, id);
+  if (!ok) {
+    sendNotFound(res);
+    return;
+  }
+  res.status(204).end();
 }
 
 export async function handleCreateContract(req: Request, res: Response): Promise<void> {

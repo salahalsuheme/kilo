@@ -8,6 +8,7 @@ import {
   numeric,
   date,
   pgEnum,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 export const customerTypeEnum = pgEnum("customer_type", [
@@ -205,6 +206,7 @@ export const contracts = pgTable("contracts", {
   penaltyTotal: numeric("penalty_total", { precision: 14, scale: 2 }).notNull().default("0"),
   renderedContent: text("rendered_content"),
   signedAttachmentUrl: text("signed_attachment_url"),
+  vehicleDamageMarkers: jsonb("vehicle_damage_markers").$type<Array<{ x: number; y: number }>>(),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

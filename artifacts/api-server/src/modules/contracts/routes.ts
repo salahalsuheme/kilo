@@ -5,16 +5,19 @@ import {
   handleCreateContractTemplate,
   handleDeleteContract,
   handleDeleteContractTemplate,
+  handleDeleteContractVehicleDamageForm,
   handleDownloadContractPdf,
   handleDownloadContractSignedAttachment,
   handleGetContract,
   handleGetContractTemplate,
+  handleGetContractVehicleDamageForm,
   handleListContractTemplates,
   handleListContracts,
   handleUpdateContract,
   handleUpdateContractStatus,
   handleUpdateContractTemplate,
   handleUploadContractSignedAttachment,
+  handleUpsertContractVehicleDamageForm,
 } from "./controller.js";
 
 const router: IRouter = Router();
@@ -29,6 +32,9 @@ router.post(
   signedContractAttachmentUpload.single("file"),
   handleUploadContractSignedAttachment,
 );
+router.get("/contracts/:id/vehicle-damage-form", handleGetContractVehicleDamageForm);
+router.put("/contracts/:id/vehicle-damage-form", handleUpsertContractVehicleDamageForm);
+router.delete("/contracts/:id/vehicle-damage-form", handleDeleteContractVehicleDamageForm);
 router.put("/contracts/:id", handleUpdateContract);
 router.delete("/contracts/:id", handleDeleteContract);
 router.patch("/contracts/:id/status", handleUpdateContractStatus);

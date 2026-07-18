@@ -656,6 +656,7 @@ export const ListContractsResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })),
@@ -707,6 +708,7 @@ export const CreateContractResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -740,6 +742,7 @@ export const GetContractResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -791,6 +794,7 @@ export const UpdateContractResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -835,6 +839,7 @@ export const UpdateContractStatusResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -886,9 +891,78 @@ export const UploadContractSignedAttachmentResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
+
+
+export const GetContractVehicleDamageFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const getContractVehicleDamageFormResponseMarkersItemXMin = 0;
+export const getContractVehicleDamageFormResponseMarkersItemXMax = 1;
+
+export const getContractVehicleDamageFormResponseMarkersItemYMin = 0;
+export const getContractVehicleDamageFormResponseMarkersItemYMax = 1;
+
+
+
+export const GetContractVehicleDamageFormResponse = zod.object({
+  "contractId": zod.number(),
+  "contractNumber": zod.string(),
+  "markers": zod.array(zod.object({
+  "x": zod.number().min(getContractVehicleDamageFormResponseMarkersItemXMin).max(getContractVehicleDamageFormResponseMarkersItemXMax),
+  "y": zod.number().min(getContractVehicleDamageFormResponseMarkersItemYMin).max(getContractVehicleDamageFormResponseMarkersItemYMax)
+})),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UpsertContractVehicleDamageFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const upsertContractVehicleDamageFormBodyMarkersItemXMin = 0;
+export const upsertContractVehicleDamageFormBodyMarkersItemXMax = 1;
+
+export const upsertContractVehicleDamageFormBodyMarkersItemYMin = 0;
+export const upsertContractVehicleDamageFormBodyMarkersItemYMax = 1;
+
+
+
+export const UpsertContractVehicleDamageFormBody = zod.object({
+  "markers": zod.array(zod.object({
+  "x": zod.number().min(upsertContractVehicleDamageFormBodyMarkersItemXMin).max(upsertContractVehicleDamageFormBodyMarkersItemXMax),
+  "y": zod.number().min(upsertContractVehicleDamageFormBodyMarkersItemYMin).max(upsertContractVehicleDamageFormBodyMarkersItemYMax)
+}))
+})
+
+export const upsertContractVehicleDamageFormResponseMarkersItemXMin = 0;
+export const upsertContractVehicleDamageFormResponseMarkersItemXMax = 1;
+
+export const upsertContractVehicleDamageFormResponseMarkersItemYMin = 0;
+export const upsertContractVehicleDamageFormResponseMarkersItemYMax = 1;
+
+
+
+export const UpsertContractVehicleDamageFormResponse = zod.object({
+  "contractId": zod.number(),
+  "contractNumber": zod.string(),
+  "markers": zod.array(zod.object({
+  "x": zod.number().min(upsertContractVehicleDamageFormResponseMarkersItemXMin).max(upsertContractVehicleDamageFormResponseMarkersItemXMax),
+  "y": zod.number().min(upsertContractVehicleDamageFormResponseMarkersItemYMin).max(upsertContractVehicleDamageFormResponseMarkersItemYMax)
+})),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DeleteContractVehicleDamageFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteContractVehicleDamageFormResponse = zod.void()
 
 
 export const ListContractTemplatesResponse = zod.object({

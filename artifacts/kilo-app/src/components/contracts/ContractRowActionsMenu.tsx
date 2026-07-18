@@ -11,7 +11,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileEdit, CheckCircle2, Download, FileUp, MoreHorizontal, Printer, RefreshCw, Trash2 } from "lucide-react";
+import { FileEdit, CheckCircle2, Download, FileUp, Car, MoreHorizontal, Printer, RefreshCw, Trash2 } from "lucide-react";
 import type { PrintMode } from "@/lib/print/open-print-document";
 
 interface ContractRowActionsMenuProps {
@@ -22,6 +22,9 @@ interface ContractRowActionsMenuProps {
   onPrint: (contract: Contract, mode: PrintMode) => void;
   onUploadSigned: (contract: Contract) => void;
   onDownloadSigned: (contract: Contract) => void;
+  onOpenDamageForm: (contract: Contract) => void;
+  onDownloadDamageForm: (contract: Contract) => void;
+  onDeleteDamageForm: (contract: Contract) => void;
   isUploadPending?: boolean;
 }
 
@@ -41,6 +44,9 @@ export function ContractRowActionsMenu({
   onPrint,
   onUploadSigned,
   onDownloadSigned,
+  onOpenDamageForm,
+  onDownloadDamageForm,
+  onDeleteDamageForm,
   isUploadPending,
 }: ContractRowActionsMenuProps) {
   const canDelete = contract.status === "draft";
@@ -145,6 +151,47 @@ export function ContractRowActionsMenu({
             تنزيل العقد الموقع
           </DropdownMenuItem>
         ) : null}
+
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Car className="h-4 w-4 me-2" />
+            أضرار المركبة
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenDamageForm(contract);
+              }}
+            >
+              <Car className="h-4 w-4 me-2" />
+              {contract.hasVehicleDamageForm ? "تعديل النموذج" : "نموذج أضرار مركبة"}
+            </DropdownMenuItem>
+            {contract.hasVehicleDamageForm ? (
+              <>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDownloadDamageForm(contract);
+                  }}
+                >
+                  <Download className="h-4 w-4 me-2" />
+                  تنزيل النموذج
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteDamageForm(contract);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4 me-2" />
+                  حذف النموذج
+                </DropdownMenuItem>
+              </>
+            ) : null}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem

@@ -34,6 +34,9 @@ interface ContractsTableProps {
   onPrint: (contract: Contract, mode: PrintMode) => void;
   onUploadSigned: (contract: Contract) => void;
   onDownloadSigned: (contract: Contract) => void;
+  onOpenDamageForm: (contract: Contract) => void;
+  onDownloadDamageForm: (contract: Contract) => void;
+  onDeleteDamageForm: (contract: Contract) => void;
   isUploadPending?: boolean;
 }
 
@@ -48,6 +51,9 @@ export function ContractsTable({
   onPrint,
   onUploadSigned,
   onDownloadSigned,
+  onOpenDamageForm,
+  onDownloadDamageForm,
+  onDeleteDamageForm,
   isUploadPending,
 }: ContractsTableProps) {
   return (
@@ -181,6 +187,9 @@ export function ContractsTable({
                         onPrint={onPrint}
                         onUploadSigned={onUploadSigned}
                         onDownloadSigned={onDownloadSigned}
+                        onOpenDamageForm={onOpenDamageForm}
+                        onDownloadDamageForm={onDownloadDamageForm}
+                        onDeleteDamageForm={onDeleteDamageForm}
                         isUploadPending={isUploadPending}
                       />
                     </div>

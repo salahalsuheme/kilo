@@ -6,6 +6,7 @@ export {
   CONTRACT_TEMPLATE_BODY_INVALID,
   CONTRACT_TEMPLATE_FIELD_ERRORS,
   SIGNED_CONTRACT_ATTACHMENT_ERRORS,
+  VEHICLE_DAMAGE_FORM_ERRORS,
 } from "./contract-field-errors.js";
 export {
   contractOverdueDays,
@@ -75,3 +76,13 @@ export {
   isContractSigned,
   isSignedContractAttachmentMimeType,
 } from "./contract-signed-attachment.js";
+export {
+  VEHICLE_DAMAGE_DIAGRAM_SRC,
+  VEHICLE_DAMAGE_MARKER_MAX,
+  VehicleDamageFormBodySchema,
+  VehicleDamageMarkerSchema,
+  hasVehicleDamageForm,
+  parseVehicleDamageMarkers,
+  type VehicleDamageFormBodyInput,
+  type VehicleDamageMarker,
+} from "./vehicle-damage-form.schema.js";
