@@ -75,6 +75,7 @@ import type {
   UpdateProfileBody,
   UpdatePurchaseBody,
   UpdateVehicleBody,
+  UploadContractSignedAttachmentBody,
   UploadProfilePhoto200,
   UploadProfilePhotoBody,
   UploadSettingsLogo200,
@@ -2323,6 +2324,145 @@ export function useDownloadContractPdf<TData = Awaited<ReturnType<typeof downloa
 
 
 
+
+export const getDownloadContractSignedAttachmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/signed-attachment`
+}
+
+export const downloadContractSignedAttachment = async (id: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadContractSignedAttachmentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadContractSignedAttachmentQueryKey = (id: number,) => {
+    return [
+    `/api/contracts/${id}/signed-attachment`
+    ] as const;
+    }
+
+
+export const getDownloadContractSignedAttachmentQueryOptions = <TData = Awaited<ReturnType<typeof downloadContractSignedAttachment>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadContractSignedAttachment>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadContractSignedAttachmentQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadContractSignedAttachment>>> = ({ signal }) => downloadContractSignedAttachment(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadContractSignedAttachment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadContractSignedAttachmentQueryResult = NonNullable<Awaited<ReturnType<typeof downloadContractSignedAttachment>>>
+export type DownloadContractSignedAttachmentQueryError = ErrorType<void>
+
+
+
+export function useDownloadContractSignedAttachment<TData = Awaited<ReturnType<typeof downloadContractSignedAttachment>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadContractSignedAttachment>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadContractSignedAttachmentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUploadContractSignedAttachmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/signed-attachment`
+}
+
+export const uploadContractSignedAttachment = async (id: number,
+    uploadContractSignedAttachmentBody: UploadContractSignedAttachmentBody, options?: RequestInit): Promise<Contract> => {
+    const formData = new FormData();
+formData.append(`file`, uploadContractSignedAttachmentBody.file);
+
+  return customFetch<Contract>(getUploadContractSignedAttachmentUrl(id),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getUploadContractSignedAttachmentMutationOptions = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadContractSignedAttachment>>, TError,{id: number;data: BodyType<UploadContractSignedAttachmentBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof uploadContractSignedAttachment>>, TError,{id: number;data: BodyType<UploadContractSignedAttachmentBody>}, TContext> => {
+
+const mutationKey = ['uploadContractSignedAttachment'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadContractSignedAttachment>>, {id: number;data: BodyType<UploadContractSignedAttachmentBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  uploadContractSignedAttachment(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadContractSignedAttachmentMutationResult = NonNullable<Awaited<ReturnType<typeof uploadContractSignedAttachment>>>
+    export type UploadContractSignedAttachmentMutationBody = BodyType<UploadContractSignedAttachmentBody>
+    export type UploadContractSignedAttachmentMutationError = ErrorType<ApiErrorMessage | void>
+
+    export const useUploadContractSignedAttachment = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadContractSignedAttachment>>, TError,{id: number;data: BodyType<UploadContractSignedAttachmentBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadContractSignedAttachment>>,
+        TError,
+        {id: number;data: BodyType<UploadContractSignedAttachmentBody>},
+        TContext
+      > => {
+      return useMutation(getUploadContractSignedAttachmentMutationOptions(options));
+    }
 
 export const getListContractTemplatesUrl = () => {
 

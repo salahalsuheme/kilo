@@ -655,6 +655,54 @@ paths:
         "404":
           description: Not found
 
+  /contracts/{id}/signed-attachment:
+    get:
+      operationId: downloadContractSignedAttachment
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "200":
+          description: Signed contract attachment file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+    post:
+      operationId: uploadContractSignedAttachment
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        "200":
+          description: Signed contract uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Contract"
+        "400":
+          description: Invalid file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+
   /contract-templates:
     get:
       operationId: listContractTemplates
@@ -1714,6 +1762,9 @@ components:
         renderedContent:
           type: string
           nullable: true
+        isSigned:
+          type: boolean
+          description: هل تم رفع العقد الموقع من العميل
         createdAt:
           type: string
           format: date-time
@@ -1742,6 +1793,7 @@ components:
         - remainingDays
         - overdueDays
         - penaltyTotal
+        - isSigned
         - createdAt
         - updatedAt
 

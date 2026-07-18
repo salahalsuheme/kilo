@@ -7,6 +7,7 @@ import {
   formatContractNumberWithYear,
   getDraftActivationError,
   isValidContractStatusTransition,
+  isContractSigned,
   remainingRentalDays,
   rentalDurationDays,
   resolveContractPenaltySnapshot,
@@ -37,6 +38,7 @@ import {
   getOrgTaxSettings,
   resolveContractAmounts,
 } from "./domain/contract-context.js";
+import { persistUploadedFile, readUploadedFileByPublicPath } from "../../storage/uploads-runtime.js";
 
 type ListParams = z.infer<typeof ListContractsQueryParams>;
 type CreateBody = CreateContractBodyInput;
@@ -86,6 +88,7 @@ function mapContractRow(
     overdueDays,
     penaltyTotal,
     renderedContent: row.renderedContent,
+    isSigned: isContractSigned(row.signedAttachmentUrl),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -538,4 +541,58 @@ export async function updateContractStatus(
   );
 
   return { data: await getContract(orgId, id) };
+}
+
+export async function uploadContractSignedAttachment(
+  orgId: number,
+  id: number,
+  file: Express.Multer.File,
+) {
+  const existing = await getContract(orgId, id);
+  if (!existing) return null;
+
+  const key = file.filename ?? `contract-signed-${id}-${Date.now()}`;
+  const signedAttachmentUrl = await persistUploadedFile(file, key);
+
+  const [row] = await db
+    .update(contracts)
+    .set({ signedAttachmentUrl, updatedAt: new Date() })
+    .where(and(eq(contracts.orgId, orgId), eq(contracts.id, id), isNull(contracts.deletedAt)))
+    .returning();
+
+  if (!row) return null;
+
+  await recordActivity(
+    orgId,
+    "contract",
+    `رفع العقد الموقع: ${existing.customerName} (${existing.contractNumber})`,
+  );
+
+  return { data: await getContract(orgId, id) };
+}
+
+export async function downloadContractSignedAttachment(orgId: number, id: number) {
+  const [row] = await db
+    .select({
+      contractNumber: contracts.contractNumber,
+      signedAttachmentUrl: contracts.signedAttachmentUrl,
+    })
+    .from(contracts)
+    .where(and(eq(contracts.orgId, orgId), eq(contracts.id, id), isNull(contracts.deletedAt)))
+    .limit(1);
+
+  if (!row?.signedAttachmentUrl) return null;
+
+  const file = await readUploadedFileByPublicPath(row.signedAttachmentUrl);
+  if (!file) return null;
+
+  const ext = row.signedAttachmentUrl.includes(".")
+    ? row.signedAttachmentUrl.slice(row.signedAttachmentUrl.lastIndexOf("."))
+    : "";
+
+  return {
+    body: file.body,
+    contentType: file.contentType,
+    filename: `${row.contractNumber}-signed${ext}`,
+  };
 }

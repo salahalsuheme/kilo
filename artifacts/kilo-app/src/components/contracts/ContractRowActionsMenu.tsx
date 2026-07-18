@@ -11,7 +11,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileEdit, CheckCircle2, Download, MoreHorizontal, Printer, RefreshCw, Trash2 } from "lucide-react";
+import { FileEdit, CheckCircle2, Download, FileUp, MoreHorizontal, Printer, RefreshCw, Trash2 } from "lucide-react";
 import type { PrintMode } from "@/lib/print/open-print-document";
 
 interface ContractRowActionsMenuProps {
@@ -20,6 +20,9 @@ interface ContractRowActionsMenuProps {
   onDelete: (id: number) => void;
   onChangeStatus: (contract: Contract, status: ContractStatus) => void;
   onPrint: (contract: Contract, mode: PrintMode) => void;
+  onUploadSigned: (contract: Contract) => void;
+  onDownloadSigned: (contract: Contract) => void;
+  isUploadPending?: boolean;
 }
 
 const STATUS_ACTIONS: Array<{
@@ -36,6 +39,9 @@ export function ContractRowActionsMenu({
   onDelete,
   onChangeStatus,
   onPrint,
+  onUploadSigned,
+  onDownloadSigned,
+  isUploadPending,
 }: ContractRowActionsMenuProps) {
   const canDelete = contract.status === "draft";
   const canEdit = contract.status === "draft";
@@ -116,6 +122,29 @@ export function ContractRowActionsMenu({
           <Download className="h-4 w-4 me-2" />
           تنزيل
         </DropdownMenuItem>
+
+        <DropdownMenuItem
+          disabled={isUploadPending}
+          onClick={(e) => {
+            e.stopPropagation();
+            onUploadSigned(contract);
+          }}
+        >
+          <FileUp className="h-4 w-4 me-2" />
+          إرفاق العقد الموقع
+        </DropdownMenuItem>
+
+        {contract.isSigned ? (
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onDownloadSigned(contract);
+            }}
+          >
+            <Download className="h-4 w-4 me-2" />
+            تنزيل العقد الموقع
+          </DropdownMenuItem>
+        ) : null}
 
         <DropdownMenuSeparator />
         <DropdownMenuItem

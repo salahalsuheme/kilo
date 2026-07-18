@@ -655,6 +655,7 @@ export const ListContractsResponse = zod.object({
   "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
+  "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })),
@@ -705,6 +706,7 @@ export const CreateContractResponse = zod.object({
   "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
+  "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -737,6 +739,7 @@ export const GetContractResponse = zod.object({
   "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
+  "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -787,6 +790,7 @@ export const UpdateContractResponse = zod.object({
   "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
+  "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -830,6 +834,7 @@ export const UpdateContractStatusResponse = zod.object({
   "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
+  "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -840,6 +845,50 @@ export const DownloadContractPdfParams = zod.object({
 })
 
 export const DownloadContractPdfResponse = zod.unknown()
+
+
+export const DownloadContractSignedAttachmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DownloadContractSignedAttachmentResponse = zod.unknown()
+
+
+export const UploadContractSignedAttachmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UploadContractSignedAttachmentBody = zod.object({
+  "file": zod.instanceof(File)
+})
+
+export const UploadContractSignedAttachmentResponse = zod.object({
+  "id": zod.number(),
+  "contractNumber": zod.string().describe('مثال: CT01-2026'),
+  "customerId": zod.number(),
+  "customerName": zod.string(),
+  "carId": zod.number(),
+  "vehicleBrand": zod.string(),
+  "vehiclePlateNumber": zod.string(),
+  "vehicleCoolingType": zod.enum(['refrigerated', 'non_refrigerated']),
+  "templateId": zod.number(),
+  "startAt": zod.coerce.date(),
+  "endAt": zod.coerce.date(),
+  "status": zod.enum(['draft', 'active', 'overdue', 'cancelled', 'closed']),
+  "amountExVat": zod.number(),
+  "taxRate": zod.number(),
+  "taxAmount": zod.number(),
+  "totalInclVat": zod.number(),
+  "authorizationNumber": zod.string().describe('رقم التفويض'),
+  "rentalDurationDays": zod.number(),
+  "remainingDays": zod.number(),
+  "overdueDays": zod.number().describe('أيام التأخير (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
+  "renderedContent": zod.string().nullish(),
+  "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
 
 
 export const ListContractTemplatesResponse = zod.object({

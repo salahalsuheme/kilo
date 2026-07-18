@@ -1,10 +1,12 @@
 import { Router, type IRouter } from "express";
+import { signedContractAttachmentUpload } from "../../storage/signed-contract-upload.js";
 import {
   handleCreateContract,
   handleCreateContractTemplate,
   handleDeleteContract,
   handleDeleteContractTemplate,
   handleDownloadContractPdf,
+  handleDownloadContractSignedAttachment,
   handleGetContract,
   handleGetContractTemplate,
   handleListContractTemplates,
@@ -12,6 +14,7 @@ import {
   handleUpdateContract,
   handleUpdateContractStatus,
   handleUpdateContractTemplate,
+  handleUploadContractSignedAttachment,
 } from "./controller.js";
 
 const router: IRouter = Router();
@@ -20,6 +23,12 @@ router.get("/contracts", handleListContracts);
 router.post("/contracts", handleCreateContract);
 router.get("/contracts/:id", handleGetContract);
 router.get("/contracts/:id/pdf", handleDownloadContractPdf);
+router.get("/contracts/:id/signed-attachment", handleDownloadContractSignedAttachment);
+router.post(
+  "/contracts/:id/signed-attachment",
+  signedContractAttachmentUpload.single("file"),
+  handleUploadContractSignedAttachment,
+);
 router.put("/contracts/:id", handleUpdateContract);
 router.delete("/contracts/:id", handleDeleteContract);
 router.patch("/contracts/:id/status", handleUpdateContractStatus);

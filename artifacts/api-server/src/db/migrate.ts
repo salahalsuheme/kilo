@@ -613,6 +613,10 @@ const CONTRACT_STATUS_FIX_OVERDUE_PATCH = `
 UPDATE contracts SET status = 'active' WHERE status = 'overdue' AND end_at >= NOW();
 `;
 
+const CONTRACT_SIGNED_ATTACHMENT_PATCH = `
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS signed_attachment_url TEXT;
+`;
+
 const CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH = `
 DROP INDEX IF EXISTS customers_org_establishment_number_uidx;
 
@@ -675,6 +679,7 @@ export async function runMigrations(): Promise<void> {
     await pool.query(CONTRACT_PENALTY_SNAPSHOT_PATCH);
     await pool.query(ORG_SETTINGS_NATIONAL_ADDRESS_PATCH);
     await pool.query(INVOICES_MULTI_PER_CONTRACT_PATCH);
+    await pool.query(CONTRACT_SIGNED_ATTACHMENT_PATCH);
     await pool.query(CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH);
     await pool.query(SESSION_PATCH);
     await assertSchemaReady();

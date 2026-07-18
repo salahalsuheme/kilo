@@ -15,6 +15,7 @@ import { ContractTemplatesPanel } from "@/components/contracts/contract-template
 import { ActivateContractDialog } from "@/components/contracts/activate-contract-dialog";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { TenantPagination } from "@/components/tenant-pagination";
+import { useSignedContractAttachment } from "@/hooks/use-signed-contract-attachment";
 
 type TabId = "contracts" | "templates";
 
@@ -33,6 +34,18 @@ export default function ContractsPage() {
   const [statusTarget, setStatusTarget] = useState<Contract | null>(null);
   const [activateValidationError, setActivateValidationError] = useState<string | null>(null);
   const { printContract } = useContractPrint();
+  const {
+    fileInputRef,
+    replaceTarget,
+    setReplaceTarget,
+    requestUpload,
+    confirmReplace,
+    handleFileSelected,
+    downloadSigned,
+    uploadIsPending,
+    uploadError,
+    clearUploadError,
+  } = useSignedContractAttachment();
 
   const handlePrintContract = async (contract: Contract, mode: PrintMode) => {
     const opened = await printContract(contract.id, mode, contract.contractNumber);
@@ -127,6 +140,7 @@ export default function ContractsPage() {
         <>
           <ApiErrorBanner message={listError} />
           <ApiErrorBanner message={activateValidationError} />
+          <ApiErrorBanner message={uploadError} />
         </>
       ) : null}
 
@@ -161,6 +175,13 @@ export default function ContractsPage() {
                   onDelete={setDeleteContractId}
                   onChangeStatus={handleChangeStatus}
                   onPrint={(contract, mode) => void handlePrintContract(contract, mode)}
+                  onUploadSigned={requestUpload}
+                  onDownloadSigned={(contract) => {
+                    void downloadSigned(contract).then((ok) => {
+                      if (!ok) window.alert("تعذر تنزيل العقد الموقع. حاول مرة أخرى.");
+                    });
+                  }}
+                  isUploadPending={uploadIsPending}
                 />
                 <TenantPagination
                   page={page}
@@ -238,6 +259,33 @@ export default function ContractsPage() {
         errorMessage={statusError}
         confirmLabel="نعم"
         onConfirm={confirmPendingStatusChange}
+      />
+
+      <DeleteConfirmDialog
+        open={replaceTarget != null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReplaceTarget(null);
+            clearUploadError();
+          }
+        }}
+        title="استبدال العقد الموقع"
+        description="يوجد عقد موقع مرفوع مسبقاً. هل تريد استبداله بالملف الجديد؟"
+        isPending={uploadIsPending}
+        errorMessage={uploadError}
+        confirmLabel="نعم، استبدال"
+        onConfirm={confirmReplace}
+      />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf,image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(event) => {
+          void handleFileSelected(event.target.files?.[0]);
+          event.target.value = "";
+        }}
       />
     </div>
   );

@@ -10,6 +10,12 @@ export const CONTRACT_FIELD_ERRORS = {
   authorizationNumber: "رقم التفويض مطلوب",
 } as const;
 
+export const SIGNED_CONTRACT_ATTACHMENT_ERRORS = {
+  missing: "لا يوجد عقد موقع مرفوع",
+  unsupportedType: "نوع الملف غير مدعوم. يُقبل PDF أو صور",
+  tooLarge: "حجم الملف كبير جداً (الحد الأقصى 10 ميجابايت)",
+} as const;
+
 export const CONTRACT_BODY_INVALID = "بيانات العقد غير صالحة";
 export const CONTRACT_TEMPLATE_BODY_INVALID = "بيانات قالب العقد غير صالحة";
 

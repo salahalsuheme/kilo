@@ -32,6 +32,9 @@ interface ContractsTableProps {
   onDelete: (id: number) => void;
   onChangeStatus: (contract: Contract, status: ContractStatus) => void;
   onPrint: (contract: Contract, mode: PrintMode) => void;
+  onUploadSigned: (contract: Contract) => void;
+  onDownloadSigned: (contract: Contract) => void;
+  isUploadPending?: boolean;
 }
 
 export function ContractsTable({
@@ -43,6 +46,9 @@ export function ContractsTable({
   onDelete,
   onChangeStatus,
   onPrint,
+  onUploadSigned,
+  onDownloadSigned,
+  isUploadPending,
 }: ContractsTableProps) {
   return (
     <Card>
@@ -58,8 +64,9 @@ export function ContractsTable({
               <TableHead className="w-[7%]">المتبقي</TableHead>
               <TableHead className="w-[7%]">التأخير</TableHead>
               <TableHead className="w-[8%]">الغرامة</TableHead>
-              <TableHead className="w-[9%]">قيمة العقد</TableHead>
-              <TableHead className="w-[8%]">الحالة</TableHead>
+              <TableHead className="w-[8%]">قيمة العقد</TableHead>
+              <TableHead className="w-[7%]">تم التوقيع؟</TableHead>
+              <TableHead className="w-[7%]">الحالة</TableHead>
               <TableHead className="w-16 text-center text-black">إجراء</TableHead>
             </TableRow>
           </TableHeader>
@@ -67,7 +74,7 @@ export function ContractsTable({
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <TableRow key={i}>
-                  {Array.from({ length: 11 }).map((__, j) => (
+                  {Array.from({ length: 12 }).map((__, j) => (
                     <TableCell key={j}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
@@ -76,7 +83,7 @@ export function ContractsTable({
               ))
             ) : contracts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={12} className="h-32 text-center text-muted-foreground">
                   {search || statusFilter !== "all" ? "لا توجد نتائج" : "لا يوجد عقود"}
                 </TableCell>
               </TableRow>
@@ -135,6 +142,13 @@ export function ContractsTable({
                   <TableCell className="text-sm whitespace-nowrap">
                     {formatSarCurrency(contract.totalInclVat)}
                   </TableCell>
+                  <TableCell className="text-sm">
+                    {contract.isSigned ? (
+                      <span className="font-medium text-green-700">نعم</span>
+                    ) : (
+                      <span className="text-muted-foreground">لا</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex min-w-0 flex-col items-start gap-1">
                       <span
@@ -165,6 +179,9 @@ export function ContractsTable({
                         onDelete={onDelete}
                         onChangeStatus={onChangeStatus}
                         onPrint={onPrint}
+                        onUploadSigned={onUploadSigned}
+                        onDownloadSigned={onDownloadSigned}
+                        isUploadPending={isUploadPending}
                       />
                     </div>
                   </TableCell>

@@ -291,6 +291,8 @@ export interface Contract {
   /** مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال) */
   penaltyTotal: number;
   renderedContent?: string | null;
+  /** هل تم رفع العقد الموقع من العميل */
+  isSigned: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -815,6 +817,10 @@ page?: number;
  * @maximum 100
  */
 pageSize?: number;
+};
+
+export type UploadContractSignedAttachmentBody = {
+  file: Blob;
 };
 
 export type ListInvoicesParams = {

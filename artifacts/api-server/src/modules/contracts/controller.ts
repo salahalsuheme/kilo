@@ -19,10 +19,12 @@ import {
 import {
   createContract,
   deleteContract,
+  downloadContractSignedAttachment,
   getContract,
   listContracts,
   updateContract,
   updateContractStatus,
+  uploadContractSignedAttachment,
 } from "./service.js";
 import {
   createContractTemplate,
@@ -92,6 +94,47 @@ export async function handleDownloadContractPdf(req: Request, res: Response): Pr
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
   res.send(result.pdf);
+}
+
+export async function handleUploadContractSignedAttachment(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const file = req.file;
+  if (!file) {
+    res.status(400).json({ message: "لم يتم رفع ملف" });
+    return;
+  }
+
+  const id = Number(req.params.id);
+  const result = await uploadContractSignedAttachment(orgId, id, file);
+  if (!result) {
+    sendNotFound(res);
+    return;
+  }
+  res.json(result.data);
+}
+
+export async function handleDownloadContractSignedAttachment(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const id = Number(req.params.id);
+  const result = await downloadContractSignedAttachment(orgId, id);
+  if (!result) {
+    sendNotFound(res);
+    return;
+  }
+
+  res.setHeader("Content-Type", result.contentType);
+  res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
+  res.send(result.body);
 }
 
 export async function handleCreateContract(req: Request, res: Response): Promise<void> {

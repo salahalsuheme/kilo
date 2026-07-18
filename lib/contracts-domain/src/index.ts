@@ -5,6 +5,7 @@ export {
   CONTRACT_FIELD_ERRORS,
   CONTRACT_TEMPLATE_BODY_INVALID,
   CONTRACT_TEMPLATE_FIELD_ERRORS,
+  SIGNED_CONTRACT_ATTACHMENT_ERRORS,
 } from "./contract-field-errors.js";
 export {
   contractOverdueDays,
@@ -68,3 +69,9 @@ export {
   formatContractNumber,
   formatContractNumberWithYear,
 } from "./contract-number.js";
+export {
+  SIGNED_CONTRACT_ATTACHMENT_MAX_BYTES,
+  SIGNED_CONTRACT_ATTACHMENT_MIME_TYPES,
+  isContractSigned,
+  isSignedContractAttachmentMimeType,
+} from "./contract-signed-attachment.js";

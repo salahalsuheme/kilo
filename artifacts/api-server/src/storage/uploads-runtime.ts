@@ -7,6 +7,7 @@ import {
   resolveUploadsDir,
   resolveUploadsStorageMode,
   shouldUseLocalUploadsDisk,
+  UPLOADS_PUBLIC_PATH_PREFIX,
   validateProductionUploadsStorage,
   type UploadsStorageEnv,
 } from "@workspace/storage-domain";
@@ -135,4 +136,69 @@ export async function handleServeUploadedFile(req: Request, res: Response): Prom
   }
 
   res.sendFile(filePath);
+}
+
+function uploadFilenameFromPublicPath(publicPath: string): string | null {
+  const normalized = publicPath.trim();
+  if (!normalized.startsWith(`${UPLOADS_PUBLIC_PATH_PREFIX}/`)) return null;
+  const filename = normalized.slice(UPLOADS_PUBLIC_PATH_PREFIX.length + 1);
+  if (!filename || filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+    return null;
+  }
+  return filename;
+}
+
+export async function readUploadedFileByPublicPath(
+  publicPath: string,
+): Promise<{ body: Buffer; contentType: string } | null> {
+  const filename = uploadFilenameFromPublicPath(publicPath);
+  if (!filename) return null;
+
+  const env = uploadsEnv();
+  const mode = resolveUploadsStorageMode(env);
+
+  if (mode === "s3") {
+    const config = resolveS3UploadsConfig(env);
+    if (!config) return null;
+
+    const object = await getS3Object(config, filename);
+    if (!object) return null;
+
+    const chunks: Buffer[] = [];
+    await new Promise<void>((resolve, reject) => {
+      object.body.on("data", (chunk: Buffer) => chunks.push(chunk));
+      object.body.on("end", () => resolve());
+      object.body.on("error", reject);
+    });
+
+    return {
+      body: Buffer.concat(chunks),
+      contentType: object.contentType ?? "application/octet-stream",
+    };
+  }
+
+  const filePath = path.join(resolveUploadsDir(env), filename);
+  if (!fs.existsSync(filePath)) return null;
+
+  return {
+    body: fs.readFileSync(filePath),
+    contentType: mimeTypeFromFilename(filename),
+  };
+}
+
+function mimeTypeFromFilename(filename: string): string {
+  const ext = path.extname(filename).toLowerCase();
+  switch (ext) {
+    case ".pdf":
+      return "application/pdf";
+    case ".jpg":
+    case ".jpeg":
+      return "image/jpeg";
+    case ".png":
+      return "image/png";
+    case ".webp":
+      return "image/webp";
+    default:
+      return "application/octet-stream";
+  }
 }

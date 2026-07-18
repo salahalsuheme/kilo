@@ -204,6 +204,7 @@ export const contracts = pgTable("contracts", {
   overdueDays: integer("overdue_days").notNull().default(0),
   penaltyTotal: numeric("penalty_total", { precision: 14, scale: 2 }).notNull().default("0"),
   renderedContent: text("rendered_content"),
+  signedAttachmentUrl: text("signed_attachment_url"),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
