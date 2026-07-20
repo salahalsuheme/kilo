@@ -4,13 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "tsx scripts/build.ts",
     "start": "node src/server.mjs",
     "dev": "pnpm run build && pnpm run start",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "@workspace/landing-domain": "workspace:*",
+    "express": "^5.1.0",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

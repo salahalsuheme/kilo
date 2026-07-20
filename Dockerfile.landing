@@ -10,6 +10,7 @@ RUN corepack enable
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY lib/landing-domain ./lib/landing-domain
 COPY artifacts/kilo-landing ./artifacts/kilo-landing
 COPY artifacts/kilo-app/public ./artifacts/kilo-app/public
 

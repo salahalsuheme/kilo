@@ -33,6 +33,19 @@ app.get("/", (_req, res) => {
   res.sendFile(path.join(dist, "index.html"));
 });
 
+const cleanRoutes = {
+  "/about": "about.html",
+  "/fleet": "fleet.html",
+  "/about-en": "about-en.html",
+  "/fleet-en": "fleet-en.html",
+};
+
+for (const [route, file] of Object.entries(cleanRoutes)) {
+  app.get(route, (_req, res) => {
+    res.sendFile(path.join(dist, file));
+  });
+}
+
 app.listen(port, "0.0.0.0", () => {
   console.log(`Kilo landing listening on port ${port}`);
 });

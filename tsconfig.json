@@ -9,6 +9,7 @@
     { "path": "./lib/invoices-domain" },
     { "path": "./lib/finance-domain" },
     { "path": "./lib/notifications-domain" },
+    { "path": "./lib/landing-domain" },
     { "path": "./lib/api-client-react" },
     { "path": "./lib/api-zod" },
     { "path": "./artifacts/api-server" },
