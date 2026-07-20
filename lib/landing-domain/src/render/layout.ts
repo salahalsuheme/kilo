@@ -17,6 +17,9 @@ export function renderHeader(locale: Locale, activePage: PageId): string {
   const switchTitle = locale === "ar" ? "Switch to English" : "التبديل إلى العربية";
   const switchLang = locale === "ar" ? "en" : "ar";
 
+  const menuLabel = locale === "ar" ? "فتح القائمة" : "Open menu";
+  const menuCloseLabel = locale === "ar" ? "إغلاق القائمة" : "Close menu";
+
   const navLinks = NAV_ITEMS.map((item) => {
     let href = locale === "ar" ? item.path.ar : item.path.en;
     if (item.id === "faq" && activePage === "home") {
@@ -27,15 +30,30 @@ export function renderHeader(locale: Locale, activePage: PageId): string {
   }).join("\n          ");
 
   return `      <header class="site-header">
-        <a href="${escapeHtml(homeHref)}" class="logo-wrap" aria-label="${escapeHtml(brandLabel)}">
-          <img src="/logo_kilo_white.webp" alt="${escapeHtml(brandLabel)}" width="120" height="40" fetchpriority="high" />
-        </a>
-        <div class="site-header__end">
-          <nav class="site-nav" aria-label="${locale === "ar" ? "التنقل الرئيسي" : "Main navigation"}">
-            ${navLinks}
-          </nav>
-          <a href="${escapeHtml(langSwitchHref(locale, activePage))}" class="lang-switch" title="${escapeHtml(switchTitle)}" lang="${switchLang}">${switchLabel}</a>
+        <div class="site-header__brand">
+          <button
+            type="button"
+            class="nav-toggle"
+            aria-expanded="false"
+            aria-controls="site-nav"
+            aria-label="${escapeHtml(menuLabel)}"
+            data-label-open="${escapeHtml(menuLabel)}"
+            data-label-close="${escapeHtml(menuCloseLabel)}"
+          >
+            <span class="nav-toggle__icon" aria-hidden="true">
+              <span class="nav-toggle__bar"></span>
+              <span class="nav-toggle__bar"></span>
+              <span class="nav-toggle__bar"></span>
+            </span>
+          </button>
+          <a href="${escapeHtml(homeHref)}" class="logo-wrap" aria-label="${escapeHtml(brandLabel)}">
+            <img src="/logo_kilo_white.webp" alt="${escapeHtml(brandLabel)}" width="120" height="40" fetchpriority="high" />
+          </a>
         </div>
+        <nav class="site-nav" id="site-nav" aria-label="${locale === "ar" ? "التنقل الرئيسي" : "Main navigation"}">
+          ${navLinks}
+        </nav>
+        <a href="${escapeHtml(langSwitchHref(locale, activePage))}" class="lang-switch" title="${escapeHtml(switchTitle)}" lang="${switchLang}">${switchLabel}</a>
       </header>`;
 }
 
