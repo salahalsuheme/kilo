@@ -89,6 +89,7 @@
           <nav class="site-nav" aria-label="Main navigation">
             <a href="/landpage-en.html" class="site-nav__link">Home</a>
           <a href="/fleet-en.html" class="site-nav__link site-nav__link--active" aria-current="page">Fleet</a>
+          <a href="/landpage-en.html#faq" class="site-nav__link">FAQ</a>
           <a href="/about-en.html" class="site-nav__link">About Kilo</a>
           </nav>
           <a href="/fleet.html" class="lang-switch" title="التبديل إلى العربية" lang="ar">AR</a>
@@ -96,10 +97,12 @@
       </header>
         <section class="content-section content-section--page">
           <div class="content-section__inner">
-            <h1 class="page-title">Our fleet</h1>
+            <h1 class="page-title section-title--accent section-title--glow">Our fleet</h1>
             <p class="section-subtitle">Light commercial vehicles ready for operation on monthly contracts</p>
             <div class="fleet-grid">
-            <article class="fleet-card" id="suzuki-van-refrigerated">
+            <article class="fleet-card fleet-card--with-image" id="suzuki-van-refrigerated">
+              <img class="fleet-card__image" src="/fleet-suzuki-refrigerated.webp" alt="Suzuki refrigerated van — Kilo light commercial refrigerated vehicle" width="480" height="292" loading="lazy" decoding="async" />
+              <div class="fleet-card__body">
               <h2 class="fleet-card__title">Suzuki Van — Refrigerated</h2>
               <p class="fleet-card__text">A refrigerated light commercial vehicle for temperature-sensitive distribution with reliable cooling and strong insulation.</p>
               <ul class="fleet-card__list">
@@ -110,8 +113,11 @@
                 <li>Free vehicle tracking</li>
                 <li>Flexible monthly and annual contracts</li>
               </ul>
+              </div>
             </article>
-            <article class="fleet-card" id="suzuki-van-dry">
+            <article class="fleet-card fleet-card--with-image" id="suzuki-van-dry">
+              <img class="fleet-card__image" src="/fleet-suzuki-dry.webp" alt="Suzuki dry van — Kilo light commercial dry vehicle" width="480" height="256" loading="lazy" decoding="async" />
+              <div class="fleet-card__body">
               <h2 class="fleet-card__title">Suzuki Van — Dry</h2>
               <p class="fleet-card__text">A practical dry light commercial vehicle for non-temperature-sensitive goods and daily distribution.</p>
               <ul class="fleet-card__list">
@@ -122,6 +128,7 @@
                 <li>Free vehicle tracking</li>
                 <li>Flexible monthly and annual contracts</li>
               </ul>
+              </div>
             </article>
             </div>
             <p class="page-cta"><a class="cta-button cta-button--en" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=Hello%2C%20I%20would%20like%20to%20request%20corporate%20vehicle%20rental%20from%20Kilo." target="_blank" rel="noopener noreferrer">
@@ -139,5 +146,6 @@
       </footer>
       </main>
     </div>
+    <script src="/landpage.js" defer></script>
   </body>
 </html>

@@ -18,6 +18,12 @@ export const stepItemSchema = z.object({
 export const faqItemSchema = z.object({
   question: localizedTextSchema,
   answer: localizedTextSchema,
+  whatsappLinkAnswer: z
+    .object({
+      linkText: localizedTextSchema,
+      suffix: localizedTextSchema,
+    })
+    .optional(),
 });
 
 export const fleetVehicleSchema = z.object({
@@ -25,4 +31,12 @@ export const fleetVehicleSchema = z.object({
   name: localizedTextSchema,
   description: localizedTextSchema,
   highlights: z.array(localizedTextSchema).min(1),
+  image: z
+    .object({
+      src: z.string().min(1),
+      alt: localizedTextSchema,
+      width: z.number().int().positive(),
+      height: z.number().int().positive(),
+    })
+    .optional(),
 });

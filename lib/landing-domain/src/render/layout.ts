@@ -18,7 +18,10 @@ export function renderHeader(locale: Locale, activePage: PageId): string {
   const switchLang = locale === "ar" ? "en" : "ar";
 
   const navLinks = NAV_ITEMS.map((item) => {
-    const href = locale === "ar" ? item.path.ar : item.path.en;
+    let href = locale === "ar" ? item.path.ar : item.path.en;
+    if (item.id === "faq" && activePage === "home") {
+      href = "#faq";
+    }
     const active = item.id === activePage ? ' aria-current="page"' : "";
     return `<a href="${escapeHtml(href)}" class="site-nav__link${item.id === activePage ? " site-nav__link--active" : ""}"${active}>${escapeHtml(item.label[locale])}</a>`;
   }).join("\n          ");
@@ -42,4 +45,20 @@ export function renderFooter(locale: Locale): string {
   return `      <footer class="site-footer">
         <p class="site-footer__copy">© ${year} ${locale === "ar" ? "كيلو" : "Kilo"}. ${rights}</p>
       </footer>`;
+}
+
+export function renderPageScripts(): string {
+  return `    <script src="/landpage.js" defer></script>`;
+}
+
+export function renderScrollHint(locale: Locale): string {
+  const label = locale === "ar" ? "انتقل إلى المحتوى أدناه" : "Scroll to content below";
+
+  return `          <a href="#why-kilo" class="scroll-hint" aria-label="${escapeHtml(label)}">
+            <span class="scroll-hint__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
+            </span>
+          </a>`;
 }

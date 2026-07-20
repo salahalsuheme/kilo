@@ -86,26 +86,26 @@
     },
     {
       "@type": "Question",
-      "name": "Do you provide a replacement vehicle during breakdowns?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes. We provide a replacement vehicle during breakdowns to keep your operations running."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "Who is your rental service for?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "We serve companies and institutions such as food distribution, pharmaceutical, catering, and retail businesses."
+        "text": "We serve all companies and institutions that need refrigerated or dry light commercial vehicles."
       }
     },
     {
       "@type": "Question",
-      "name": "How can I request a quote?",
+      "name": "What are the rental prices?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Contact us on WhatsApp with your requirements and we will respond promptly with a suitable offer."
+        "text": "Prices start from SAR 2,600 including VAT per monthly contract. Prices vary depending on the vehicle type."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I request the service?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Click here for an instant rental request"
       }
     }
   ]
@@ -145,18 +145,20 @@
           <nav class="site-nav" aria-label="Main navigation">
             <a href="/landpage-en.html" class="site-nav__link site-nav__link--active" aria-current="page">Home</a>
           <a href="/fleet-en.html" class="site-nav__link">Fleet</a>
+          <a href="#faq" class="site-nav__link">FAQ</a>
           <a href="/about-en.html" class="site-nav__link">About Kilo</a>
           </nav>
           <a href="/" class="lang-switch" title="التبديل إلى العربية" lang="ar">AR</a>
         </div>
       </header>
         <section class="hero hero--home">
-          <div class="hero-content">
-            <h1 class="headline">
-              <span class="headline-line-block headline-word headline-word--1">Corporate fleet</span>
-              <span class="headline-line-block headline-word headline-word--2">rental made easy</span>
-            </h1>
-            <p class="cta-wrap"><a class="cta-button cta-button--en" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=Hello%2C%20I%20would%20like%20to%20request%20corporate%20vehicle%20rental%20from%20Kilo." target="_blank" rel="noopener noreferrer">
+          <div class="hero-inner">
+            <div class="hero-content">
+              <h1 class="headline">
+                <span class="headline-line-block headline-word headline-word--1">Corporate fleet</span>
+                <span class="headline-line-block headline-word headline-word--2">rental made easy!</span>
+              </h1>
+              <p class="cta-wrap"><a class="cta-button cta-button--en" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=Hello%2C%20I%20would%20like%20to%20request%20corporate%20vehicle%20rental%20from%20Kilo." target="_blank" rel="noopener noreferrer">
               <span class="cta-button__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M17 17 7 7M17 7H7v10" />
@@ -164,12 +166,20 @@
               </span>
               <span class="cta-button__label">Request rental now</span>
             </a></p>
+            </div>
           </div>
+          <a href="#why-kilo" class="scroll-hint" aria-label="Scroll to content below">
+            <span class="scroll-hint__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
+            </span>
+          </a>
         </section>
 
         <section class="content-section" id="why-kilo">
           <div class="content-section__inner">
-            <h2 class="section-title">Why Kilo?</h2>
+            <h2 class="section-title section-title--accent section-title--glow">Why Kilo?</h2>
             <p class="section-subtitle">Light commercial vehicle rental solutions built for corporate and institutional needs</p>
             <div class="feature-grid">
             <article class="feature-card">
@@ -194,26 +204,34 @@
 
         <section class="content-section content-section--alt" id="how-it-works">
           <div class="content-section__inner">
-            <h2 class="section-title">How does rental work?</h2>
+            <h2 class="section-title section-title--accent section-title--glow">How does rental work?</h2>
             <ol class="steps-list">
             <li class="step-card">
-              <span class="step-card__number">1</span>
-              <h3 class="step-card__title">Get in touch</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">1</span>
+                <h3 class="step-card__title">Get in touch</h3>
+              </div>
               <p class="step-card__text">Send your request via WhatsApp with your company&#39;s fleet requirements.</p>
             </li>
             <li class="step-card">
-              <span class="step-card__number">2</span>
-              <h3 class="step-card__title">Assess your needs</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">2</span>
+                <h3 class="step-card__title">Assess your needs</h3>
+              </div>
               <p class="step-card__text">We define vehicle count, type (refrigerated or dry), and contract duration with you.</p>
             </li>
             <li class="step-card">
-              <span class="step-card__number">3</span>
-              <h3 class="step-card__title">Sign monthly contract</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">3</span>
+                <h3 class="step-card__title">Sign monthly contract</h3>
+              </div>
               <p class="step-card__text">A clear monthly contract covering maintenance, insurance, and tracking.</p>
             </li>
             <li class="step-card">
-              <span class="step-card__number">4</span>
-              <h3 class="step-card__title">Vehicle delivery</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">4</span>
+                <h3 class="step-card__title">Vehicle delivery</h3>
+              </div>
               <p class="step-card__text">Vehicles are delivered ready for operation according to your schedule.</p>
             </li>
             </ol>
@@ -222,7 +240,7 @@
 
         <section class="content-section" id="faq">
           <div class="content-section__inner">
-            <h2 class="section-title">Frequently asked questions</h2>
+            <h2 class="section-title section-title--accent section-title--glow">Frequently asked questions</h2>
             <div class="faq-list">
             <details class="faq-item">
               <summary class="faq-item__question">What vehicle types does Kilo offer?</summary>
@@ -237,16 +255,16 @@
               <p class="faq-item__answer">The monthly contract includes maintenance, insurance, a replacement vehicle during breakdowns, and fleet tracking.</p>
             </details>
             <details class="faq-item">
-              <summary class="faq-item__question">Do you provide a replacement vehicle during breakdowns?</summary>
-              <p class="faq-item__answer">Yes. We provide a replacement vehicle during breakdowns to keep your operations running.</p>
-            </details>
-            <details class="faq-item">
               <summary class="faq-item__question">Who is your rental service for?</summary>
-              <p class="faq-item__answer">We serve companies and institutions such as food distribution, pharmaceutical, catering, and retail businesses.</p>
+              <p class="faq-item__answer">We serve all companies and institutions that need refrigerated or dry light commercial vehicles.</p>
             </details>
             <details class="faq-item">
-              <summary class="faq-item__question">How can I request a quote?</summary>
-              <p class="faq-item__answer">Contact us on WhatsApp with your requirements and we will respond promptly with a suitable offer.</p>
+              <summary class="faq-item__question">What are the rental prices?</summary>
+              <p class="faq-item__answer">Prices start from SAR 2,600 including VAT per monthly contract. Prices vary depending on the vehicle type.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-item__question">How do I request the service?</summary>
+              <p class="faq-item__answer"><a class="faq-item__link" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=Hello%2C%20I%20would%20like%20to%20request%20corporate%20vehicle%20rental%20from%20Kilo." target="_blank" rel="noopener noreferrer">Click here</a> for an instant rental request</p>
             </details>
             </div>
           </div>
@@ -256,5 +274,6 @@
       </footer>
       </main>
     </div>
+    <script src="/landpage.js" defer></script>
   </body>
 </html>

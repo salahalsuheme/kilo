@@ -38,6 +38,15 @@ export const FLEET_VEHICLES: FleetVehicle[] = fleetVehicleSchema.array().parse([
       ar: "مركبة نقل خفيف مبردة مناسبة لتوزيع المنتجات الحساسة حراريًا، مع تبريد موثوق وعزل ممتاز.",
       en: "A refrigerated light commercial vehicle for temperature-sensitive distribution with reliable cooling and strong insulation.",
     },
+    image: {
+      src: "/fleet-suzuki-refrigerated.webp",
+      alt: {
+        ar: "سوزوكي فان مبرد — مركبة نقل خفيف مبردة من كيلو",
+        en: "Suzuki refrigerated van — Kilo light commercial refrigerated vehicle",
+      },
+      width: 480,
+      height: 292,
+    },
     highlights: [
       {
         ar: "متوافقة مع متطلبات هيئة الغذاء والدواء",
@@ -74,6 +83,15 @@ export const FLEET_VEHICLES: FleetVehicle[] = fleetVehicleSchema.array().parse([
     description: {
       ar: "مركبة نقل خفيف جافة اقتصادية وعملية للبضائع غير الحساسة حراريًا والتوزيع اليومي.",
       en: "A practical dry light commercial vehicle for non-temperature-sensitive goods and daily distribution.",
+    },
+    image: {
+      src: "/fleet-suzuki-dry.webp",
+      alt: {
+        ar: "سوزوكي فان جاف — مركبة نقل خفيف جافة من كيلو",
+        en: "Suzuki dry van — Kilo light commercial dry vehicle",
+      },
+      width: 480,
+      height: 256,
     },
     highlights: [
       {

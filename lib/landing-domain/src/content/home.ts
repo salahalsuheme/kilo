@@ -22,8 +22,8 @@ export const HOME_HERO = {
     en: "Corporate fleet",
   },
   line2: {
-    ar: "للشركات بسهولة",
-    en: "rental made easy",
+    ar: "للشركات بسهولة !",
+    en: "rental made easy!",
   },
   cta: {
     ar: "اطلب التأجير الآن",
@@ -65,11 +65,11 @@ export const WHY_KILO_ITEMS: FeatureItem[] = featureItemSchema.array().parse([
   },
   {
     title: {
-      ar: "سيارة بديلة عند التعطيل",
+      ar: "سيارة بديلة عند التعطل",
       en: "Replacement vehicle on breakdown",
     },
     description: {
-      ar: "نوفر مركبة بديلة عند التعطيل لضمان استمرارية عملياتك.",
+      ar: "نوفر مركبة بديلة عند التعطل لضمان استمرارية عملياتك.",
       en: "We provide a replacement vehicle during downtime to keep your operations running.",
     },
   },
@@ -117,7 +117,7 @@ export const HOW_IT_WORKS_STEPS: StepItem[] = stepItemSchema.array().parse([
   {
     title: { ar: "تسليم المركبات", en: "Vehicle delivery" },
     description: {
-      ar: "نسلّم المركبات جاهزة للتشغيل وفق جدول شركتك.",
+      ar: "نسلّم المركبات جاهزة للتشغيل.",
       en: "Vehicles are delivered ready for operation according to your schedule.",
     },
   },

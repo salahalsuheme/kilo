@@ -35,18 +35,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "What is included in the monthly contract?",
     },
     answer: {
-      ar: "يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطيل ونظام تتبع للمركبات.",
+      ar: "يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطل ونظام تتبع للمركبات.",
       en: "The monthly contract includes maintenance, insurance, a replacement vehicle during breakdowns, and fleet tracking.",
-    },
-  },
-  {
-    question: {
-      ar: "هل تقدمون سيارة بديلة عند التعطيل؟",
-      en: "Do you provide a replacement vehicle during breakdowns?",
-    },
-    answer: {
-      ar: "نعم، نوفر سيارة بديلة في حال التعطيل لضمان استمرارية عمليات شركتك.",
-      en: "Yes. We provide a replacement vehicle during breakdowns to keep your operations running.",
     },
   },
   {
@@ -55,18 +45,38 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "Who is your rental service for?",
     },
     answer: {
-      ar: "نخدم الشركات والمؤسسات مثل شركات التوزيع الغذائي، والأدوية، والتموين، والتجزئة.",
-      en: "We serve companies and institutions such as food distribution, pharmaceutical, catering, and retail businesses.",
+      ar: "نخدم كل الشركات والمؤسسات التي تحتاج مركبات نقل خفيف مبردة او جافة.",
+      en: "We serve all companies and institutions that need refrigerated or dry light commercial vehicles.",
     },
   },
   {
     question: {
-      ar: "كيف أطلب عرض سعر؟",
-      en: "How can I request a quote?",
+      ar: "كم أسعار التأجير ؟",
+      en: "What are the rental prices?",
     },
     answer: {
-      ar: "تواصل معنا عبر واتساب مع تفاصيل احتياجك، وسنرد عليك بسرعة بعرض مناسب.",
-      en: "Contact us on WhatsApp with your requirements and we will respond promptly with a suitable offer.",
+      ar: "تبدأ الأسعار من 2600 ريال شامل الضريبة للعقد الشهري الواحد. وتختلف الاسعار حسب نوع السيارة.",
+      en: "Prices start from SAR 2,600 including VAT per monthly contract. Prices vary depending on the vehicle type.",
+    },
+  },
+  {
+    question: {
+      ar: "كيف أطلب الخدمة ؟",
+      en: "How do I request the service?",
+    },
+    answer: {
+      ar: "اضغط هنا للطلب الفوري للتأجير",
+      en: "Click here for an instant rental request",
+    },
+    whatsappLinkAnswer: {
+      linkText: {
+        ar: "اضغط هنا",
+        en: "Click here",
+      },
+      suffix: {
+        ar: " للطلب الفوري للتأجير",
+        en: " for an instant rental request",
+      },
     },
   },
 ]);

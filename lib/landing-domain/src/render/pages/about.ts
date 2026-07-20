@@ -2,7 +2,7 @@ import type { Locale } from "../../types.js";
 import { ABOUT_CONTENT, ABOUT_META } from "../../content/about.js";
 import { carRentalJsonLd, webPageJsonLd } from "../../seo/structured-data.js";
 import { renderBackground, renderCtaButton, renderHead } from "../head.js";
-import { renderFooter, renderHeader } from "../layout.js";
+import { renderFooter, renderHeader, renderPageScripts } from "../layout.js";
 import { escapeHtml } from "../html.js";
 
 export function renderAboutPage(locale: Locale): string {
@@ -28,7 +28,7 @@ ${renderBackground()}
 ${renderHeader(locale, "about")}
         <section class="content-section content-section--page">
           <div class="content-section__inner content-section__inner--narrow">
-            <h1 class="page-title">${escapeHtml(ABOUT_CONTENT.title[locale])}</h1>
+            <h1 class="page-title section-title--accent section-title--glow">${escapeHtml(ABOUT_CONTENT.title[locale])}</h1>
             <div class="prose">
 ${paragraphs}
             </div>
@@ -38,6 +38,7 @@ ${paragraphs}
 ${renderFooter(locale)}
       </main>
     </div>
+${renderPageScripts()}
   </body>
 </html>
 `;

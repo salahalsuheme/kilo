@@ -2,7 +2,7 @@ export type Locale = "ar" | "en";
 
 export type LocalizedText = Record<Locale, string>;
 
-export type PageId = "home" | "about" | "fleet";
+export type PageId = "home" | "about" | "fleet" | "faq";
 
 export type NavItem = {
   id: PageId;
@@ -23,6 +23,10 @@ export type StepItem = {
 export type FaqItem = {
   question: LocalizedText;
   answer: LocalizedText;
+  whatsappLinkAnswer?: {
+    linkText: LocalizedText;
+    suffix: LocalizedText;
+  };
 };
 
 export type FleetVehicle = {
@@ -30,6 +34,12 @@ export type FleetVehicle = {
   name: LocalizedText;
   description: LocalizedText;
   highlights: LocalizedText[];
+  image?: {
+    src: string;
+    alt: LocalizedText;
+    width: number;
+    height: number;
+  };
 };
 
 export type PageMeta = {

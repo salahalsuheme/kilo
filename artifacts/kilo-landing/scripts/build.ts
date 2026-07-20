@@ -21,8 +21,11 @@ const STATIC_ASSETS = [
   "kilo-logo.png",
   "login-bg.webp",
   "landpage.css",
+  "landpage.js",
   "landpage-bg.png",
   "landpage-bg.webp",
+  "fleet-suzuki-refrigerated.webp",
+  "fleet-suzuki-dry.webp",
   "favicon-16x16.png",
   "favicon-32x32.png",
   "apple-touch-icon.png",
@@ -41,6 +44,52 @@ function copyDir(src: string, dest: string): void {
     }
     fs.copyFileSync(from, to);
   }
+}
+
+function removeDarkBackground(data: Buffer): void {
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i]!;
+    const g = data[i + 1]!;
+    const b = data[i + 2]!;
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+
+    if (luminance < 28) {
+      data[i + 3] = 0;
+      continue;
+    }
+
+    if (luminance < 48) {
+      data[i + 3] = Math.round(((luminance - 28) / 20) * 255);
+    }
+  }
+}
+
+async function generateFleetVehicleWebp(
+  inputPath: string,
+  outputPath: string,
+  targetWidth: number,
+): Promise<{ width: number; height: number }> {
+  const { data, info } = await sharp(inputPath)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+
+  removeDarkBackground(data);
+
+  await sharp(data, {
+    raw: { width: info.width, height: info.height, channels: 4 },
+  })
+    .trim({ threshold: 12 })
+    .resize(targetWidth, null, { fit: "inside" })
+    .webp({ quality: 85, alphaQuality: 100 })
+    .toFile(outputPath);
+
+  const outputMeta = await sharp(outputPath).metadata();
+
+  return {
+    width: outputMeta.width ?? targetWidth,
+    height: outputMeta.height ?? targetWidth,
+  };
 }
 
 async function generateImages(): Promise<void> {
@@ -77,6 +126,28 @@ async function generateImages(): Promise<void> {
 
   if (fs.existsSync(bgPath)) {
     await sharp(bgPath).webp({ quality: 82 }).toFile(path.join(publicSrc, "landpage-bg.webp"));
+  }
+
+  const fleetImages: Array<{ source: string; output: string }> = [
+    {
+      source: "fleet-suzuki-refrigerated.png",
+      output: "fleet-suzuki-refrigerated.webp",
+    },
+    {
+      source: "fleet-suzuki-dry.png",
+      output: "fleet-suzuki-dry.webp",
+    },
+  ];
+
+  for (const fleetImage of fleetImages) {
+    const fleetImagePath = path.resolve(landingRoot, "assets", fleetImage.source);
+    if (!fs.existsSync(fleetImagePath)) continue;
+
+    await generateFleetVehicleWebp(
+      fleetImagePath,
+      path.join(publicSrc, fleetImage.output),
+      480,
+    );
   }
 }
 

@@ -81,15 +81,7 @@
       "name": "ماذا يشمل العقد الشهري؟",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطيل ونظام تتبع للمركبات."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "هل تقدمون سيارة بديلة عند التعطيل؟",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "نعم، نوفر سيارة بديلة في حال التعطيل لضمان استمرارية عمليات شركتك."
+        "text": "يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطل ونظام تتبع للمركبات."
       }
     },
     {
@@ -97,15 +89,23 @@
       "name": "لمن تقدمون خدمات التأجير؟",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "نخدم الشركات والمؤسسات مثل شركات التوزيع الغذائي، والأدوية، والتموين، والتجزئة."
+        "text": "نخدم كل الشركات والمؤسسات التي تحتاج مركبات نقل خفيف مبردة او جافة."
       }
     },
     {
       "@type": "Question",
-      "name": "كيف أطلب عرض سعر؟",
+      "name": "كم أسعار التأجير ؟",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "تواصل معنا عبر واتساب مع تفاصيل احتياجك، وسنرد عليك بسرعة بعرض مناسب."
+        "text": "تبدأ الأسعار من 2600 ريال شامل الضريبة للعقد الشهري الواحد. وتختلف الاسعار حسب نوع السيارة."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "كيف أطلب الخدمة ؟",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "اضغط هنا للطلب الفوري للتأجير"
       }
     }
   ]
@@ -145,18 +145,20 @@
           <nav class="site-nav" aria-label="التنقل الرئيسي">
             <a href="/" class="site-nav__link site-nav__link--active" aria-current="page">الرئيسية</a>
           <a href="/fleet.html" class="site-nav__link">الأسطول</a>
+          <a href="#faq" class="site-nav__link">الأسئلة الشائعة</a>
           <a href="/about.html" class="site-nav__link">حول كيلو</a>
           </nav>
           <a href="/landpage-en.html" class="lang-switch" title="Switch to English" lang="en">EN</a>
         </div>
       </header>
         <section class="hero hero--home">
-          <div class="hero-content">
-            <h1 class="headline">
-              <span class="headline-line-block headline-word headline-word--1">تأجير مركبات</span>
-              <span class="headline-line-block headline-word headline-word--2">للشركات بسهولة</span>
-            </h1>
-            <p class="cta-wrap"><a class="cta-button cta-button--ar" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%B7%D9%84%D8%A8%20%D8%AA%D8%A3%D8%AC%D9%8A%D8%B1%20%D9%85%D8%B1%D9%83%D8%A8%D8%A7%D8%AA%20%D9%84%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D9%85%D9%86%20%D9%83%D9%8A%D9%84%D9%88." target="_blank" rel="noopener noreferrer">
+          <div class="hero-inner">
+            <div class="hero-content">
+              <h1 class="headline">
+                <span class="headline-line-block headline-word headline-word--1">تأجير مركبات</span>
+                <span class="headline-line-block headline-word headline-word--2">للشركات بسهولة !</span>
+              </h1>
+              <p class="cta-wrap"><a class="cta-button cta-button--ar" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%B7%D9%84%D8%A8%20%D8%AA%D8%A3%D8%AC%D9%8A%D8%B1%20%D9%85%D8%B1%D9%83%D8%A8%D8%A7%D8%AA%20%D9%84%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D9%85%D9%86%20%D9%83%D9%8A%D9%84%D9%88." target="_blank" rel="noopener noreferrer">
               <span class="cta-button__label">اطلب التأجير الآن</span>
               <span class="cta-button__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -164,12 +166,20 @@
                 </svg>
               </span>
             </a></p>
+            </div>
           </div>
+          <a href="#why-kilo" class="scroll-hint" aria-label="انتقل إلى المحتوى أدناه">
+            <span class="scroll-hint__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 5v14M5 12l7 7 7-7" />
+              </svg>
+            </span>
+          </a>
         </section>
 
         <section class="content-section" id="why-kilo">
           <div class="content-section__inner">
-            <h2 class="section-title">لماذا كيلو؟</h2>
+            <h2 class="section-title section-title--accent section-title--glow">لماذا كيلو؟</h2>
             <p class="section-subtitle">حلول تأجير مركبات نقل خفيف مصممة لاحتياجات الشركات والمؤسسات</p>
             <div class="feature-grid">
             <article class="feature-card">
@@ -181,8 +191,8 @@
               <p class="feature-card__text">الصيانة الدورية والتأمين ضمن العقد لتشغيل أسطولك بثقة.</p>
             </article>
             <article class="feature-card">
-              <h3 class="feature-card__title">سيارة بديلة عند التعطيل</h3>
-              <p class="feature-card__text">نوفر مركبة بديلة عند التعطيل لضمان استمرارية عملياتك.</p>
+              <h3 class="feature-card__title">سيارة بديلة عند التعطل</h3>
+              <p class="feature-card__text">نوفر مركبة بديلة عند التعطل لضمان استمرارية عملياتك.</p>
             </article>
             <article class="feature-card">
               <h3 class="feature-card__title">نظام تتبع متكامل</h3>
@@ -194,27 +204,35 @@
 
         <section class="content-section content-section--alt" id="how-it-works">
           <div class="content-section__inner">
-            <h2 class="section-title">كيف يعمل التأجير؟</h2>
+            <h2 class="section-title section-title--accent section-title--glow">كيف يعمل التأجير؟</h2>
             <ol class="steps-list">
             <li class="step-card">
-              <span class="step-card__number">1</span>
-              <h3 class="step-card__title">تواصل معنا</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">1</span>
+                <h3 class="step-card__title">تواصل معنا</h3>
+              </div>
               <p class="step-card__text">أرسل طلبك عبر واتساب مع تفاصيل احتياج شركتك.</p>
             </li>
             <li class="step-card">
-              <span class="step-card__number">2</span>
-              <h3 class="step-card__title">تحديد الاحتياج</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">2</span>
+                <h3 class="step-card__title">تحديد الاحتياج</h3>
+              </div>
               <p class="step-card__text">نحدد معك عدد المركبات ونوعها (مبردة أو جافة) ومدة العقد.</p>
             </li>
             <li class="step-card">
-              <span class="step-card__number">3</span>
-              <h3 class="step-card__title">توقيع العقد الشهري</h3>
+              <div class="step-card__head">
+                <span class="step-card__number">3</span>
+                <h3 class="step-card__title">توقيع العقد الشهري</h3>
+              </div>
               <p class="step-card__text">عقد شهري واضح يشمل الصيانة والتأمين والتتبع.</p>
             </li>
             <li class="step-card">
-              <span class="step-card__number">4</span>
-              <h3 class="step-card__title">تسليم المركبات</h3>
-              <p class="step-card__text">نسلّم المركبات جاهزة للتشغيل وفق جدول شركتك.</p>
+              <div class="step-card__head">
+                <span class="step-card__number">4</span>
+                <h3 class="step-card__title">تسليم المركبات</h3>
+              </div>
+              <p class="step-card__text">نسلّم المركبات جاهزة للتشغيل.</p>
             </li>
             </ol>
           </div>
@@ -222,7 +240,7 @@
 
         <section class="content-section" id="faq">
           <div class="content-section__inner">
-            <h2 class="section-title">الأسئلة الشائعة</h2>
+            <h2 class="section-title section-title--accent section-title--glow">الأسئلة الشائعة</h2>
             <div class="faq-list">
             <details class="faq-item">
               <summary class="faq-item__question">ما أنواع المركبات المتوفرة لدى كيلو؟</summary>
@@ -234,19 +252,19 @@
             </details>
             <details class="faq-item">
               <summary class="faq-item__question">ماذا يشمل العقد الشهري؟</summary>
-              <p class="faq-item__answer">يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطيل ونظام تتبع للمركبات.</p>
-            </details>
-            <details class="faq-item">
-              <summary class="faq-item__question">هل تقدمون سيارة بديلة عند التعطيل؟</summary>
-              <p class="faq-item__answer">نعم، نوفر سيارة بديلة في حال التعطيل لضمان استمرارية عمليات شركتك.</p>
+              <p class="faq-item__answer">يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطل ونظام تتبع للمركبات.</p>
             </details>
             <details class="faq-item">
               <summary class="faq-item__question">لمن تقدمون خدمات التأجير؟</summary>
-              <p class="faq-item__answer">نخدم الشركات والمؤسسات مثل شركات التوزيع الغذائي، والأدوية، والتموين، والتجزئة.</p>
+              <p class="faq-item__answer">نخدم كل الشركات والمؤسسات التي تحتاج مركبات نقل خفيف مبردة او جافة.</p>
             </details>
             <details class="faq-item">
-              <summary class="faq-item__question">كيف أطلب عرض سعر؟</summary>
-              <p class="faq-item__answer">تواصل معنا عبر واتساب مع تفاصيل احتياجك، وسنرد عليك بسرعة بعرض مناسب.</p>
+              <summary class="faq-item__question">كم أسعار التأجير ؟</summary>
+              <p class="faq-item__answer">تبدأ الأسعار من 2600 ريال شامل الضريبة للعقد الشهري الواحد. وتختلف الاسعار حسب نوع السيارة.</p>
+            </details>
+            <details class="faq-item">
+              <summary class="faq-item__question">كيف أطلب الخدمة ؟</summary>
+              <p class="faq-item__answer"><a class="faq-item__link" href="https://api.whatsapp.com/send?phone=966551171309&amp;text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%D8%8C%20%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%B7%D9%84%D8%A8%20%D8%AA%D8%A3%D8%AC%D9%8A%D8%B1%20%D9%85%D8%B1%D9%83%D8%A8%D8%A7%D8%AA%20%D9%84%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA%20%D9%85%D9%86%20%D9%83%D9%8A%D9%84%D9%88." target="_blank" rel="noopener noreferrer">اضغط هنا</a> للطلب الفوري للتأجير</p>
             </details>
             </div>
           </div>
@@ -256,5 +274,6 @@
       </footer>
       </main>
     </div>
+    <script src="/landpage.js" defer></script>
   </body>
 </html>
