@@ -6,9 +6,7 @@ import {
   getVehicleModelYearMax,
 } from "@workspace/vehicles-domain";
 
-const trimmedRequired = (message: string) => z.string().trim().min(1, message);
-
-const vehicleFormFields = {
+export const vehicleFormSchema = VehicleBodyObjectSchema.extend({
   modelYear: z.coerce
     .number<number>({ message: VEHICLE_FIELD_ERRORS.modelYear })
     .int(VEHICLE_FIELD_ERRORS.modelYearInvalid)
@@ -18,13 +16,6 @@ const vehicleFormFields = {
     .number<number>({ message: VEHICLE_FIELD_ERRORS.odometer })
     .int(VEHICLE_FIELD_ERRORS.odometerInvalid)
     .min(0, VEHICLE_FIELD_ERRORS.odometerInvalid),
-};
-
-export const createVehicleFormSchema = VehicleBodyObjectSchema.extend(vehicleFormFields);
-
-export const vehicleFormSchema = VehicleBodyObjectSchema.extend({
-  ...vehicleFormFields,
-  serialNumber: trimmedRequired(VEHICLE_FIELD_ERRORS.serialNumber),
 });
 
 export type VehicleFormValues = z.infer<typeof vehicleFormSchema>;

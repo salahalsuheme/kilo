@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  createVehicleFormSchema,
   vehicleFormSchema,
   COOLING_TYPE_LABELS,
   MANUAL_VEHICLE_STATUS_LABELS,
@@ -42,7 +41,6 @@ interface VehicleDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title: string;
-  mode?: "create" | "edit";
   defaultValues?: VehicleFormValues;
   onSubmit: (values: VehicleFormValues) => void;
   isPending?: boolean;
@@ -79,16 +77,14 @@ export function VehicleDialog({
   open,
   onOpenChange,
   title,
-  mode = "edit",
   defaultValues,
   onSubmit,
   isPending,
   errorMessage,
 }: VehicleDialogProps) {
   const { clearValidationError, handleInvalid, resolveErrorMessage } = useDialogFormErrors();
-  const formSchema = mode === "create" ? createVehicleFormSchema : vehicleFormSchema;
   const form = useForm<VehicleFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(vehicleFormSchema),
     defaultValues: defaultValues ?? EMPTY_VALUES,
     mode: "onTouched",
   });
@@ -218,11 +214,7 @@ export function VehicleDialog({
                 name="serialNumber"
                 render={({ field }) => (
                   <FormItem>
-                    {mode === "create" ? (
-                      <FormLabel>رقم التسلسل</FormLabel>
-                    ) : (
-                      <RequiredFormLabel>رقم التسلسل</RequiredFormLabel>
-                    )}
+                    <FormLabel>رقم التسلسل</FormLabel>
                     <FormControl>
                       <Input {...field} dir="ltr" className="text-end" />
                     </FormControl>

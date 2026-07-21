@@ -134,7 +134,6 @@ export default function VehiclesPage() {
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         title="إضافة مركبة"
-        mode="create"
         onSubmit={(values) => submitCreate(toBody(values))}
         isPending={createIsPending}
         errorMessage={createError}

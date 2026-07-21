@@ -49,9 +49,7 @@ export const VehicleBodyObjectSchema = z.object({
 /** Mirrors OpenAPI CreateVehicleBody with Arabic validation messages. */
 export const CreateVehicleBodySchema = VehicleBodyObjectSchema;
 
-export const UpdateVehicleBodySchema = VehicleBodyObjectSchema.extend({
-  serialNumber: trimmedRequired(VEHICLE_FIELD_ERRORS.serialNumber),
-});
+export const UpdateVehicleBodySchema = VehicleBodyObjectSchema;
 
 export type CreateVehicleBodyInput = z.infer<typeof CreateVehicleBodySchema>;
 export type UpdateVehicleBodyInput = z.infer<typeof UpdateVehicleBodySchema>;

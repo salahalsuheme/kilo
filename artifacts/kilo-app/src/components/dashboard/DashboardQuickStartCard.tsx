@@ -114,7 +114,6 @@ export function DashboardQuickStartCard() {
         open={openAction === "vehicle"}
         onOpenChange={(open) => !open && closeDialog()}
         title="إضافة مركبة جديدة"
-        mode="create"
         onSubmit={(values) => submitCreateVehicle({ data: toCreateVehicleBody(values) })}
         isPending={vehicleCreateIsPending}
         errorMessage={vehicleCreateError}
