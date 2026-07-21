@@ -215,9 +215,10 @@ BEGIN
   UPDATE cars
   SET chassis_number = COALESCE(NULLIF(chassis_number, ''), 'غير محدد')
   WHERE chassis_number IS NULL OR chassis_number = '';
+  ALTER TABLE cars ALTER COLUMN serial_number DROP NOT NULL;
   UPDATE cars
-  SET serial_number = COALESCE(NULLIF(serial_number, ''), 'غير محدد')
-  WHERE serial_number IS NULL OR serial_number = '';
+  SET serial_number = NULL
+  WHERE serial_number = '' OR serial_number = 'غير محدد';
   UPDATE cars
   SET registration_expiry_date = COALESCE(registration_expiry_date, CURRENT_DATE + INTERVAL '1 year')
   WHERE registration_expiry_date IS NULL;
