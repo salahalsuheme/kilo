@@ -584,7 +584,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS cars_org_chassis_number_uidx
   ON cars (org_id, chassis_number) WHERE deleted_at IS NULL;
 
 CREATE UNIQUE INDEX IF NOT EXISTS cars_org_serial_number_uidx
-  ON cars (org_id, serial_number) WHERE deleted_at IS NULL;
+  ON cars (org_id, serial_number)
+  WHERE deleted_at IS NULL AND serial_number IS NOT NULL AND serial_number <> '';
 
 CREATE UNIQUE INDEX IF NOT EXISTS cars_org_plate_number_uidx
   ON cars (org_id, plate_number) WHERE deleted_at IS NULL;
@@ -630,7 +631,9 @@ CREATE INDEX IF NOT EXISTS customers_org_establishment_number_idx
 `;
 
 const CARS_SERIAL_NUMBER_OPTIONAL_PATCH = `
-UPDATE cars SET serial_number = NULL WHERE serial_number = '';
+UPDATE cars
+SET serial_number = NULL
+WHERE serial_number = '' OR serial_number = 'غير محدد';
 
 ALTER TABLE cars ALTER COLUMN serial_number DROP NOT NULL;
 
