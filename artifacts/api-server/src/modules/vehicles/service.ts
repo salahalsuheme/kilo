@@ -13,6 +13,11 @@ import { db } from "../../db/index.js";
 import { cars } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
 
+function normalizeSerialNumber(value: string): string | null {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 function mapVehicle(row: typeof cars.$inferSelect) {
   return {
     id: row.id,
@@ -21,7 +26,7 @@ function mapVehicle(row: typeof cars.$inferSelect) {
     coolingType: row.coolingType,
     registrationColor: row.registrationColor,
     chassisNumber: row.chassisNumber,
-    serialNumber: row.serialNumber,
+    serialNumber: row.serialNumber ?? "",
     plateNumber: row.plateNumber,
     registrationExpiryDate: row.registrationExpiryDate,
     inspectionExpiryDate: row.inspectionExpiryDate,
@@ -131,7 +136,7 @@ export async function createVehicle(
       coolingType: body.coolingType,
       registrationColor: body.registrationColor,
       chassisNumber: body.chassisNumber,
-      serialNumber: body.serialNumber,
+      serialNumber: normalizeSerialNumber(body.serialNumber),
       plateNumber: body.plateNumber,
       registrationExpiryDate: body.registrationExpiryDate,
       inspectionExpiryDate: body.inspectionExpiryDate,
@@ -192,7 +197,7 @@ export async function updateVehicle(
       coolingType: body.coolingType,
       registrationColor: body.registrationColor,
       chassisNumber: body.chassisNumber,
-      serialNumber: body.serialNumber,
+      serialNumber: normalizeSerialNumber(body.serialNumber),
       plateNumber: body.plateNumber,
       registrationExpiryDate: body.registrationExpiryDate,
       inspectionExpiryDate: body.inspectionExpiryDate,

@@ -24,7 +24,7 @@ export const VehicleBodyObjectSchema = z.object({
   }),
   registrationColor: trimmedRequired(VEHICLE_FIELD_ERRORS.registrationColor),
   chassisNumber: trimmedRequired(VEHICLE_FIELD_ERRORS.chassisNumber),
-  serialNumber: trimmedRequired(VEHICLE_FIELD_ERRORS.serialNumber),
+  serialNumber: z.string().trim(),
   plateNumber: trimmedRequired(VEHICLE_FIELD_ERRORS.plateNumber),
   registrationExpiryDate: dateSchema(
     VEHICLE_FIELD_ERRORS.registrationExpiryDate,
@@ -49,7 +49,9 @@ export const VehicleBodyObjectSchema = z.object({
 /** Mirrors OpenAPI CreateVehicleBody with Arabic validation messages. */
 export const CreateVehicleBodySchema = VehicleBodyObjectSchema;
 
-export const UpdateVehicleBodySchema = CreateVehicleBodySchema;
+export const UpdateVehicleBodySchema = VehicleBodyObjectSchema.extend({
+  serialNumber: trimmedRequired(VEHICLE_FIELD_ERRORS.serialNumber),
+});
 
 export type CreateVehicleBodyInput = z.infer<typeof CreateVehicleBodySchema>;
 export type UpdateVehicleBodyInput = z.infer<typeof UpdateVehicleBodySchema>;

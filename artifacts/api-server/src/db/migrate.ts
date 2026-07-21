@@ -629,6 +629,18 @@ CREATE INDEX IF NOT EXISTS customers_org_establishment_number_idx
   WHERE deleted_at IS NULL AND establishment_number IS NOT NULL AND establishment_number <> '';
 `;
 
+const CARS_SERIAL_NUMBER_OPTIONAL_PATCH = `
+UPDATE cars SET serial_number = NULL WHERE serial_number = '';
+
+ALTER TABLE cars ALTER COLUMN serial_number DROP NOT NULL;
+
+DROP INDEX IF EXISTS cars_org_serial_number_uidx;
+
+CREATE UNIQUE INDEX IF NOT EXISTS cars_org_serial_number_uidx
+  ON cars (org_id, serial_number)
+  WHERE deleted_at IS NULL AND serial_number IS NOT NULL AND serial_number <> '';
+`;
+
 async function assertSchemaReady(): Promise<void> {
   const required = ["users", "session", "organizations"];
   const result = await pool.query<{ tablename: string }>(
@@ -686,6 +698,7 @@ export async function runMigrations(): Promise<void> {
     await pool.query(CONTRACT_SIGNED_ATTACHMENT_PATCH);
     await pool.query(CONTRACT_VEHICLE_DAMAGE_FORM_PATCH);
     await pool.query(CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH);
+    await pool.query(CARS_SERIAL_NUMBER_OPTIONAL_PATCH);
     await pool.query(SESSION_PATCH);
     await assertSchemaReady();
     console.log("[migrate] schema ready");

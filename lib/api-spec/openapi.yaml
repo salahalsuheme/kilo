@@ -1701,7 +1701,6 @@ components:
           minLength: 1
         serialNumber:
           type: string
-          minLength: 1
         plateNumber:
           type: string
           minLength: 1
@@ -1724,7 +1723,6 @@ components:
         - coolingType
         - registrationColor
         - chassisNumber
-        - serialNumber
         - plateNumber
         - registrationExpiryDate
         - inspectionExpiryDate

@@ -472,7 +472,6 @@ export const createVehicleBodyModelYearMin = 2015;
 
 
 
-
 export const createVehicleBodyOdometerMin = 0;
 
 
@@ -483,7 +482,7 @@ export const CreateVehicleBody = zod.object({
   "coolingType": zod.enum(['refrigerated', 'non_refrigerated']),
   "registrationColor": zod.string().min(1),
   "chassisNumber": zod.string().min(1),
-  "serialNumber": zod.string().min(1),
+  "serialNumber": zod.string().optional(),
   "plateNumber": zod.string().min(1),
   "registrationExpiryDate": zod.date(),
   "inspectionExpiryDate": zod.date(),
@@ -562,7 +561,6 @@ export const updateVehicleBodyOneModelYearMin = 2015;
 
 
 
-
 export const updateVehicleBodyOneOdometerMin = 0;
 
 
@@ -573,7 +571,7 @@ export const UpdateVehicleBody = zod.object({
   "coolingType": zod.enum(['refrigerated', 'non_refrigerated']),
   "registrationColor": zod.string().min(1),
   "chassisNumber": zod.string().min(1),
-  "serialNumber": zod.string().min(1),
+  "serialNumber": zod.string().optional(),
   "plateNumber": zod.string().min(1),
   "registrationExpiryDate": zod.date(),
   "inspectionExpiryDate": zod.date(),

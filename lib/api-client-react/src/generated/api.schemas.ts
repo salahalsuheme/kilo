@@ -217,8 +217,7 @@ export interface CreateVehicleBody {
   registrationColor: string;
   /** @minLength 1 */
   chassisNumber: string;
-  /** @minLength 1 */
-  serialNumber: string;
+  serialNumber?: string;
   /** @minLength 1 */
   plateNumber: string;
   registrationExpiryDate: string;

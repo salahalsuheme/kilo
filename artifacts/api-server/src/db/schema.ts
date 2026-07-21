@@ -104,7 +104,7 @@ export const cars = pgTable("cars", {
   coolingType: carCoolingTypeEnum("cooling_type").notNull(),
   registrationColor: text("registration_color").notNull(),
   chassisNumber: text("chassis_number").notNull(),
-  serialNumber: text("serial_number").notNull(),
+  serialNumber: text("serial_number"),
   plateNumber: text("plate_number").notNull(),
   registrationExpiryDate: date("registration_expiry_date").notNull(),
   inspectionExpiryDate: date("inspection_expiry_date").notNull(),
