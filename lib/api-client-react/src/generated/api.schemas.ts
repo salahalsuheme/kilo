@@ -599,6 +599,41 @@ export interface FixedSubscriptionList {
   data: FixedSubscription[];
 }
 
+export interface CompanyAsset {
+  id: number;
+  /** نوع الأصل */
+  assetType: string;
+  /** تاريخ الإدخال */
+  acquiredDate: string;
+  /** الرقم المرجعي */
+  referenceNumber: string;
+  /** قيمة الأصل عند الإنشاء */
+  initialValue: number;
+  /** قيمة الأصل اليوم */
+  currentValue: number;
+  /** نسبة الانخفاض السنوي */
+  annualDepreciationRate: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCompanyAssetBody {
+  assetType: string;
+  referenceNumber: string;
+  initialValue: number;
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  annualDepreciationRate: number;
+}
+
+export type UpdateCompanyAssetBody = CreateCompanyAssetBody;
+
+export interface CompanyAssetList {
+  data: CompanyAsset[];
+}
+
 export interface SubscriptionInvoice {
   id: number;
   subscriptionId: number;

@@ -516,6 +516,24 @@ WHERE invoice_date IS NULL;
 ALTER TABLE subscription_invoices ALTER COLUMN invoice_date SET NOT NULL;
 `;
 
+const FINANCE_ASSETS_PATCH = `
+CREATE TABLE IF NOT EXISTS company_assets (
+  id SERIAL PRIMARY KEY,
+  org_id INTEGER NOT NULL REFERENCES organizations(id),
+  asset_type TEXT NOT NULL,
+  acquired_date DATE NOT NULL,
+  reference_number TEXT NOT NULL,
+  initial_value NUMERIC(14,2) NOT NULL,
+  annual_depreciation_rate NUMERIC(5,2) NOT NULL,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS company_assets_org_id_idx
+  ON company_assets (org_id) WHERE deleted_at IS NULL;
+`;
+
 const CONTRACT_AUTHORIZATION_PATCH = `
 ALTER TABLE contracts ADD COLUMN IF NOT EXISTS authorization_number TEXT NOT NULL DEFAULT '';
 
@@ -690,6 +708,7 @@ export async function runMigrations(): Promise<void> {
     await pool.query(FINANCE_PATCH);
     await pool.query(FINANCE_ITEMS_PATCH);
     await pool.query(FINANCE_INVOICE_DATE_PATCH);
+    await pool.query(FINANCE_ASSETS_PATCH);
     await pool.query(CONTRACT_AUTHORIZATION_PATCH);
     await pool.query(UNIQUE_FIELDS_PATCH);
     await pool.query(CONTRACT_STATUS_OVERDUE_PATCH);

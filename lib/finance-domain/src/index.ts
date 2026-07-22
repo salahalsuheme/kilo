@@ -25,3 +25,12 @@ export {
   FIXED_SUBSCRIPTION_BODY_INVALID,
   UpdateFixedSubscriptionBodySchema,
 } from "./fixed-subscription-body.schema.js";
+export {
+  computeCurrentAssetValue,
+  countFullMonthsSince,
+} from "./asset-depreciation.js";
+export {
+  CreateCompanyAssetBodySchema,
+  COMPANY_ASSET_BODY_INVALID,
+  UpdateCompanyAssetBodySchema,
+} from "./company-asset-body.schema.js";

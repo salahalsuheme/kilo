@@ -28,6 +28,8 @@ export type {
   FinanceInvoiceStatus,
   FixedSubscription,
   FixedSubscriptionList,
+  CompanyAsset,
+  CompanyAssetList,
   SubscriptionInvoice,
   SubscriptionInvoiceList,
   BillingCycle,
@@ -185,6 +187,16 @@ export const useListSubscriptionInvoices = /*#__PURE__*/ wrapTenantQueryHook(
   gen.useListSubscriptionInvoices as unknown as AnyQueryHook,
   gen.getListSubscriptionInvoicesQueryKey as unknown as AnyKeyGetter,
 ) as typeof gen.useListSubscriptionInvoices;
+
+export const useListCompanyAssets = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useListCompanyAssets as unknown as AnyQueryHook,
+  gen.getListCompanyAssetsQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useListCompanyAssets;
+
+export const useGetCompanyAsset = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useGetCompanyAsset as unknown as AnyQueryHook,
+  gen.getGetCompanyAssetQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useGetCompanyAsset;
 
 export const useListNotifications = /*#__PURE__*/ wrapTenantQueryHook(
   gen.useListNotifications as unknown as AnyQueryHook,

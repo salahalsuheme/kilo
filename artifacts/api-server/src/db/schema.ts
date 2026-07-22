@@ -300,3 +300,18 @@ export const subscriptionInvoices = pgTable("subscription_invoices", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const companyAssets = pgTable("company_assets", {
+  id: serial("id").primaryKey(),
+  orgId: integer("org_id")
+    .notNull()
+    .references(() => organizations.id),
+  assetType: text("asset_type").notNull(),
+  acquiredDate: date("acquired_date").notNull(),
+  referenceNumber: text("reference_number").notNull(),
+  initialValue: numeric("initial_value", { precision: 14, scale: 2 }).notNull(),
+  annualDepreciationRate: numeric("annual_depreciation_rate", { precision: 5, scale: 2 }).notNull(),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});

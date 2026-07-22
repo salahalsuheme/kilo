@@ -9,9 +9,12 @@ import {
 import {
   CreateFixedSubscriptionBodySchema,
   CreatePurchaseBodySchema,
+  COMPANY_ASSET_BODY_INVALID,
+  CreateCompanyAssetBodySchema,
   FIXED_SUBSCRIPTION_BODY_INVALID,
   PURCHASE_BODY_INVALID,
   UpdateFixedSubscriptionBodySchema,
+  UpdateCompanyAssetBodySchema,
   UpdatePurchaseBodySchema,
 } from "@workspace/finance-domain";
 import {
@@ -39,6 +42,13 @@ import {
   updateFixedSubscription,
   updateSubscriptionInvoiceStatus,
 } from "./subscriptions-service.js";
+import {
+  createCompanyAsset,
+  deleteCompanyAsset,
+  getCompanyAsset,
+  listCompanyAssets,
+  updateCompanyAsset,
+} from "./assets-service.js";
 
 function requireSession(req: Request, res: Response): number | null {
   const orgId = getOrgId(req);
@@ -243,4 +253,70 @@ export async function handleUpdateSubscriptionInvoiceStatus(
     return;
   }
   res.json(invoice);
+}
+
+export async function handleListCompanyAssets(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  res.json(await listCompanyAssets(orgId));
+}
+
+export async function handleGetCompanyAsset(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const asset = await getCompanyAsset(orgId, Number(req.params.id));
+  if (!asset) {
+    sendNotFound(res);
+    return;
+  }
+  res.json(asset);
+}
+
+export async function handleCreateCompanyAsset(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const parsed = CreateCompanyAssetBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res
+      .status(400)
+      .json({ message: firstZodErrorMessage(parsed.error, COMPANY_ASSET_BODY_INVALID) });
+    return;
+  }
+
+  res.status(201).json(await createCompanyAsset(orgId, parsed.data));
+}
+
+export async function handleUpdateCompanyAsset(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const parsed = UpdateCompanyAssetBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res
+      .status(400)
+      .json({ message: firstZodErrorMessage(parsed.error, COMPANY_ASSET_BODY_INVALID) });
+    return;
+  }
+
+  const asset = await updateCompanyAsset(orgId, Number(req.params.id), parsed.data);
+  if (!asset) {
+    sendNotFound(res);
+    return;
+  }
+  res.json(asset);
+}
+
+export async function handleDeleteCompanyAsset(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const deleted = await deleteCompanyAsset(orgId, Number(req.params.id));
+  if (!deleted) {
+    sendNotFound(res);
+    return;
+  }
+  res.status(204).send();
 }

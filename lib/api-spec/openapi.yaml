@@ -1203,6 +1203,74 @@ paths:
               schema:
                 $ref: "#/components/schemas/SubscriptionInvoice"
 
+  /finance/assets:
+    get:
+      operationId: listCompanyAssets
+      tags: [finance]
+      responses:
+        "200":
+          description: Company assets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyAssetList"
+    post:
+      operationId: createCompanyAsset
+      tags: [finance]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCompanyAssetBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyAsset"
+
+  /finance/assets/{id}:
+    get:
+      operationId: getCompanyAsset
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/CompanyAssetId"
+      responses:
+        "200":
+          description: Company asset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyAsset"
+    put:
+      operationId: updateCompanyAsset
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/CompanyAssetId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCompanyAssetBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyAsset"
+    delete:
+      operationId: deleteCompanyAsset
+      tags: [finance]
+      parameters:
+        - $ref: "#/components/parameters/CompanyAssetId"
+      responses:
+        "204":
+          description: Deleted
+
   /settings:
     get:
       operationId: getSettings
@@ -1336,6 +1404,12 @@ components:
       schema:
         type: integer
     SubscriptionInvoiceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    CompanyAssetId:
       name: id
       in: path
       required: true
@@ -2396,6 +2470,75 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FixedSubscription"
+      required: [data]
+
+    CompanyAsset:
+      type: object
+      properties:
+        id:
+          type: integer
+        assetType:
+          type: string
+          description: نوع الأصل
+        acquiredDate:
+          type: string
+          format: date
+          description: تاريخ الإدخال
+        referenceNumber:
+          type: string
+          description: الرقم المرجعي
+        initialValue:
+          type: number
+          description: قيمة الأصل عند الإنشاء
+        currentValue:
+          type: number
+          description: قيمة الأصل اليوم
+        annualDepreciationRate:
+          type: number
+          description: نسبة الانخفاض السنوي
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - assetType
+        - acquiredDate
+        - referenceNumber
+        - initialValue
+        - currentValue
+        - annualDepreciationRate
+        - createdAt
+        - updatedAt
+
+    CreateCompanyAssetBody:
+      type: object
+      properties:
+        assetType:
+          type: string
+        referenceNumber:
+          type: string
+        initialValue:
+          type: number
+        annualDepreciationRate:
+          type: number
+          minimum: 0
+          maximum: 100
+      required: [assetType, referenceNumber, initialValue, annualDepreciationRate]
+
+    UpdateCompanyAssetBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateCompanyAssetBody"
+
+    CompanyAssetList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CompanyAsset"
       required: [data]
 
     SubscriptionInvoice:

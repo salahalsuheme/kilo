@@ -1,15 +1,20 @@
 import { Router, type IRouter } from "express";
 import {
+  handleCreateCompanyAsset,
   handleCreateFixedSubscription,
   handleCreatePurchase,
+  handleDeleteCompanyAsset,
   handleDeleteFixedSubscription,
   handleDeletePurchase,
+  handleGetCompanyAsset,
   handleGetFinanceReport,
   handleGetFixedSubscription,
   handleGetPurchase,
+  handleListCompanyAssets,
   handleListFixedSubscriptions,
   handleListPurchases,
   handleListSubscriptionInvoices,
+  handleUpdateCompanyAsset,
   handleUpdateFixedSubscription,
   handleUpdatePurchase,
   handleUpdatePurchaseStatus,
@@ -32,5 +37,10 @@ router.put("/finance/fixed-subscriptions/:id", handleUpdateFixedSubscription);
 router.delete("/finance/fixed-subscriptions/:id", handleDeleteFixedSubscription);
 router.get("/finance/subscription-invoices", handleListSubscriptionInvoices);
 router.patch("/finance/subscription-invoices/:id/status", handleUpdateSubscriptionInvoiceStatus);
+router.get("/finance/assets", handleListCompanyAssets);
+router.post("/finance/assets", handleCreateCompanyAsset);
+router.get("/finance/assets/:id", handleGetCompanyAsset);
+router.put("/finance/assets/:id", handleUpdateCompanyAsset);
+router.delete("/finance/assets/:id", handleDeleteCompanyAsset);
 
 export default router;

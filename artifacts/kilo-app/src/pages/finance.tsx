@@ -11,10 +11,11 @@ import { PurchasesToolbar } from "@/components/finance/purchases-toolbar";
 import { PurchasesTable } from "@/components/finance/purchases-table";
 import { PurchaseDialog } from "@/components/finance/purchase-dialog";
 import { FixedSubscriptionsPanel } from "@/components/finance/fixed-subscriptions-panel";
+import { CompanyAssetsPanel } from "@/components/finance/company-assets-panel";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { TenantPagination } from "@/components/tenant-pagination";
 
-type TabId = "reports" | "purchases" | "subscriptions";
+type TabId = "reports" | "purchases" | "subscriptions" | "assets";
 
 export default function FinancePage() {
   usePageTitle("المالية");
@@ -79,11 +80,12 @@ export default function FinancePage() {
     { id: "reports", label: "التقارير المالية" },
     { id: "purchases", label: "المشتريات" },
     { id: "subscriptions", label: "الاشتراكات الثابتة" },
+    { id: "assets", label: "الأصول" },
   ];
 
   return (
     <div className="space-y-6">
-      <PageHeader title="المالية" description="التقارير المالية والمشتريات والاشتراكات الثابتة" />
+      <PageHeader title="المالية" description="التقارير المالية والمشتريات والاشتراكات والأصول" />
 
       <div className="flex flex-col">
         <MobileScrollTabs
@@ -143,6 +145,8 @@ export default function FinancePage() {
           )}
 
           {activeTab === "subscriptions" && <FixedSubscriptionsPanel />}
+
+          {activeTab === "assets" && <CompanyAssetsPanel />}
         </div>
       </div>
 

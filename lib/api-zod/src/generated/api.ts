@@ -1600,6 +1600,99 @@ export const UpdateSubscriptionInvoiceStatusResponse = zod.object({
 })
 
 
+export const ListCompanyAssetsResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.number(),
+  "assetType": zod.string().describe('نوع الأصل'),
+  "acquiredDate": zod.coerce.date().describe('تاريخ الإدخال'),
+  "referenceNumber": zod.string().describe('الرقم المرجعي'),
+  "initialValue": zod.number().describe('قيمة الأصل عند الإنشاء'),
+  "currentValue": zod.number().describe('قيمة الأصل اليوم'),
+  "annualDepreciationRate": zod.number().describe('نسبة الانخفاض السنوي'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}))
+})
+
+
+export const createCompanyAssetBodyAnnualDepreciationRateMin = 0;
+export const createCompanyAssetBodyAnnualDepreciationRateMax = 100;
+
+
+
+export const CreateCompanyAssetBody = zod.object({
+  "assetType": zod.string(),
+  "referenceNumber": zod.string(),
+  "initialValue": zod.number(),
+  "annualDepreciationRate": zod.number().min(createCompanyAssetBodyAnnualDepreciationRateMin).max(createCompanyAssetBodyAnnualDepreciationRateMax)
+})
+
+export const CreateCompanyAssetResponse = zod.object({
+  "id": zod.number(),
+  "assetType": zod.string().describe('نوع الأصل'),
+  "acquiredDate": zod.coerce.date().describe('تاريخ الإدخال'),
+  "referenceNumber": zod.string().describe('الرقم المرجعي'),
+  "initialValue": zod.number().describe('قيمة الأصل عند الإنشاء'),
+  "currentValue": zod.number().describe('قيمة الأصل اليوم'),
+  "annualDepreciationRate": zod.number().describe('نسبة الانخفاض السنوي'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const GetCompanyAssetParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCompanyAssetResponse = zod.object({
+  "id": zod.number(),
+  "assetType": zod.string().describe('نوع الأصل'),
+  "acquiredDate": zod.coerce.date().describe('تاريخ الإدخال'),
+  "referenceNumber": zod.string().describe('الرقم المرجعي'),
+  "initialValue": zod.number().describe('قيمة الأصل عند الإنشاء'),
+  "currentValue": zod.number().describe('قيمة الأصل اليوم'),
+  "annualDepreciationRate": zod.number().describe('نسبة الانخفاض السنوي'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UpdateCompanyAssetParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const updateCompanyAssetBodyOneAnnualDepreciationRateMin = 0;
+export const updateCompanyAssetBodyOneAnnualDepreciationRateMax = 100;
+
+
+
+export const UpdateCompanyAssetBody = zod.object({
+  "assetType": zod.string(),
+  "referenceNumber": zod.string(),
+  "initialValue": zod.number(),
+  "annualDepreciationRate": zod.number().min(updateCompanyAssetBodyOneAnnualDepreciationRateMin).max(updateCompanyAssetBodyOneAnnualDepreciationRateMax)
+})
+
+export const UpdateCompanyAssetResponse = zod.object({
+  "id": zod.number(),
+  "assetType": zod.string().describe('نوع الأصل'),
+  "acquiredDate": zod.coerce.date().describe('تاريخ الإدخال'),
+  "referenceNumber": zod.string().describe('الرقم المرجعي'),
+  "initialValue": zod.number().describe('قيمة الأصل عند الإنشاء'),
+  "currentValue": zod.number().describe('قيمة الأصل اليوم'),
+  "annualDepreciationRate": zod.number().describe('نسبة الانخفاض السنوي'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DeleteCompanyAssetParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCompanyAssetResponse = zod.void()
+
+
 export const GetSettingsResponse = zod.object({
   "businessName": zod.string(),
   "logoUrl": zod.string().nullish(),

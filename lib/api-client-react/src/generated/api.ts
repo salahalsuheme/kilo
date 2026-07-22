@@ -23,10 +23,13 @@ import type {
   ApiErrorMessage,
   AuthUser,
   ChangePasswordBody,
+  CompanyAsset,
+  CompanyAssetList,
   Contract,
   ContractList,
   ContractTemplate,
   ContractTemplateList,
+  CreateCompanyAssetBody,
   CreateContractBody,
   CreateContractTemplateBody,
   CreateCustomerBody,
@@ -63,6 +66,7 @@ import type {
   PutSettingsBody,
   SubscriptionInvoice,
   SubscriptionInvoiceList,
+  UpdateCompanyAssetBody,
   UpdateContractBody,
   UpdateContractStatusBody,
   UpdateContractTemplateBody,
@@ -4327,6 +4331,344 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getUpdateSubscriptionInvoiceStatusMutationOptions(options));
+    }
+
+export const getListCompanyAssetsUrl = () => {
+
+
+
+
+  return `/api/finance/assets`
+}
+
+export const listCompanyAssets = async ( options?: RequestInit): Promise<CompanyAssetList> => {
+
+  return customFetch<CompanyAssetList>(getListCompanyAssetsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCompanyAssetsQueryKey = () => {
+    return [
+    `/api/finance/assets`
+    ] as const;
+    }
+
+
+export const getListCompanyAssetsQueryOptions = <TData = Awaited<ReturnType<typeof listCompanyAssets>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCompanyAssets>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCompanyAssetsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCompanyAssets>>> = ({ signal }) => listCompanyAssets({ signal });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCompanyAssets>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCompanyAssetsQueryResult = NonNullable<Awaited<ReturnType<typeof listCompanyAssets>>>
+export type ListCompanyAssetsQueryError = ErrorType<unknown>
+
+
+
+export function useListCompanyAssets<TData = Awaited<ReturnType<typeof listCompanyAssets>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCompanyAssets>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCompanyAssetsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCompanyAssetUrl = () => {
+
+
+
+
+  return `/api/finance/assets`
+}
+
+export const createCompanyAsset = async (createCompanyAssetBody: CreateCompanyAssetBody, options?: RequestInit): Promise<CompanyAsset> => {
+
+  return customFetch<CompanyAsset>(getCreateCompanyAssetUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createCompanyAssetBody)
+  }
+);}
+
+
+
+
+
+export const getCreateCompanyAssetMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCompanyAsset>>, TError,{data: BodyType<CreateCompanyAssetBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createCompanyAsset>>, TError,{data: BodyType<CreateCompanyAssetBody>}, TContext> => {
+
+const mutationKey = ['createCompanyAsset'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCompanyAsset>>, {data: BodyType<CreateCompanyAssetBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCompanyAsset(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCompanyAssetMutationResult = NonNullable<Awaited<ReturnType<typeof createCompanyAsset>>>
+    export type CreateCompanyAssetMutationBody = BodyType<CreateCompanyAssetBody>
+    export type CreateCompanyAssetMutationError = ErrorType<unknown>
+
+    export const useCreateCompanyAsset = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCompanyAsset>>, TError,{data: BodyType<CreateCompanyAssetBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCompanyAsset>>,
+        TError,
+        {data: BodyType<CreateCompanyAssetBody>},
+        TContext
+      > => {
+      return useMutation(getCreateCompanyAssetMutationOptions(options));
+    }
+
+export const getGetCompanyAssetUrl = (id: number,) => {
+
+
+
+
+  return `/api/finance/assets/${id}`
+}
+
+export const getCompanyAsset = async (id: number, options?: RequestInit): Promise<CompanyAsset> => {
+
+  return customFetch<CompanyAsset>(getGetCompanyAssetUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCompanyAssetQueryKey = (id: number,) => {
+    return [
+    `/api/finance/assets/${id}`
+    ] as const;
+    }
+
+
+export const getGetCompanyAssetQueryOptions = <TData = Awaited<ReturnType<typeof getCompanyAsset>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCompanyAsset>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCompanyAssetQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCompanyAsset>>> = ({ signal }) => getCompanyAsset(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCompanyAsset>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCompanyAssetQueryResult = NonNullable<Awaited<ReturnType<typeof getCompanyAsset>>>
+export type GetCompanyAssetQueryError = ErrorType<unknown>
+
+
+
+export function useGetCompanyAsset<TData = Awaited<ReturnType<typeof getCompanyAsset>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCompanyAsset>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCompanyAssetQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateCompanyAssetUrl = (id: number,) => {
+
+
+
+
+  return `/api/finance/assets/${id}`
+}
+
+export const updateCompanyAsset = async (id: number,
+    updateCompanyAssetBody: UpdateCompanyAssetBody, options?: RequestInit): Promise<CompanyAsset> => {
+
+  return customFetch<CompanyAsset>(getUpdateCompanyAssetUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateCompanyAssetBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateCompanyAssetMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCompanyAsset>>, TError,{id: number;data: BodyType<UpdateCompanyAssetBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateCompanyAsset>>, TError,{id: number;data: BodyType<UpdateCompanyAssetBody>}, TContext> => {
+
+const mutationKey = ['updateCompanyAsset'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCompanyAsset>>, {id: number;data: BodyType<UpdateCompanyAssetBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCompanyAsset(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCompanyAssetMutationResult = NonNullable<Awaited<ReturnType<typeof updateCompanyAsset>>>
+    export type UpdateCompanyAssetMutationBody = BodyType<UpdateCompanyAssetBody>
+    export type UpdateCompanyAssetMutationError = ErrorType<unknown>
+
+    export const useUpdateCompanyAsset = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCompanyAsset>>, TError,{id: number;data: BodyType<UpdateCompanyAssetBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCompanyAsset>>,
+        TError,
+        {id: number;data: BodyType<UpdateCompanyAssetBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateCompanyAssetMutationOptions(options));
+    }
+
+export const getDeleteCompanyAssetUrl = (id: number,) => {
+
+
+
+
+  return `/api/finance/assets/${id}`
+}
+
+export const deleteCompanyAsset = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteCompanyAssetUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteCompanyAssetMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCompanyAsset>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCompanyAsset>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteCompanyAsset'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCompanyAsset>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteCompanyAsset(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCompanyAssetMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCompanyAsset>>>
+
+    export type DeleteCompanyAssetMutationError = ErrorType<unknown>
+
+    export const useDeleteCompanyAsset = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCompanyAsset>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCompanyAsset>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteCompanyAssetMutationOptions(options));
     }
 
 export const getGetSettingsUrl = () => {
