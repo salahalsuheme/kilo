@@ -5,21 +5,26 @@ import {
   getListSubscriptionInvoicesQueryKey,
   useCreateFixedSubscription,
   useDeleteFixedSubscription,
+  useDeleteSubscriptionInvoice,
   useListFixedSubscriptions,
   useListSubscriptionInvoices,
   useUpdateFixedSubscription,
+  useUpdateSubscriptionInvoice,
   useUpdateSubscriptionInvoiceStatus,
 } from "@/lib/api-client-react-tenant";
 import type {
   CreateFixedSubscriptionBody,
   FinanceInvoiceStatus,
   FixedSubscription,
+  SubscriptionInvoice,
+  UpdateSubscriptionInvoiceBody,
 } from "@/lib/api-client-react-tenant";
 import { resolveQueryError } from "@/lib/api-error";
 import { withOrgKey } from "@/lib/tenant-cache";
 import { useOrgId } from "@/hooks/use-invalidate";
 import { useMutationErrorSlots } from "@/hooks/use-mutation-error-slots";
 import type { FixedSubscriptionFormValues } from "@/features/finance/fixed-subscription-form.schema";
+import type { PurchaseFormValues } from "@/features/finance/purchase-form.schema";
 
 export const SUBSCRIPTION_INVOICE_PAGE_SIZE = 10;
 
@@ -31,6 +36,8 @@ interface UseFixedSubscriptionsOptions {
   onUpdateSuccess?: () => void;
   onDeleteSuccess?: () => void;
   onInvoiceStatusSuccess?: () => void;
+  onInvoiceUpdateSuccess?: () => void;
+  onInvoiceDeleteSuccess?: () => void;
 }
 
 export function useFixedSubscriptions({
@@ -41,6 +48,8 @@ export function useFixedSubscriptions({
   onUpdateSuccess,
   onDeleteSuccess,
   onInvoiceStatusSuccess,
+  onInvoiceUpdateSuccess,
+  onInvoiceDeleteSuccess,
 }: UseFixedSubscriptionsOptions) {
   const orgId = useOrgId();
   const queryClient = useQueryClient();
@@ -49,6 +58,8 @@ export function useFixedSubscriptions({
     "update",
     "delete",
     "invoiceStatus",
+    "invoiceUpdate",
+    "invoiceDelete",
   ] as const);
 
   const subscriptionsQuery = useListFixedSubscriptions({
@@ -129,6 +140,24 @@ export function useFixedSubscriptions({
     },
   });
 
+  const invoiceUpdateMutation = useUpdateSubscriptionInvoice({
+    mutation: {
+      ...handlers("invoiceUpdate", "تعذر تحديث فاتورة الاشتراك", () => {
+        invalidate();
+        onInvoiceUpdateSuccess?.();
+      }),
+    },
+  });
+
+  const invoiceDeleteMutation = useDeleteSubscriptionInvoice({
+    mutation: {
+      ...handlers("invoiceDelete", "تعذر حذف فاتورة الاشتراك", () => {
+        invalidate();
+        onInvoiceDeleteSuccess?.();
+      }),
+    },
+  });
+
   const toBody = (values: FixedSubscriptionFormValues): CreateFixedSubscriptionBody => ({
     invoiceDate: values.invoiceDate,
     referenceNumber: values.referenceNumber,
@@ -158,6 +187,24 @@ export function useFixedSubscriptions({
     invoiceStatusMutation.mutate({ id, data: { status } });
   };
 
+  const toInvoiceBody = (values: PurchaseFormValues): UpdateSubscriptionInvoiceBody => ({
+    invoiceDate: values.invoiceDate,
+    referenceNumber: values.referenceNumber,
+    companyName: values.companyName,
+    items: values.items,
+    totalInclVat: values.totalInclVat,
+  });
+
+  const submitInvoiceUpdate = (id: number, values: PurchaseFormValues) => {
+    clearBefore("invoiceUpdate");
+    invoiceUpdateMutation.mutate({ id, data: toInvoiceBody(values) });
+  };
+
+  const submitInvoiceDelete = (id: number) => {
+    clearBefore("invoiceDelete");
+    invoiceDeleteMutation.mutate({ id });
+  };
+
   const buildEditDefaultValues = (
     subscription: FixedSubscription,
   ): FixedSubscriptionFormValues => ({
@@ -167,6 +214,16 @@ export function useFixedSubscriptions({
     items: subscription.items,
     billingCycle: subscription.billingCycle,
     totalInclVat: subscription.totalInclVat,
+  });
+
+  const buildInvoiceEditDefaultValues = (
+    invoice: SubscriptionInvoice,
+  ): PurchaseFormValues => ({
+    invoiceDate: invoice.invoiceDate,
+    referenceNumber: invoice.referenceNumber,
+    companyName: invoice.companyName,
+    items: invoice.items,
+    totalInclVat: invoice.totalInclVat,
   });
 
   return {
@@ -190,14 +247,21 @@ export function useFixedSubscriptions({
     updateIsPending: updateMutation.isPending,
     deleteIsPending: deleteMutation.isPending,
     invoiceStatusIsPending: invoiceStatusMutation.isPending,
+    invoiceUpdateIsPending: invoiceUpdateMutation.isPending,
+    invoiceDeleteIsPending: invoiceDeleteMutation.isPending,
     createError: errors.create,
     updateError: errors.update,
     deleteError: errors.delete,
     invoiceStatusError: errors.invoiceStatus,
+    invoiceUpdateError: errors.invoiceUpdate,
+    invoiceDeleteError: errors.invoiceDelete,
     buildEditDefaultValues,
+    buildInvoiceEditDefaultValues,
     submitCreate,
     submitUpdate,
     submitDelete,
     submitInvoiceStatus,
+    submitInvoiceUpdate,
+    submitInvoiceDelete,
   };
 }

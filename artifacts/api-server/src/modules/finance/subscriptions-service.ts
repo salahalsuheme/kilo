@@ -251,6 +251,60 @@ export async function listSubscriptionInvoices(orgId: number, params: Partial<Li
   };
 }
 
+export async function getSubscriptionInvoice(orgId: number, id: number) {
+  const [row] = await db
+    .select()
+    .from(subscriptionInvoices)
+    .where(and(eq(subscriptionInvoices.orgId, orgId), eq(subscriptionInvoices.id, id)))
+    .limit(1);
+  return row ? mapSubscriptionInvoiceRow(row) : null;
+}
+
+export async function updateSubscriptionInvoice(
+  orgId: number,
+  id: number,
+  body: {
+    invoiceDate: string;
+    referenceNumber: string;
+    companyName: string;
+    items: string;
+    totalInclVat: number;
+  },
+) {
+  const existing = await getSubscriptionInvoice(orgId, id);
+  if (!existing) return null;
+
+  const amounts = await resolveAmounts(orgId, body.totalInclVat);
+  const [row] = await db
+    .update(subscriptionInvoices)
+    .set({
+      invoiceDate: body.invoiceDate,
+      referenceNumber: body.referenceNumber,
+      companyName: body.companyName,
+      items: body.items,
+      amountExVat: String(amounts.amountExVat),
+      taxRate: String(amounts.taxRate),
+      taxAmount: String(amounts.taxAmount),
+      totalInclVat: String(amounts.totalInclVat),
+      updatedAt: new Date(),
+    })
+    .where(and(eq(subscriptionInvoices.orgId, orgId), eq(subscriptionInvoices.id, id)))
+    .returning();
+
+  return row ? mapSubscriptionInvoiceRow(row) : null;
+}
+
+export async function deleteSubscriptionInvoice(orgId: number, id: number): Promise<boolean> {
+  const existing = await getSubscriptionInvoice(orgId, id);
+  if (!existing) return false;
+
+  await db
+    .delete(subscriptionInvoices)
+    .where(and(eq(subscriptionInvoices.orgId, orgId), eq(subscriptionInvoices.id, id)));
+
+  return true;
+}
+
 export async function updateSubscriptionInvoiceStatus(
   orgId: number,
   id: number,

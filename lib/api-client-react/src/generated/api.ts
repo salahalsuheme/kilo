@@ -78,6 +78,7 @@ import type {
   UpdateOrgUserBody,
   UpdateProfileBody,
   UpdatePurchaseBody,
+  UpdateSubscriptionInvoiceBody,
   UpdateVehicleBody,
   UploadContractSignedAttachmentBody,
   UploadProfilePhoto200,
@@ -4266,6 +4267,137 @@ export function useListSubscriptionInvoices<TData = Awaited<ReturnType<typeof li
 
 
 
+
+export const getUpdateSubscriptionInvoiceUrl = (id: number,) => {
+
+
+
+
+  return `/api/finance/subscription-invoices/${id}`
+}
+
+export const updateSubscriptionInvoice = async (id: number,
+    updateSubscriptionInvoiceBody: UpdateSubscriptionInvoiceBody, options?: RequestInit): Promise<SubscriptionInvoice> => {
+
+  return customFetch<SubscriptionInvoice>(getUpdateSubscriptionInvoiceUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateSubscriptionInvoiceBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateSubscriptionInvoiceMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSubscriptionInvoice>>, TError,{id: number;data: BodyType<UpdateSubscriptionInvoiceBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateSubscriptionInvoice>>, TError,{id: number;data: BodyType<UpdateSubscriptionInvoiceBody>}, TContext> => {
+
+const mutationKey = ['updateSubscriptionInvoice'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateSubscriptionInvoice>>, {id: number;data: BodyType<UpdateSubscriptionInvoiceBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateSubscriptionInvoice(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateSubscriptionInvoiceMutationResult = NonNullable<Awaited<ReturnType<typeof updateSubscriptionInvoice>>>
+    export type UpdateSubscriptionInvoiceMutationBody = BodyType<UpdateSubscriptionInvoiceBody>
+    export type UpdateSubscriptionInvoiceMutationError = ErrorType<unknown>
+
+    export const useUpdateSubscriptionInvoice = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateSubscriptionInvoice>>, TError,{id: number;data: BodyType<UpdateSubscriptionInvoiceBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateSubscriptionInvoice>>,
+        TError,
+        {id: number;data: BodyType<UpdateSubscriptionInvoiceBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateSubscriptionInvoiceMutationOptions(options));
+    }
+
+export const getDeleteSubscriptionInvoiceUrl = (id: number,) => {
+
+
+
+
+  return `/api/finance/subscription-invoices/${id}`
+}
+
+export const deleteSubscriptionInvoice = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteSubscriptionInvoiceUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteSubscriptionInvoiceMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptionInvoice>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptionInvoice>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteSubscriptionInvoice'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSubscriptionInvoice>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteSubscriptionInvoice(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSubscriptionInvoiceMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSubscriptionInvoice>>>
+
+    export type DeleteSubscriptionInvoiceMutationError = ErrorType<unknown>
+
+    export const useDeleteSubscriptionInvoice = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubscriptionInvoice>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSubscriptionInvoice>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteSubscriptionInvoiceMutationOptions(options));
+    }
 
 export const getUpdateSubscriptionInvoiceStatusUrl = (id: number,) => {
 

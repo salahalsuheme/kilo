@@ -16,8 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { FileEdit, Trash2, CheckCircle } from "lucide-react";
+import { FinanceInvoiceRowActionsMenu } from "@/components/finance/finance-invoice-row-actions-menu";
 
 interface PurchasesTableProps {
   purchases: Purchase[];
@@ -25,7 +24,7 @@ interface PurchasesTableProps {
   search: string;
   statusFilter: string;
   onEdit: (purchase: Purchase) => void;
-  onDelete: (id: number) => void;
+  onDelete: (purchase: Purchase) => void;
   onMarkPaid: (purchase: Purchase) => void;
   statusIsPending: boolean;
 }
@@ -97,38 +96,14 @@ export function PurchasesTable({
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center justify-center gap-1">
-                      {purchase.status === "draft" && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onEdit(purchase)}
-                            title="تعديل"
-                          >
-                            <FileEdit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive"
-                            onClick={() => onDelete(purchase.id)}
-                            title="حذف"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-green-700"
-                            onClick={() => onMarkPaid(purchase)}
-                            disabled={statusIsPending}
-                            title="تسجيل كمدفوعة"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
+                    <div className="flex items-center justify-center">
+                      <FinanceInvoiceRowActionsMenu
+                        status={purchase.status as FinanceInvoiceStatus}
+                        onEdit={() => onEdit(purchase)}
+                        onDelete={() => onDelete(purchase)}
+                        onMarkPaid={() => onMarkPaid(purchase)}
+                        statusIsPending={statusIsPending}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

@@ -137,7 +137,7 @@ export async function updatePurchase(
   },
 ) {
   const existing = await getPurchase(orgId, id);
-  if (!existing || existing.status !== "draft") return null;
+  if (!existing) return null;
 
   const amounts = await resolveAmounts(orgId, body.totalInclVat);
   const [row] = await db
@@ -161,7 +161,7 @@ export async function updatePurchase(
 
 export async function deletePurchase(orgId: number, id: number): Promise<boolean> {
   const existing = await getPurchase(orgId, id);
-  if (!existing || existing.status !== "draft") return false;
+  if (!existing) return false;
 
   await db
     .delete(purchaseInvoices)

@@ -29,7 +29,7 @@ export default function FinancePage() {
   const [page, setPage] = useState(1);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editPurchase, setEditPurchase] = useState<Purchase | null>(null);
-  const [deletePurchaseId, setDeletePurchaseId] = useState<number | null>(null);
+  const [deletePurchase, setDeletePurchase] = useState<Purchase | null>(null);
   const [markPaidPurchase, setMarkPaidPurchase] = useState<Purchase | null>(null);
 
   const { report, isLoading: reportLoading, reportError } = useFinanceReports({
@@ -62,7 +62,7 @@ export default function FinancePage() {
     page,
     onCreateSuccess: () => setIsCreateOpen(false),
     onUpdateSuccess: () => setEditPurchase(null),
-    onDeleteSuccess: () => setDeletePurchaseId(null),
+    onDeleteSuccess: () => setDeletePurchase(null),
     onStatusSuccess: () => setMarkPaidPurchase(null),
   });
 
@@ -130,7 +130,7 @@ export default function FinancePage() {
                   search={search}
                   statusFilter={statusFilter}
                   onEdit={setEditPurchase}
-                  onDelete={setDeletePurchaseId}
+                  onDelete={setDeletePurchase}
                   onMarkPaid={setMarkPaidPurchase}
                   statusIsPending={statusIsPending}
                 />
@@ -172,14 +172,18 @@ export default function FinancePage() {
       )}
 
       <DeleteConfirmDialog
-        open={deletePurchaseId != null}
-        onOpenChange={(open) => !open && setDeletePurchaseId(null)}
+        open={deletePurchase != null}
+        onOpenChange={(open) => !open && setDeletePurchase(null)}
         title="حذف فاتورة المشتريات"
-        description="يمكن حذف فواتير المشتريات المسودة فقط. هل تريد المتابعة؟"
+        description={
+          deletePurchase?.status === "paid"
+            ? `هل أنت متأكد من حذف فاتورة ${deletePurchase.referenceNumber} المدفوعة؟ سيُنعكس ذلك على التقارير المالية.`
+            : "هل تريد حذف فاتورة المشتريات هذه؟"
+        }
         isPending={deleteIsPending}
         errorMessage={deleteError}
         onConfirm={() => {
-          if (deletePurchaseId != null) submitDelete(deletePurchaseId);
+          if (deletePurchase != null) submitDelete(deletePurchase.id);
         }}
       />
 

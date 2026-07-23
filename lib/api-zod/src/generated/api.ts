@@ -1572,6 +1572,45 @@ export const ListSubscriptionInvoicesResponse = zod.object({
 })
 
 
+export const UpdateSubscriptionInvoiceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateSubscriptionInvoiceBody = zod.object({
+  "invoiceDate": zod.date(),
+  "referenceNumber": zod.string(),
+  "companyName": zod.string(),
+  "items": zod.string(),
+  "totalInclVat": zod.number()
+})
+
+export const UpdateSubscriptionInvoiceResponse = zod.object({
+  "id": zod.number(),
+  "subscriptionId": zod.number(),
+  "invoiceDate": zod.coerce.date().describe('تاريخ الفاتورة'),
+  "referenceNumber": zod.string(),
+  "companyName": zod.string(),
+  "items": zod.string(),
+  "billingCycle": zod.enum(['monthly', 'yearly']),
+  "billingPeriod": zod.string(),
+  "amountExVat": zod.number(),
+  "taxRate": zod.number(),
+  "taxAmount": zod.number(),
+  "totalInclVat": zod.number(),
+  "status": zod.enum(['draft', 'paid']).describe('draft — مسودة. paid — مدفوعة.\n'),
+  "paidAt": zod.coerce.date().nullish(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DeleteSubscriptionInvoiceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteSubscriptionInvoiceResponse = zod.void()
+
+
 export const UpdateSubscriptionInvoiceStatusParams = zod.object({
   "id": zod.coerce.number()
 })

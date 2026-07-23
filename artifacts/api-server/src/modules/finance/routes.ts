@@ -14,6 +14,8 @@ import {
   handleListFixedSubscriptions,
   handleListPurchases,
   handleListSubscriptionInvoices,
+  handleUpdateSubscriptionInvoice,
+  handleDeleteSubscriptionInvoice,
   handleUpdateCompanyAsset,
   handleUpdateFixedSubscription,
   handleUpdatePurchase,
@@ -36,6 +38,8 @@ router.get("/finance/fixed-subscriptions/:id", handleGetFixedSubscription);
 router.put("/finance/fixed-subscriptions/:id", handleUpdateFixedSubscription);
 router.delete("/finance/fixed-subscriptions/:id", handleDeleteFixedSubscription);
 router.get("/finance/subscription-invoices", handleListSubscriptionInvoices);
+router.put("/finance/subscription-invoices/:id", handleUpdateSubscriptionInvoice);
+router.delete("/finance/subscription-invoices/:id", handleDeleteSubscriptionInvoice);
 router.patch("/finance/subscription-invoices/:id/status", handleUpdateSubscriptionInvoiceStatus);
 router.get("/finance/assets", handleListCompanyAssets);
 router.post("/finance/assets", handleCreateCompanyAsset);

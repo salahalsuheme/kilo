@@ -34,3 +34,7 @@ export {
   COMPANY_ASSET_BODY_INVALID,
   UpdateCompanyAssetBodySchema,
 } from "./company-asset-body.schema.js";
+export {
+  UpdateSubscriptionInvoiceBodySchema,
+  SUBSCRIPTION_INVOICE_BODY_INVALID,
+} from "./subscription-invoice-body.schema.js";

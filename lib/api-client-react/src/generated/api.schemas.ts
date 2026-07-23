@@ -661,6 +661,14 @@ export interface SubscriptionInvoiceList {
   pageSize: number;
 }
 
+export interface UpdateSubscriptionInvoiceBody {
+  invoiceDate: string;
+  referenceNumber: string;
+  companyName: string;
+  items: string;
+  totalInclVat: number;
+}
+
 export interface FinancialStatus {
   totalRevenue: number;
   pendingPayments: number;

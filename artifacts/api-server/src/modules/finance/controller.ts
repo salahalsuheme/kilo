@@ -16,6 +16,8 @@ import {
   UpdateFixedSubscriptionBodySchema,
   UpdateCompanyAssetBodySchema,
   UpdatePurchaseBodySchema,
+  UpdateSubscriptionInvoiceBodySchema,
+  SUBSCRIPTION_INVOICE_BODY_INVALID,
 } from "@workspace/finance-domain";
 import {
   getOrgId,
@@ -40,6 +42,8 @@ import {
   listFixedSubscriptions,
   listSubscriptionInvoices,
   updateFixedSubscription,
+  updateSubscriptionInvoice,
+  deleteSubscriptionInvoice,
   updateSubscriptionInvoiceStatus,
 } from "./subscriptions-service.js";
 import {
@@ -119,7 +123,7 @@ export async function handleUpdatePurchase(req: Request, res: Response): Promise
 
   const purchase = await updatePurchase(orgId, Number(req.params.id), parsed.data);
   if (!purchase) {
-    res.status(400).json({ message: "لا يمكن تعديل فاتورة مشتريات غير مسودة" });
+    sendNotFound(res);
     return;
   }
   res.json(purchase);
@@ -131,7 +135,7 @@ export async function handleDeletePurchase(req: Request, res: Response): Promise
 
   const deleted = await deletePurchase(orgId, Number(req.params.id));
   if (!deleted) {
-    res.status(400).json({ message: "لا يمكن حذف فاتورة مشتريات غير مسودة" });
+    sendNotFound(res);
     return;
   }
   res.status(204).send();
@@ -253,6 +257,38 @@ export async function handleUpdateSubscriptionInvoiceStatus(
     return;
   }
   res.json(invoice);
+}
+
+export async function handleUpdateSubscriptionInvoice(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const parsed = UpdateSubscriptionInvoiceBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res
+      .status(400)
+      .json({ message: firstZodErrorMessage(parsed.error, SUBSCRIPTION_INVOICE_BODY_INVALID) });
+    return;
+  }
+
+  const invoice = await updateSubscriptionInvoice(orgId, Number(req.params.id), parsed.data);
+  if (!invoice) {
+    sendNotFound(res);
+    return;
+  }
+  res.json(invoice);
+}
+
+export async function handleDeleteSubscriptionInvoice(req: Request, res: Response): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const deleted = await deleteSubscriptionInvoice(orgId, Number(req.params.id));
+  if (!deleted) {
+    sendNotFound(res);
+    return;
+  }
+  res.status(204).send();
 }
 
 export async function handleListCompanyAssets(req: Request, res: Response): Promise<void> {

@@ -3,6 +3,8 @@ import type { FinanceInvoiceStatus, SubscriptionInvoice } from "@/lib/api-client
 import { ApiErrorBanner } from "@/components/api-error-banner";
 import { useFixedSubscriptions } from "@/hooks/use-fixed-subscriptions";
 import { FixedSubscriptionDialog } from "@/components/finance/fixed-subscription-dialog";
+import { PurchaseDialog } from "@/components/finance/purchase-dialog";
+import { FinanceInvoiceRowActionsMenu } from "@/components/finance/finance-invoice-row-actions-menu";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { SearchInput } from "@/components/ui/search-input";
 import { StatusFilterSelect } from "@/components/ui/status-filter-select";
@@ -34,7 +36,7 @@ import {
 } from "@workspace/finance-domain";
 import { formatSarCurrency } from "@workspace/invoices-domain";
 import type { FixedSubscription } from "@/lib/api-client-react-tenant";
-import { Plus, FileEdit, Trash2, CheckCircle } from "lucide-react";
+import { Plus, FileEdit, Trash2 } from "lucide-react";
 
 const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "all", label: "كل الحالات" },
@@ -51,6 +53,11 @@ export function FixedSubscriptionsPanel() {
   const [invoiceStatusFilter, setInvoiceStatusFilter] = useState("all");
   const [invoicePage, setInvoicePage] = useState(1);
   const [markPaidInvoice, setMarkPaidInvoice] = useState<SubscriptionInvoice | null>(null);
+  const [editSubscriptionInvoice, setEditSubscriptionInvoice] = useState<SubscriptionInvoice | null>(
+    null,
+  );
+  const [deleteSubscriptionInvoice, setDeleteSubscriptionInvoice] =
+    useState<SubscriptionInvoice | null>(null);
 
   const {
     subscriptions,
@@ -65,15 +72,22 @@ export function FixedSubscriptionsPanel() {
     updateIsPending,
     deleteIsPending,
     invoiceStatusIsPending,
+    invoiceUpdateIsPending,
+    invoiceDeleteIsPending,
     createError,
     updateError,
     deleteError,
     invoiceStatusError,
+    invoiceUpdateError,
+    invoiceDeleteError,
     buildEditDefaultValues,
+    buildInvoiceEditDefaultValues,
     submitCreate,
     submitUpdate,
     submitDelete,
     submitInvoiceStatus,
+    submitInvoiceUpdate,
+    submitInvoiceDelete,
   } = useFixedSubscriptions({
     invoiceSearch,
     invoiceStatusFilter,
@@ -82,6 +96,8 @@ export function FixedSubscriptionsPanel() {
     onUpdateSuccess: () => setEditSubscription(null),
     onDeleteSuccess: () => setDeleteSubscriptionId(null),
     onInvoiceStatusSuccess: () => setMarkPaidInvoice(null),
+    onInvoiceUpdateSuccess: () => setEditSubscriptionInvoice(null),
+    onInvoiceDeleteSuccess: () => setDeleteSubscriptionInvoice(null),
   });
 
   return (
@@ -259,20 +275,15 @@ export function FixedSubscriptionsPanel() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {invoice.status === "draft" && (
-                          <div className="flex justify-center">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-green-700"
-                              onClick={() => setMarkPaidInvoice(invoice)}
-                              disabled={invoiceStatusIsPending}
-                              title="تسجيل كمدفوعة"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
+                        <div className="flex items-center justify-center">
+                          <FinanceInvoiceRowActionsMenu
+                            status={invoice.status}
+                            onEdit={() => setEditSubscriptionInvoice(invoice)}
+                            onDelete={() => setDeleteSubscriptionInvoice(invoice)}
+                            onMarkPaid={() => setMarkPaidInvoice(invoice)}
+                            statusIsPending={invoiceStatusIsPending}
+                          />
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
@@ -333,6 +344,34 @@ export function FixedSubscriptionsPanel() {
         confirmLabel="نعم"
         onConfirm={() => {
           if (markPaidInvoice) submitInvoiceStatus(markPaidInvoice.id, "paid");
+        }}
+      />
+
+      {editSubscriptionInvoice && (
+        <PurchaseDialog
+          open
+          onOpenChange={(open) => !open && setEditSubscriptionInvoice(null)}
+          title="تعديل فاتورة اشتراك"
+          defaultValues={buildInvoiceEditDefaultValues(editSubscriptionInvoice)}
+          onSubmit={(values) => submitInvoiceUpdate(editSubscriptionInvoice.id, values)}
+          isPending={invoiceUpdateIsPending}
+          errorMessage={invoiceUpdateError}
+        />
+      )}
+
+      <DeleteConfirmDialog
+        open={deleteSubscriptionInvoice != null}
+        onOpenChange={(open) => !open && setDeleteSubscriptionInvoice(null)}
+        title="حذف فاتورة الاشتراك"
+        description={
+          deleteSubscriptionInvoice?.status === "paid"
+            ? `هل أنت متأكد من حذف فاتورة ${deleteSubscriptionInvoice.referenceNumber} المدفوعة؟ سيُنعكس ذلك على التقارير المالية.`
+            : "هل تريد حذف فاتورة الاشتراك هذه؟"
+        }
+        isPending={invoiceDeleteIsPending}
+        errorMessage={invoiceDeleteError}
+        onConfirm={() => {
+          if (deleteSubscriptionInvoice) submitInvoiceDelete(deleteSubscriptionInvoice.id);
         }}
       />
     </div>
