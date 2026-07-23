@@ -1,5 +1,5 @@
 import { and, count, desc, eq, ilike, or } from "drizzle-orm";
-import { computeAmountsFromTotalInclVat } from "@workspace/finance-domain";
+import { resolvePurchaseAmounts } from "@workspace/finance-domain";
 import type { FinanceInvoiceStatus } from "@workspace/finance-domain";
 import { ListPurchasesQueryParams } from "@workspace/api-zod";
 import type { z } from "zod";
@@ -32,9 +32,9 @@ function mapPurchaseRow(row: typeof purchaseInvoices.$inferSelect) {
   };
 }
 
-async function resolveAmounts(orgId: number, totalInclVat: number) {
+async function resolveAmounts(orgId: number, totalInclVat: number, taxExempt = false) {
   const tax = await getOrgTaxContext(orgId);
-  return computeAmountsFromTotalInclVat(totalInclVat, tax.taxEnabled, tax.taxRate);
+  return resolvePurchaseAmounts(totalInclVat, taxExempt, tax);
 }
 
 export async function listPurchases(orgId: number, params: Partial<ListParams>) {
@@ -97,9 +97,10 @@ export async function createPurchase(
     companyName: string;
     items: string;
     totalInclVat: number;
+    taxExempt?: boolean;
   },
 ) {
-  const amounts = await resolveAmounts(orgId, body.totalInclVat);
+  const amounts = await resolveAmounts(orgId, body.totalInclVat, body.taxExempt);
   const [row] = await db
     .insert(purchaseInvoices)
     .values({
@@ -134,12 +135,13 @@ export async function updatePurchase(
     companyName: string;
     items: string;
     totalInclVat: number;
+    taxExempt?: boolean;
   },
 ) {
   const existing = await getPurchase(orgId, id);
   if (!existing) return null;
 
-  const amounts = await resolveAmounts(orgId, body.totalInclVat);
+  const amounts = await resolveAmounts(orgId, body.totalInclVat, body.taxExempt);
   const [row] = await db
     .update(purchaseInvoices)
     .set({

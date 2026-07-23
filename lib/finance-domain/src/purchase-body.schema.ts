@@ -11,7 +11,8 @@ export const CreatePurchaseBodySchema = z.object({
   referenceNumber: trimmedRequired("رقم المرجع مطلوب"),
   companyName: trimmedRequired("اسم الشركة مطلوب"),
   items: trimmedRequired("الأصناف مطلوبة"),
-  totalInclVat: z.number().positive("المبلغ شامل الضريبة يجب أن يكون أكبر من صفر"),
+  totalInclVat: z.number().positive("المبلغ يجب أن يكون أكبر من صفر"),
+  taxExempt: z.boolean().optional().default(false),
 });
 
 export const UpdatePurchaseBodySchema = CreatePurchaseBodySchema;

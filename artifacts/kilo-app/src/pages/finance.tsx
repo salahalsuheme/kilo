@@ -157,6 +157,7 @@ export default function FinancePage() {
         onSubmit={submitCreate}
         isPending={createIsPending}
         errorMessage={createError}
+        showTaxExemptOption
       />
 
       {editPurchase && (
@@ -168,6 +169,7 @@ export default function FinancePage() {
           onSubmit={(values) => submitUpdate(editPurchase.id, values)}
           isPending={updateIsPending}
           errorMessage={updateError}
+          showTaxExemptOption
         />
       )}
 

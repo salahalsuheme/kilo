@@ -630,6 +630,8 @@ export interface CreatePurchaseBody {
   companyName: string;
   items: string;
   totalInclVat: number;
+  /** مشتريات بدون ضريبة — المبلغ يُسجَّل كاملاً دون ضريبة مدخلات */
+  taxExempt?: boolean;
 }
 
 export type UpdatePurchaseBody = CreatePurchaseBody;

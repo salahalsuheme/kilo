@@ -2627,6 +2627,10 @@ components:
           type: string
         totalInclVat:
           type: number
+        taxExempt:
+          type: boolean
+          default: false
+          description: مشتريات بدون ضريبة — المبلغ يُسجَّل كاملاً دون ضريبة مدخلات
       required: [invoiceDate, referenceNumber, companyName, items, totalInclVat]
 
     UpdatePurchaseBody:

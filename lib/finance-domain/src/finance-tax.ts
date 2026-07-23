@@ -25,3 +25,18 @@ export function computeAmountsFromTotalInclVat(
     totalInclVat: normalizedTotal,
   };
 }
+
+export function resolvePurchaseAmounts(
+  totalInclVat: number,
+  taxExempt: boolean,
+  orgTax: { taxEnabled: boolean; taxRate: number },
+): ContractAmounts {
+  if (taxExempt) {
+    return computeAmountsFromTotalInclVat(totalInclVat, false, 0);
+  }
+  return computeAmountsFromTotalInclVat(totalInclVat, orgTax.taxEnabled, orgTax.taxRate);
+}
+
+export function isPurchaseTaxExempt(taxAmount: number, taxRate: number): boolean {
+  return taxAmount === 0 && taxRate === 0;
+}

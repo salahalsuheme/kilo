@@ -13,6 +13,7 @@ import type {
   FinanceInvoiceStatus,
   Purchase,
 } from "@/lib/api-client-react-tenant";
+import { isPurchaseTaxExempt } from "@workspace/finance-domain";
 import { resolveQueryError } from "@/lib/api-error";
 import { withOrgKey } from "@/lib/tenant-cache";
 import { useOrgId } from "@/hooks/use-invalidate";
@@ -119,6 +120,7 @@ export function usePurchases({
     companyName: values.companyName,
     items: values.items,
     totalInclVat: values.totalInclVat,
+    taxExempt: values.taxExempt,
   });
 
   const submitCreate = (values: PurchaseFormValues) => {
@@ -146,6 +148,7 @@ export function usePurchases({
     referenceNumber: purchase.referenceNumber,
     companyName: purchase.companyName,
     items: purchase.items,
+    taxExempt: isPurchaseTaxExempt(purchase.taxAmount, purchase.taxRate),
     totalInclVat: purchase.totalInclVat,
   });
 

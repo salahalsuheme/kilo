@@ -1475,12 +1475,15 @@ export const ListPurchasesResponse = zod.object({
 })
 
 
+export const createPurchaseBodyTaxExemptDefault = false;
+
 export const CreatePurchaseBody = zod.object({
   "invoiceDate": zod.date(),
   "referenceNumber": zod.string(),
   "companyName": zod.string(),
   "items": zod.string(),
-  "totalInclVat": zod.number()
+  "totalInclVat": zod.number(),
+  "taxExempt": zod.boolean().default(createPurchaseBodyTaxExemptDefault).describe('مشتريات بدون ضريبة — المبلغ يُسجَّل كاملاً دون ضريبة مدخلات')
 })
 
 export const CreatePurchaseResponse = zod.object({
@@ -1525,12 +1528,15 @@ export const UpdatePurchaseParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const updatePurchaseBodyOneTaxExemptDefault = false;
+
 export const UpdatePurchaseBody = zod.object({
   "invoiceDate": zod.date(),
   "referenceNumber": zod.string(),
   "companyName": zod.string(),
   "items": zod.string(),
-  "totalInclVat": zod.number()
+  "totalInclVat": zod.number(),
+  "taxExempt": zod.boolean().default(updatePurchaseBodyOneTaxExemptDefault).describe('مشتريات بدون ضريبة — المبلغ يُسجَّل كاملاً دون ضريبة مدخلات')
 })
 
 export const UpdatePurchaseResponse = zod.object({

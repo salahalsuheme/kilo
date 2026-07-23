@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ApiErrorBanner } from "@/components/api-error-banner";
 import { useDialogFormErrors } from "@/hooks/use-dialog-form-errors";
 import {
@@ -33,6 +34,7 @@ interface PurchaseDialogProps {
   onSubmit: (values: PurchaseFormValues) => void;
   isPending?: boolean;
   errorMessage?: string | null;
+  showTaxExemptOption?: boolean;
 }
 
 export function PurchaseDialog({
@@ -43,6 +45,7 @@ export function PurchaseDialog({
   onSubmit,
   isPending,
   errorMessage,
+  showTaxExemptOption = false,
 }: PurchaseDialogProps) {
   const { clearValidationError, handleInvalid, resolveErrorMessage } = useDialogFormErrors();
   const form = useForm<PurchaseFormValues>({
@@ -50,6 +53,7 @@ export function PurchaseDialog({
     defaultValues: defaultValues ?? EMPTY_PURCHASE_VALUES,
     mode: "onTouched",
   });
+  const taxExempt = form.watch("taxExempt");
 
   useEffect(() => {
     if (open) {
@@ -132,7 +136,11 @@ export function PurchaseDialog({
                 name="totalInclVat"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>المبلغ شامل الضريبة</FormLabel>
+                    <FormLabel>
+                      {showTaxExemptOption && taxExempt
+                        ? "المبلغ (بدون ضريبة)"
+                        : "المبلغ شامل الضريبة"}
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} type="number" step="0.01" min="0" />
                     </FormControl>
@@ -140,6 +148,25 @@ export function PurchaseDialog({
                   </FormItem>
                 )}
               />
+              {showTaxExemptOption ? (
+                <FormField
+                  control={form.control}
+                  name="taxExempt"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center gap-2 space-y-0 md:col-span-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                        />
+                      </FormControl>
+                      <FormLabel className="cursor-pointer font-normal">
+                        مشتريات بدون ضريبة
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+              ) : null}
             </div>
             <Button type="submit" className="w-full" disabled={isPending}>
               حفظ

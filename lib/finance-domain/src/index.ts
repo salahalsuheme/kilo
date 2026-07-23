@@ -1,5 +1,5 @@
 export type { BillingCycle, FinanceInvoiceStatus } from "./types.js";
-export { computeAmountsFromTotalInclVat } from "./finance-tax.js";
+export { computeAmountsFromTotalInclVat, isPurchaseTaxExempt, resolvePurchaseAmounts } from "./finance-tax.js";
 export {
   BILLING_CYCLE_LABELS,
   FINANCE_INVOICE_STATUS_LABELS,

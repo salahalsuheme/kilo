@@ -223,6 +223,7 @@ export function useFixedSubscriptions({
     referenceNumber: invoice.referenceNumber,
     companyName: invoice.companyName,
     items: invoice.items,
+    taxExempt: false,
     totalInclVat: invoice.totalInclVat,
   });
 
