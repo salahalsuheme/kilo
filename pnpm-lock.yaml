@@ -383,9 +383,6 @@ importers:
 
   lib/customers-domain:
     dependencies:
-      '@workspace/establishments-domain':
-        specifier: workspace:*
-        version: link:../establishments-domain
       zod:
         specifier: 'catalog:'
         version: 4.3.6
