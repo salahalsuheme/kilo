@@ -649,6 +649,89 @@ CREATE INDEX IF NOT EXISTS customers_org_establishment_number_idx
   WHERE deleted_at IS NULL AND establishment_number IS NOT NULL AND establishment_number <> '';
 `;
 
+const ESTABLISHMENTS_PATCH = `
+CREATE TABLE IF NOT EXISTS establishments (
+  id SERIAL PRIMARY KEY,
+  org_id INTEGER NOT NULL REFERENCES organizations(id),
+  name TEXT NOT NULL,
+  client_type customer_type NOT NULL,
+  establishment_number TEXT NOT NULL,
+  has_tax_number BOOLEAN NOT NULL DEFAULT false,
+  tax_number TEXT,
+  invoice_type invoice_type NOT NULL DEFAULT 'simplified',
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT establishments_client_type_non_individual
+    CHECK (client_type IN ('institution', 'company', 'government'))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS establishments_org_establishment_number_uidx
+  ON establishments (org_id, establishment_number)
+  WHERE deleted_at IS NULL AND establishment_number <> '';
+
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS establishment_id INTEGER REFERENCES establishments(id);
+
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS establishment_id INTEGER REFERENCES establishments(id);
+
+CREATE INDEX IF NOT EXISTS customers_establishment_id_idx
+  ON customers (establishment_id)
+  WHERE deleted_at IS NULL AND establishment_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS contracts_establishment_id_idx
+  ON contracts (establishment_id)
+  WHERE deleted_at IS NULL AND establishment_id IS NOT NULL;
+`;
+
+const ESTABLISHMENTS_DATA_MIGRATION_PATCH = `
+INSERT INTO establishments (
+  org_id, name, client_type, establishment_number, has_tax_number, tax_number, invoice_type, created_at, updated_at
+)
+SELECT DISTINCT ON (c.org_id, c.establishment_number)
+  c.org_id,
+  c.establishment_name,
+  c.client_type,
+  c.establishment_number,
+  c.has_tax_number,
+  c.tax_number,
+  c.invoice_type,
+  c.created_at,
+  c.updated_at
+FROM customers c
+WHERE c.establishment_number IS NOT NULL
+  AND c.establishment_number <> ''
+  AND c.establishment_name IS NOT NULL
+  AND c.establishment_name <> ''
+  AND c.client_type IN ('institution', 'company', 'government')
+  AND c.deleted_at IS NULL
+  AND NOT EXISTS (
+    SELECT 1 FROM establishments e
+    WHERE e.org_id = c.org_id
+      AND e.establishment_number = c.establishment_number
+      AND e.deleted_at IS NULL
+  )
+ORDER BY c.org_id, c.establishment_number, c.id;
+
+UPDATE customers c
+SET establishment_id = e.id
+FROM establishments e
+WHERE c.org_id = e.org_id
+  AND c.establishment_number = e.establishment_number
+  AND c.establishment_number IS NOT NULL
+  AND c.establishment_number <> ''
+  AND c.establishment_id IS NULL
+  AND c.deleted_at IS NULL
+  AND e.deleted_at IS NULL;
+
+UPDATE contracts ct
+SET establishment_id = c.establishment_id
+FROM customers c
+WHERE ct.customer_id = c.id
+  AND c.establishment_id IS NOT NULL
+  AND ct.establishment_id IS NULL
+  AND ct.deleted_at IS NULL;
+`;
+
 const CARS_SERIAL_NUMBER_OPTIONAL_PATCH = `
 UPDATE cars
 SET serial_number = NULL
@@ -721,6 +804,8 @@ export async function runMigrations(): Promise<void> {
     await pool.query(CONTRACT_SIGNED_ATTACHMENT_PATCH);
     await pool.query(CONTRACT_VEHICLE_DAMAGE_FORM_PATCH);
     await pool.query(CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH);
+    await pool.query(ESTABLISHMENTS_PATCH);
+    await pool.query(ESTABLISHMENTS_DATA_MIGRATION_PATCH);
     await pool.query(CARS_SERIAL_NUMBER_OPTIONAL_PATCH);
     await pool.query(SESSION_PATCH);
     await assertSchemaReady();

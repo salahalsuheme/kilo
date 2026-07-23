@@ -42,6 +42,7 @@ function refineContractFormDates(
 
 export const contractFormSchema = z
   .object({
+    establishmentId: z.string(),
     customerId: z.string().min(1, CONTRACT_FIELD_ERRORS.customerId),
     carId: z.string().min(1, CONTRACT_FIELD_ERRORS.carId),
     templateId: z.string().min(1, CONTRACT_FIELD_ERRORS.templateId),
@@ -79,6 +80,7 @@ export function defaultContractEndAt(startAt: string = defaultContractStartAt())
 export function createEmptyContractValues(): ContractFormValues {
   const startAt = defaultContractStartAt();
   return {
+    establishmentId: "",
     customerId: "",
     carId: "",
     templateId: "",

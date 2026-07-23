@@ -1,15 +1,18 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   deriveInvoiceType,
-  CUSTOMER_FIELD_HINTS,
   CUSTOMER_FIELD_LABELS,
-  ESTABLISHMENT_NUMBER_PREFIX,
-  ESTABLISHMENT_NUMBER_SUFFIX_LENGTH,
   INVOICE_TYPE_LABELS,
   isNonIndividualClientType,
 } from "@workspace/customers-domain";
+import { formatEstablishmentFullName } from "@workspace/establishments-domain";
+import type { EstablishmentType } from "@workspace/establishments-domain";
+import {
+  getListEstablishmentsQueryKey,
+  useListEstablishments,
+} from "@/lib/api-client-react-tenant";
 import {
   Dialog,
   DialogContent,
@@ -26,12 +29,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-  InputGroupText,
-} from "@/components/ui/input-group";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -63,6 +60,7 @@ interface CustomerDialogProps {
 const EMPTY_VALUES: CustomerFormValues = {
   name: "",
   clientType: "individual",
+  establishmentId: "",
   idNumber: "",
   birthDate: "",
   mobile: "",
@@ -70,8 +68,6 @@ const EMPTY_VALUES: CustomerFormValues = {
   nationality: "سعودي",
   hasTaxNumber: false,
   taxNumber: "",
-  establishmentName: "",
-  establishmentNumber: "",
 };
 
 function RequiredFormLabel({ children }: { children: ReactNode }) {
@@ -105,7 +101,22 @@ export function CustomerDialog({
   const clientType = form.watch("clientType");
   const taxNumber = form.watch("taxNumber");
   const invoiceType = deriveInvoiceType(clientType, hasTaxNumber, taxNumber);
-  const showEstablishmentFields = isNonIndividualClientType(clientType);
+  const showEstablishmentPicker = isNonIndividualClientType(clientType);
+
+  const establishmentsQuery = useListEstablishments(
+    { page: 1, pageSize: 100 },
+    {
+      query: {
+        queryKey: getListEstablishmentsQueryKey({ page: 1, pageSize: 100 }),
+        enabled: open && showEstablishmentPicker,
+      },
+    },
+  );
+
+  const matchingEstablishments = useMemo(() => {
+    const all = establishmentsQuery.data?.data ?? [];
+    return all.filter((establishment) => establishment.clientType === clientType);
+  }, [establishmentsQuery.data?.data, clientType]);
 
   useEffect(() => {
     if (open) {
@@ -128,11 +139,12 @@ export function CustomerDialog({
   }, [hasTaxNumber, form]);
 
   useEffect(() => {
-    if (!showEstablishmentFields) {
-      form.setValue("establishmentName", "");
-      form.setValue("establishmentNumber", "");
+    if (!showEstablishmentPicker) {
+      form.setValue("establishmentId", "");
+      form.setValue("hasTaxNumber", false);
+      form.setValue("taxNumber", "");
     }
-  }, [showEstablishmentFields, form]);
+  }, [showEstablishmentPicker, form]);
 
   const handleSubmit = (values: CustomerFormValues) => {
     onSubmit({
@@ -203,55 +215,41 @@ export function CustomerDialog({
               />
             </div>
 
-            {showEstablishmentFields && (
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="establishmentName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <RequiredFormLabel>{CUSTOMER_FIELD_LABELS.establishmentName}</RequiredFormLabel>
+            {showEstablishmentPicker && (
+              <FormField
+                control={form.control}
+                name="establishmentId"
+                render={({ field }) => (
+                  <FormItem>
+                    <RequiredFormLabel>{CUSTOMER_FIELD_LABELS.establishmentId}</RequiredFormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} dir="rtl">
                       <FormControl>
-                        <Input {...field} />
+                        <SelectTrigger dir="rtl" className="text-right">
+                          <SelectValue placeholder="اختر المنشأة" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="establishmentNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <RequiredFormLabel>
-                        {CUSTOMER_FIELD_LABELS.establishmentNumber}
-                      </RequiredFormLabel>
-                      <FormControl>
-                        <InputGroup dir="ltr" className="text-end">
-                          <InputGroupAddon align="inline-start">
-                            <InputGroupText className="text-muted-foreground/60">
-                              {ESTABLISHMENT_NUMBER_PREFIX}
-                            </InputGroupText>
-                          </InputGroupAddon>
-                          <InputGroupInput
-                            {...field}
-                            inputMode="numeric"
-                            maxLength={ESTABLISHMENT_NUMBER_SUFFIX_LENGTH}
-                            placeholder={"X".repeat(ESTABLISHMENT_NUMBER_SUFFIX_LENGTH)}
-                            onChange={(event) => {
-                              field.onChange(event.target.value.replace(/\D/g, ""));
-                            }}
-                          />
-                        </InputGroup>
-                      </FormControl>
-                      <FormDescription>
-                        {CUSTOMER_FIELD_HINTS.establishmentNumber}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                      <SelectContent dir="rtl" className="text-right">
+                        {matchingEstablishments.map((establishment) => (
+                          <SelectItem
+                            key={establishment.id}
+                            value={String(establishment.id)}
+                            className="text-right"
+                          >
+                            {formatEstablishmentFullName(
+                              establishment.clientType as EstablishmentType,
+                              establishment.name,
+                            )}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      أنشئ المنشأة أولاً من تبويب المنشآت إن لم تكن موجودة
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
@@ -309,54 +307,56 @@ export function CustomerDialog({
               />
             </div>
 
-            <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
-              <FormField
-                control={form.control}
-                name="hasTaxNumber"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <FormLabel>عميل لديه رقم ضريبي</FormLabel>
-                      <FormDescription>
-                        يُستخدم لتحديد نوع الفاتورة الضريبية عند الإصدار
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {hasTaxNumber && (
+            {!showEstablishmentPicker && (
+              <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
                 <FormField
                   control={form.control}
-                  name="taxNumber"
+                  name="hasTaxNumber"
                   render={({ field }) => (
-                    <FormItem>
-                      <RequiredFormLabel>الرقم الضريبي</RequiredFormLabel>
+                    <FormItem className="flex items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <FormLabel>عميل لديه رقم ضريبي</FormLabel>
+                        <FormDescription>
+                          يُستخدم لتحديد نوع الفاتورة الضريبية عند الإصدار
+                        </FormDescription>
+                      </div>
                       <FormControl>
-                        <Input {...field} dir="ltr" className="text-end" placeholder="3XXXXXXXXXXXXX3" />
+                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                       </FormControl>
-                      <FormDescription>15 رقماً يبدأ وينتهي بـ 3 (ZATCA)</FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
-              )}
 
-              <div className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
-                <span className="text-sm text-muted-foreground">نوع الفاتورة</span>
-                <Badge variant={invoiceType === "standard" ? "default" : "secondary"}>
-                  {INVOICE_TYPE_LABELS[invoiceType]}
-                </Badge>
+                {hasTaxNumber && (
+                  <FormField
+                    control={form.control}
+                    name="taxNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <RequiredFormLabel>الرقم الضريبي</RequiredFormLabel>
+                        <FormControl>
+                          <Input {...field} dir="ltr" className="text-end" placeholder="3XXXXXXXXXXXXX3" />
+                        </FormControl>
+                        <FormDescription>15 رقماً يبدأ وينتهي بـ 3 (ZATCA)</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <div className="flex items-center justify-between gap-3 rounded-md border bg-background px-3 py-2">
+                  <span className="text-sm text-muted-foreground">نوع الفاتورة</span>
+                  <Badge variant={invoiceType === "standard" ? "default" : "secondary"}>
+                    {INVOICE_TYPE_LABELS[invoiceType]}
+                  </Badge>
+                </div>
+                {clientType === "individual" && hasTaxNumber && (
+                  <p className="text-xs text-muted-foreground">
+                    العميل فرد — يبقى على فاتورة مبسطة حتى مع وجود رقم ضريبي.
+                  </p>
+                )}
               </div>
-              {clientType === "individual" && hasTaxNumber && (
-                <p className="text-xs text-muted-foreground">
-                  العميل فرد — يبقى على فاتورة مبسطة حتى مع وجود رقم ضريبي.
-                </p>
-              )}
-            </div>
+            )}
 
             <Button type="submit" className="w-full" disabled={isPending}>
               حفظ

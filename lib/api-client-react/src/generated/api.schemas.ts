@@ -93,6 +93,15 @@ export const CustomerType = {
   government: 'government',
 } as const;
 
+export type EstablishmentType = typeof EstablishmentType[keyof typeof EstablishmentType];
+
+
+export const EstablishmentType = {
+  institution: 'institution',
+  company: 'company',
+  government: 'government',
+} as const;
+
 /**
  * simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة/شركة/حكومي مع رقم ضريبي).
  */
@@ -109,6 +118,14 @@ export interface Customer {
   /** اسم السائق */
   name: string;
   clientType: CustomerType;
+  /** معرّف المنشأة — مطلوب لغير الأفراد */
+  establishmentId?: number | null;
+  /** اسم المنشأة (مُجمّع من السجل المرتبط) */
+  establishmentName?: string | null;
+  /** رقم المنشأة في وزارة الداخلية */
+  establishmentNumber?: string | null;
+  /** نوع المنشأة (مؤسسة/شركة/حكومي) */
+  establishmentClientType?: EstablishmentType | null;
   idNumber: string;
   birthDate?: string | null;
   mobile: string;
@@ -116,10 +133,6 @@ export interface Customer {
   nationality: string;
   hasTaxNumber: boolean;
   taxNumber?: string | null;
-  /** اسم المنشأة — مطلوب لغير الأفراد */
-  establishmentName?: string | null;
-  /** رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة. */
-  establishmentNumber?: string | null;
   invoiceType: InvoiceType;
   createdAt: string;
   updatedAt: string;
@@ -132,6 +145,11 @@ export interface CreateCustomerBody {
      */
   name: string;
   clientType: CustomerType;
+  /**
+     * معرّف المنشأة — مطلوب لغير الأفراد
+     * @minimum 1
+     */
+  establishmentId?: number | null;
   /** @minLength 1 */
   idNumber: string;
   birthDate: string;
@@ -141,18 +159,55 @@ export interface CreateCustomerBody {
   licenseNumber: string;
   /** @minLength 1 */
   nationality: string;
+  /** للأفراد فقط — غير الأفراد يُؤخذ من المنشأة */
   hasTaxNumber: boolean;
+  /** للأفراد فقط */
   taxNumber?: string | null;
-  /** اسم المنشأة — مطلوب لغير الأفراد */
-  establishmentName?: string | null;
-  /** رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة. */
-  establishmentNumber?: string | null;
 }
 
 export type UpdateCustomerBody = CreateCustomerBody;
 
 export interface CustomerList {
   data: Customer[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface Establishment {
+  id: number;
+  /** اسم المنشأة (بدون بادئة النوع) */
+  name: string;
+  clientType: EstablishmentType;
+  /** رقم المنشأة في وزارة الداخلية (يبدأ بـ 700) */
+  establishmentNumber: string;
+  hasTaxNumber: boolean;
+  taxNumber?: string | null;
+  invoiceType: InvoiceType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateEstablishmentBody {
+  /**
+     * اسم المنشأة (بدون بادئة النوع)
+     * @minLength 1
+     */
+  name: string;
+  clientType: EstablishmentType;
+  /**
+     * الأرقام بعد بادئة 700
+     * @minLength 1
+     */
+  establishmentNumber: string;
+  hasTaxNumber: boolean;
+  taxNumber?: string | null;
+}
+
+export type UpdateEstablishmentBody = CreateEstablishmentBody;
+
+export interface EstablishmentList {
+  data: Establishment[];
   total: number;
   page: number;
   pageSize: number;
@@ -267,8 +322,18 @@ export interface Contract {
   id: number;
   /** مثال: CT01-2026 */
   contractNumber: string;
+  /** معرّف السائق */
   customerId: number;
+  /** اسم العرض (منشأة - سائق أو السائق فقط) */
   customerName: string;
+  /** اسم السائق */
+  driverName: string;
+  /** معرّف المنشأة */
+  establishmentId?: number | null;
+  /** اسم المنشأة بدون بادئة النوع */
+  establishmentName?: string | null;
+  /** اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا) */
+  establishmentFullName?: string | null;
   carId: number;
   vehicleBrand: string;
   vehiclePlateNumber: string;
@@ -323,8 +388,16 @@ export interface VehicleDamageForm {
 }
 
 export interface CreateContractBody {
-  /** @minimum 1 */
+  /**
+     * معرّف السائق
+     * @minimum 1
+     */
   customerId: number;
+  /**
+     * معرّف المنشأة — مطلوب لسائقي المنشآت
+     * @minimum 1
+     */
+  establishmentId?: number | null;
   /** @minimum 1 */
   carId: number;
   /** @minimum 1 */
@@ -826,6 +899,25 @@ pageSize?: number;
 export type ListCustomersParams = {
 search?: string;
 clientType?: CustomerType;
+/**
+ * تصفية السائقين حسب المنشأة
+ * @minimum 1
+ */
+establishmentId?: number;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+pageSize?: number;
+};
+
+export type ListEstablishmentsParams = {
+search?: string;
+clientType?: EstablishmentType;
 /**
  * @minimum 1
  */

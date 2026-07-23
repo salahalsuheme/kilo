@@ -3,6 +3,7 @@ import { CONTRACT_FIELD_ERRORS } from "./contract-field-errors.js";
 
 export const ContractBodyObjectSchema = z.object({
   customerId: z.number().int().positive(CONTRACT_FIELD_ERRORS.customerId),
+  establishmentId: z.number().int().positive().nullable().optional(),
   carId: z.number().int().positive(CONTRACT_FIELD_ERRORS.carId),
   templateId: z.number().int().positive(CONTRACT_FIELD_ERRORS.templateId),
   startAt: z.coerce.date({ message: CONTRACT_FIELD_ERRORS.startAt }),

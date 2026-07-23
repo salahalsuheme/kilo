@@ -34,7 +34,10 @@ export {
   formatContractDateTime,
   renderContractTemplate,
   type ContractTemplateContextInput,
+  type ContractTemplateDriverInput,
+  type ContractTemplateEstablishmentInput,
 } from "./contract-template.js";
+export { validateContractEstablishmentLink } from "./contract-establishment.js";
 export {
   ContractBodyObjectSchema,
   CreateContractBodySchema,

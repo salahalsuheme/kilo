@@ -17,6 +17,7 @@
     "@workspace/invoices-domain": "workspace:*",
     "@workspace/finance-domain": "workspace:*",
     "@workspace/customers-domain": "workspace:*",
+    "@workspace/establishments-domain": "workspace:*",
     "@workspace/users-domain": "workspace:*",
     "@workspace/settings-domain": "workspace:*",
     "@workspace/storage-domain": "workspace:*",

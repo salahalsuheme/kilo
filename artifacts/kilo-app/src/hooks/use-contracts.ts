@@ -136,6 +136,7 @@ export function useContracts({
   };
 
   const buildEditDefaultValues = (contract: Contract): ContractFormValues => ({
+    establishmentId: contract.establishmentId ? String(contract.establishmentId) : "",
     customerId: String(contract.customerId),
     carId: String(contract.carId),
     templateId: String(contract.templateId),
@@ -176,6 +177,7 @@ function toDateTimeLocalFromIso(iso: string): string {
 export function toContractBody(values: ContractFormValues): CreateContractBody {
   return {
     customerId: Number(values.customerId),
+    establishmentId: values.establishmentId ? Number(values.establishmentId) : null,
     carId: Number(values.carId),
     templateId: Number(values.templateId),
     startAt: new Date(values.startAt).toISOString(),

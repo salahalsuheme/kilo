@@ -72,11 +72,28 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const establishments = pgTable("establishments", {
+  id: serial("id").primaryKey(),
+  orgId: integer("org_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: text("name").notNull(),
+  clientType: customerTypeEnum("client_type").notNull(),
+  establishmentNumber: text("establishment_number").notNull(),
+  hasTaxNumber: boolean("has_tax_number").notNull().default(false),
+  taxNumber: text("tax_number"),
+  invoiceType: invoiceTypeEnum("invoice_type").notNull().default("simplified"),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const customers = pgTable("customers", {
   id: serial("id").primaryKey(),
   orgId: integer("org_id")
     .notNull()
     .references(() => organizations.id),
+  establishmentId: integer("establishment_id").references(() => establishments.id),
   name: text("name").notNull(),
   clientType: customerTypeEnum("client_type").notNull(),
   idNumber: text("id_number").notNull(),
@@ -188,6 +205,7 @@ export const contracts = pgTable("contracts", {
   customerId: integer("customer_id")
     .notNull()
     .references(() => customers.id),
+  establishmentId: integer("establishment_id").references(() => establishments.id),
   carId: integer("car_id")
     .notNull()
     .references(() => cars.id),

@@ -18,25 +18,16 @@ export {
   CUSTOMER_UNIQUE_INDEXES,
   messageForCustomerUniqueViolation,
 } from "./customer-unique.js";
+export { CUSTOMER_FIELD_LABELS } from "./customer-field-labels.js";
 export {
-  CUSTOMER_FIELD_HINTS,
-  CUSTOMER_FIELD_LABELS,
-} from "./customer-field-labels.js";
-export {
-  ESTABLISHMENT_NUMBER_PREFIX,
-  ESTABLISHMENT_NUMBER_SUFFIX_LENGTH,
   formatCustomerDisplayName,
   isNonIndividualClientType,
-  isValidEstablishmentNumber,
-  normalizeEstablishmentNumber,
-  resolveEstablishmentFields,
-  stripEstablishmentNumberSuffix,
-  validateEstablishmentInput,
+  validateCustomerEstablishmentLink,
 } from "./customer-establishment.js";
-export { refineCustomerBodyEstablishment } from "./customer-body.schema.js";
 export {
   CreateCustomerBodySchema,
   CustomerBodyObjectSchema,
+  refineCustomerBodyEstablishment,
   refineCustomerBodyTax,
   UpdateCustomerBodySchema,
   type CreateCustomerBodyInput,

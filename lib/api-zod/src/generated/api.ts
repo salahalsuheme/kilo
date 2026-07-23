@@ -148,6 +148,7 @@ export const ListNotificationsResponse = zod.object({
 })
 
 
+
 export const listCustomersQueryPageDefault = 1;
 
 export const listCustomersQueryPageSizeDefault = 10;
@@ -158,6 +159,7 @@ export const listCustomersQueryPageSizeMax = 100;
 export const ListCustomersQueryParams = zod.object({
   "search": zod.coerce.string().optional(),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']).optional(),
+  "establishmentId": zod.coerce.number().min(1).optional().describe('تصفية السائقين حسب المنشأة'),
   "page": zod.coerce.number().min(1).default(listCustomersQueryPageDefault),
   "pageSize": zod.coerce.number().min(1).max(listCustomersQueryPageSizeMax).default(listCustomersQueryPageSizeDefault)
 })
@@ -167,6 +169,10 @@ export const ListCustomersResponse = zod.object({
   "id": zod.number(),
   "name": zod.string().describe('اسم السائق'),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة — مطلوب لغير الأفراد'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة (مُجمّع من السجل المرتبط)'),
+  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية'),
+  "establishmentClientType": zod.enum(['institution', 'company', 'government']).nullish().describe('نوع المنشأة (مؤسسة\/شركة\/حكومي)'),
   "idNumber": zod.string(),
   "birthDate": zod.coerce.date().nullish(),
   "mobile": zod.string(),
@@ -174,8 +180,6 @@ export const ListCustomersResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
-  "establishmentName": zod.string().nullish().describe('اسم المنشأة — مطلوب لغير الأفراد'),
-  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.\n'),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -191,26 +195,30 @@ export const ListCustomersResponse = zod.object({
 
 
 
+
 export const createCustomerBodyHasTaxNumberDefault = false;
 
 export const CreateCustomerBody = zod.object({
   "name": zod.string().min(1).describe('اسم السائق'),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']),
+  "establishmentId": zod.number().min(1).nullish().describe('معرّف المنشأة — مطلوب لغير الأفراد'),
   "idNumber": zod.string().min(1),
   "birthDate": zod.date(),
   "mobile": zod.string().min(1),
   "licenseNumber": zod.string().min(1),
   "nationality": zod.string().min(1),
-  "hasTaxNumber": zod.boolean().default(createCustomerBodyHasTaxNumberDefault),
-  "taxNumber": zod.string().nullish(),
-  "establishmentName": zod.string().nullish().describe('اسم المنشأة — مطلوب لغير الأفراد'),
-  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.\n')
+  "hasTaxNumber": zod.boolean().default(createCustomerBodyHasTaxNumberDefault).describe('للأفراد فقط — غير الأفراد يُؤخذ من المنشأة'),
+  "taxNumber": zod.string().nullish().describe('للأفراد فقط')
 })
 
 export const CreateCustomerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string().describe('اسم السائق'),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة — مطلوب لغير الأفراد'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة (مُجمّع من السجل المرتبط)'),
+  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية'),
+  "establishmentClientType": zod.enum(['institution', 'company', 'government']).nullish().describe('نوع المنشأة (مؤسسة\/شركة\/حكومي)'),
   "idNumber": zod.string(),
   "birthDate": zod.coerce.date().nullish(),
   "mobile": zod.string(),
@@ -218,8 +226,6 @@ export const CreateCustomerResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
-  "establishmentName": zod.string().nullish().describe('اسم المنشأة — مطلوب لغير الأفراد'),
-  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.\n'),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -234,6 +240,10 @@ export const GetCustomerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string().describe('اسم السائق'),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة — مطلوب لغير الأفراد'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة (مُجمّع من السجل المرتبط)'),
+  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية'),
+  "establishmentClientType": zod.enum(['institution', 'company', 'government']).nullish().describe('نوع المنشأة (مؤسسة\/شركة\/حكومي)'),
   "idNumber": zod.string(),
   "birthDate": zod.coerce.date().nullish(),
   "mobile": zod.string(),
@@ -241,8 +251,6 @@ export const GetCustomerResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
-  "establishmentName": zod.string().nullish().describe('اسم المنشأة — مطلوب لغير الأفراد'),
-  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.\n'),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -258,26 +266,30 @@ export const UpdateCustomerParams = zod.object({
 
 
 
+
 export const updateCustomerBodyOneHasTaxNumberDefault = false;
 
 export const UpdateCustomerBody = zod.object({
   "name": zod.string().min(1).describe('اسم السائق'),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']),
+  "establishmentId": zod.number().min(1).nullish().describe('معرّف المنشأة — مطلوب لغير الأفراد'),
   "idNumber": zod.string().min(1),
   "birthDate": zod.date(),
   "mobile": zod.string().min(1),
   "licenseNumber": zod.string().min(1),
   "nationality": zod.string().min(1),
-  "hasTaxNumber": zod.boolean().default(updateCustomerBodyOneHasTaxNumberDefault),
-  "taxNumber": zod.string().nullish(),
-  "establishmentName": zod.string().nullish().describe('اسم المنشأة — مطلوب لغير الأفراد'),
-  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.\n')
+  "hasTaxNumber": zod.boolean().default(updateCustomerBodyOneHasTaxNumberDefault).describe('للأفراد فقط — غير الأفراد يُؤخذ من المنشأة'),
+  "taxNumber": zod.string().nullish().describe('للأفراد فقط')
 })
 
 export const UpdateCustomerResponse = zod.object({
   "id": zod.number(),
   "name": zod.string().describe('اسم السائق'),
   "clientType": zod.enum(['individual', 'institution', 'company', 'government']),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة — مطلوب لغير الأفراد'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة (مُجمّع من السجل المرتبط)'),
+  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية'),
+  "establishmentClientType": zod.enum(['institution', 'company', 'government']).nullish().describe('نوع المنشأة (مؤسسة\/شركة\/حكومي)'),
   "idNumber": zod.string(),
   "birthDate": zod.coerce.date().nullish(),
   "mobile": zod.string(),
@@ -285,8 +297,6 @@ export const UpdateCustomerResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
-  "establishmentName": zod.string().nullish().describe('اسم المنشأة — مطلوب لغير الأفراد'),
-  "establishmentNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700). يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.\n'),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -298,6 +308,116 @@ export const DeleteCustomerParams = zod.object({
 })
 
 export const DeleteCustomerResponse = zod.void()
+
+
+export const listEstablishmentsQueryPageDefault = 1;
+
+export const listEstablishmentsQueryPageSizeDefault = 10;
+export const listEstablishmentsQueryPageSizeMax = 100;
+
+
+
+export const ListEstablishmentsQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "clientType": zod.enum(['institution', 'company', 'government']).optional(),
+  "page": zod.coerce.number().min(1).default(listEstablishmentsQueryPageDefault),
+  "pageSize": zod.coerce.number().min(1).max(listEstablishmentsQueryPageSizeMax).default(listEstablishmentsQueryPageSizeDefault)
+})
+
+export const ListEstablishmentsResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string().describe('اسم المنشأة (بدون بادئة النوع)'),
+  "clientType": zod.enum(['institution', 'company', 'government']),
+  "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
+  "hasTaxNumber": zod.boolean(),
+  "taxNumber": zod.string().nullish(),
+  "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "pageSize": zod.number()
+})
+
+
+
+
+export const createEstablishmentBodyHasTaxNumberDefault = false;
+
+export const CreateEstablishmentBody = zod.object({
+  "name": zod.string().min(1).describe('اسم المنشأة (بدون بادئة النوع)'),
+  "clientType": zod.enum(['institution', 'company', 'government']),
+  "establishmentNumber": zod.string().min(1).describe('الأرقام بعد بادئة 700'),
+  "hasTaxNumber": zod.boolean().default(createEstablishmentBodyHasTaxNumberDefault),
+  "taxNumber": zod.string().nullish()
+})
+
+export const CreateEstablishmentResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string().describe('اسم المنشأة (بدون بادئة النوع)'),
+  "clientType": zod.enum(['institution', 'company', 'government']),
+  "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
+  "hasTaxNumber": zod.boolean(),
+  "taxNumber": zod.string().nullish(),
+  "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const GetEstablishmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetEstablishmentResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string().describe('اسم المنشأة (بدون بادئة النوع)'),
+  "clientType": zod.enum(['institution', 'company', 'government']),
+  "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
+  "hasTaxNumber": zod.boolean(),
+  "taxNumber": zod.string().nullish(),
+  "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UpdateEstablishmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+export const updateEstablishmentBodyOneHasTaxNumberDefault = false;
+
+export const UpdateEstablishmentBody = zod.object({
+  "name": zod.string().min(1).describe('اسم المنشأة (بدون بادئة النوع)'),
+  "clientType": zod.enum(['institution', 'company', 'government']),
+  "establishmentNumber": zod.string().min(1).describe('الأرقام بعد بادئة 700'),
+  "hasTaxNumber": zod.boolean().default(updateEstablishmentBodyOneHasTaxNumberDefault),
+  "taxNumber": zod.string().nullish()
+})
+
+export const UpdateEstablishmentResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string().describe('اسم المنشأة (بدون بادئة النوع)'),
+  "clientType": zod.enum(['institution', 'company', 'government']),
+  "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
+  "hasTaxNumber": zod.boolean(),
+  "taxNumber": zod.string().nullish(),
+  "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DeleteEstablishmentParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteEstablishmentResponse = zod.void()
 
 
 export const listUsersQueryPageDefault = 1;
@@ -633,8 +753,12 @@ export const ListContractsResponse = zod.object({
   "data": zod.array(zod.object({
   "id": zod.number(),
   "contractNumber": zod.string().describe('مثال: CT01-2026'),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
+  "customerId": zod.number().describe('معرّف السائق'),
+  "customerName": zod.string().describe('اسم العرض (منشأة - سائق أو السائق فقط)'),
+  "driverName": zod.string().describe('اسم السائق'),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)'),
   "carId": zod.number(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
@@ -667,13 +791,15 @@ export const ListContractsResponse = zod.object({
 
 
 
+
 export const createContractBodyAmountExVatMin = 0.01;
 
 
 
 
 export const CreateContractBody = zod.object({
-  "customerId": zod.number().min(1),
+  "customerId": zod.number().min(1).describe('معرّف السائق'),
+  "establishmentId": zod.number().min(1).nullish().describe('معرّف المنشأة — مطلوب لسائقي المنشآت'),
   "carId": zod.number().min(1),
   "templateId": zod.number().min(1),
   "startAt": zod.date(),
@@ -685,8 +811,12 @@ export const CreateContractBody = zod.object({
 export const CreateContractResponse = zod.object({
   "id": zod.number(),
   "contractNumber": zod.string().describe('مثال: CT01-2026'),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
+  "customerId": zod.number().describe('معرّف السائق'),
+  "customerName": zod.string().describe('اسم العرض (منشأة - سائق أو السائق فقط)'),
+  "driverName": zod.string().describe('اسم السائق'),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)'),
   "carId": zod.number(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
@@ -719,8 +849,12 @@ export const GetContractParams = zod.object({
 export const GetContractResponse = zod.object({
   "id": zod.number(),
   "contractNumber": zod.string().describe('مثال: CT01-2026'),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
+  "customerId": zod.number().describe('معرّف السائق'),
+  "customerName": zod.string().describe('اسم العرض (منشأة - سائق أو السائق فقط)'),
+  "driverName": zod.string().describe('اسم السائق'),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)'),
   "carId": zod.number(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
@@ -753,13 +887,15 @@ export const UpdateContractParams = zod.object({
 
 
 
+
 export const updateContractBodyOneAmountExVatMin = 0.01;
 
 
 
 
 export const UpdateContractBody = zod.object({
-  "customerId": zod.number().min(1),
+  "customerId": zod.number().min(1).describe('معرّف السائق'),
+  "establishmentId": zod.number().min(1).nullish().describe('معرّف المنشأة — مطلوب لسائقي المنشآت'),
   "carId": zod.number().min(1),
   "templateId": zod.number().min(1),
   "startAt": zod.date(),
@@ -771,8 +907,12 @@ export const UpdateContractBody = zod.object({
 export const UpdateContractResponse = zod.object({
   "id": zod.number(),
   "contractNumber": zod.string().describe('مثال: CT01-2026'),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
+  "customerId": zod.number().describe('معرّف السائق'),
+  "customerName": zod.string().describe('اسم العرض (منشأة - سائق أو السائق فقط)'),
+  "driverName": zod.string().describe('اسم السائق'),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)'),
   "carId": zod.number(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
@@ -816,8 +956,12 @@ export const UpdateContractStatusBody = zod.object({
 export const UpdateContractStatusResponse = zod.object({
   "id": zod.number(),
   "contractNumber": zod.string().describe('مثال: CT01-2026'),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
+  "customerId": zod.number().describe('معرّف السائق'),
+  "customerName": zod.string().describe('اسم العرض (منشأة - سائق أو السائق فقط)'),
+  "driverName": zod.string().describe('اسم السائق'),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)'),
   "carId": zod.number(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),
@@ -868,8 +1012,12 @@ export const UploadContractSignedAttachmentBody = zod.object({
 export const UploadContractSignedAttachmentResponse = zod.object({
   "id": zod.number(),
   "contractNumber": zod.string().describe('مثال: CT01-2026'),
-  "customerId": zod.number(),
-  "customerName": zod.string(),
+  "customerId": zod.number().describe('معرّف السائق'),
+  "customerName": zod.string().describe('اسم العرض (منشأة - سائق أو السائق فقط)'),
+  "driverName": zod.string().describe('اسم السائق'),
+  "establishmentId": zod.number().nullish().describe('معرّف المنشأة'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)'),
   "carId": zod.number(),
   "vehicleBrand": zod.string(),
   "vehiclePlateNumber": zod.string(),

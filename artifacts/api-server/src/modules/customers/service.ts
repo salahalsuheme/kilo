@@ -4,18 +4,26 @@ import { ListCustomersQueryParams } from "@workspace/api-zod";
 import type { CreateCustomerBodyInput, UpdateCustomerBodyInput } from "@workspace/customers-domain";
 import {
   formatCustomerDisplayName,
-  resolveEstablishmentFields,
+  isNonIndividualClientType,
 } from "@workspace/customers-domain";
 import { db } from "../../db/index.js";
-import { customers } from "../../db/schema.js";
+import { customers, establishments } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
+import { getEstablishment } from "../establishments/service.js";
 import { resolveCustomerTaxFields } from "./domain/customer-tax.js";
 
-function mapCustomer(row: typeof customers.$inferSelect) {
+type CustomerRow = typeof customers.$inferSelect;
+type EstablishmentRow = typeof establishments.$inferSelect;
+
+function mapCustomer(row: CustomerRow, establishment: EstablishmentRow | null) {
   return {
     id: row.id,
     name: row.name,
     clientType: row.clientType,
+    establishmentId: row.establishmentId,
+    establishmentName: establishment?.name ?? null,
+    establishmentNumber: establishment?.establishmentNumber ?? null,
+    establishmentClientType: establishment?.clientType ?? null,
     idNumber: row.idNumber,
     birthDate: row.birthDate,
     mobile: row.mobile,
@@ -23,20 +31,33 @@ function mapCustomer(row: typeof customers.$inferSelect) {
     nationality: row.nationality,
     hasTaxNumber: row.hasTaxNumber,
     taxNumber: row.taxNumber,
-    establishmentName: row.establishmentName,
-    establishmentNumber: row.establishmentNumber,
     invoiceType: row.invoiceType,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
 }
 
-function resolveBodyEstablishment(body: CreateBody | UpdateBody) {
-  return resolveEstablishmentFields(
-    body.clientType,
-    body.establishmentName,
-    body.establishmentNumber,
-  );
+async function loadEstablishmentForCustomer(
+  orgId: number,
+  establishmentId: number | null,
+): Promise<EstablishmentRow | null> {
+  if (!establishmentId) return null;
+  const establishment = await getEstablishment(orgId, establishmentId);
+  return establishment
+    ? {
+        id: establishment.id,
+        orgId,
+        name: establishment.name,
+        clientType: establishment.clientType,
+        establishmentNumber: establishment.establishmentNumber,
+        hasTaxNumber: establishment.hasTaxNumber,
+        taxNumber: establishment.taxNumber,
+        invoiceType: establishment.invoiceType,
+        deletedAt: null,
+        createdAt: establishment.createdAt,
+        updatedAt: establishment.updatedAt,
+      }
+    : null;
 }
 
 type ListParams = z.infer<typeof ListCustomersQueryParams>;
@@ -51,10 +72,14 @@ export async function listCustomers(
   const pageSize = params.pageSize ?? 10;
   const search = params.search?.trim();
   const clientType = params.clientType;
+  const establishmentId = params.establishmentId;
 
   const filters = [eq(customers.orgId, orgId), isNull(customers.deletedAt)];
   if (clientType) {
     filters.push(eq(customers.clientType, clientType));
+  }
+  if (establishmentId) {
+    filters.push(eq(customers.establishmentId, establishmentId));
   }
   if (search) {
     filters.push(
@@ -62,8 +87,8 @@ export async function listCustomers(
         ilike(customers.name, `%${search}%`),
         ilike(customers.mobile, `%${search}%`),
         ilike(customers.idNumber, `%${search}%`),
-        ilike(customers.establishmentName, `%${search}%`),
-        ilike(customers.establishmentNumber, `%${search}%`),
+        ilike(establishments.name, `%${search}%`),
+        ilike(establishments.establishmentNumber, `%${search}%`),
       )!,
     );
   }
@@ -73,18 +98,28 @@ export async function listCustomers(
   const [{ value: total }] = await db
     .select({ value: count() })
     .from(customers)
+    .leftJoin(establishments, eq(customers.establishmentId, establishments.id))
     .where(where);
 
   const rows = await db
-    .select()
+    .select({
+      customer: customers,
+      establishment: establishments,
+    })
     .from(customers)
+    .leftJoin(establishments, eq(customers.establishmentId, establishments.id))
     .where(where)
     .orderBy(desc(customers.createdAt))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 
   return {
-    data: rows.map(mapCustomer),
+    data: rows.map((row) =>
+      mapCustomer(
+        row.customer,
+        row.establishment && !row.establishment.deletedAt ? row.establishment : null,
+      ),
+    ),
     total,
     page,
     pageSize,
@@ -93,44 +128,85 @@ export async function listCustomers(
 
 export async function getCustomer(orgId: number, id: number) {
   const [row] = await db
-    .select()
+    .select({
+      customer: customers,
+      establishment: establishments,
+    })
     .from(customers)
+    .leftJoin(establishments, eq(customers.establishmentId, establishments.id))
     .where(and(eq(customers.orgId, orgId), eq(customers.id, id), isNull(customers.deletedAt)))
     .limit(1);
-  return row ? mapCustomer(row) : null;
+
+  if (!row) return null;
+  return mapCustomer(
+    row.customer,
+    row.establishment && !row.establishment.deletedAt ? row.establishment : null,
+  );
+}
+
+async function resolveCustomerPersistFields(orgId: number, body: CreateBody | UpdateBody) {
+  if (!isNonIndividualClientType(body.clientType)) {
+    const tax = resolveCustomerTaxFields(body);
+    return {
+      establishmentId: null,
+      clientType: body.clientType,
+      hasTaxNumber: tax.hasTaxNumber,
+      taxNumber: tax.taxNumber,
+      invoiceType: tax.invoiceType,
+    };
+  }
+
+  const establishment = await getEstablishment(orgId, body.establishmentId!);
+  if (!establishment) {
+    return { error: "المنشأة غير موجودة" as const };
+  }
+  if (establishment.clientType !== body.clientType) {
+    return { error: "نوع العميل لا يطابق نوع المنشأة" as const };
+  }
+
+  return {
+    establishmentId: establishment.id,
+    clientType: establishment.clientType,
+    hasTaxNumber: establishment.hasTaxNumber,
+    taxNumber: establishment.taxNumber,
+    invoiceType: establishment.invoiceType,
+  };
 }
 
 export async function createCustomer(
   orgId: number,
   body: CreateBody,
 ) {
-  const tax = resolveCustomerTaxFields(body);
-  const establishment = resolveBodyEstablishment(body);
+  const resolved = await resolveCustomerPersistFields(orgId, body);
+  if ("error" in resolved) {
+    throw Object.assign(new Error(resolved.error), { statusCode: 400 });
+  }
+
   const [row] = await db
     .insert(customers)
     .values({
       orgId,
       name: body.name,
-      clientType: body.clientType,
+      clientType: resolved.clientType,
+      establishmentId: resolved.establishmentId,
       idNumber: body.idNumber,
       birthDate: body.birthDate,
       mobile: body.mobile,
       licenseNumber: body.licenseNumber,
       nationality: body.nationality,
-      hasTaxNumber: tax.hasTaxNumber,
-      taxNumber: tax.taxNumber,
-      establishmentName: establishment.establishmentName,
-      establishmentNumber: establishment.establishmentNumber,
-      invoiceType: tax.invoiceType,
+      hasTaxNumber: resolved.hasTaxNumber,
+      taxNumber: resolved.taxNumber,
+      invoiceType: resolved.invoiceType,
     })
     .returning();
 
+  const establishment = await loadEstablishmentForCustomer(orgId, row.establishmentId);
   await recordActivity(
     orgId,
     "customer",
-    `إضافة عميل: ${formatCustomerDisplayName(row.name, row.establishmentName)}`,
+    `إضافة سائق: ${formatCustomerDisplayName(row.name, establishment?.name)}`,
   );
-  return mapCustomer(row);
+  return mapCustomer(row, establishment);
 }
 
 export async function updateCustomer(
@@ -138,35 +214,38 @@ export async function updateCustomer(
   id: number,
   body: UpdateBody,
 ) {
-  const tax = resolveCustomerTaxFields(body);
-  const establishment = resolveBodyEstablishment(body);
+  const resolved = await resolveCustomerPersistFields(orgId, body);
+  if ("error" in resolved) {
+    throw Object.assign(new Error(resolved.error), { statusCode: 400 });
+  }
+
   const [row] = await db
     .update(customers)
     .set({
       name: body.name,
-      clientType: body.clientType,
+      clientType: resolved.clientType,
+      establishmentId: resolved.establishmentId,
       idNumber: body.idNumber,
       birthDate: body.birthDate,
       mobile: body.mobile,
       licenseNumber: body.licenseNumber,
       nationality: body.nationality,
-      hasTaxNumber: tax.hasTaxNumber,
-      taxNumber: tax.taxNumber,
-      establishmentName: establishment.establishmentName,
-      establishmentNumber: establishment.establishmentNumber,
-      invoiceType: tax.invoiceType,
+      hasTaxNumber: resolved.hasTaxNumber,
+      taxNumber: resolved.taxNumber,
+      invoiceType: resolved.invoiceType,
       updatedAt: new Date(),
     })
     .where(and(eq(customers.orgId, orgId), eq(customers.id, id), isNull(customers.deletedAt)))
     .returning();
 
   if (row) {
+    const establishment = await loadEstablishmentForCustomer(orgId, row.establishmentId);
     await recordActivity(
       orgId,
       "customer",
-      `تعديل عميل: ${formatCustomerDisplayName(row.name, row.establishmentName)}`,
+      `تعديل سائق: ${formatCustomerDisplayName(row.name, establishment?.name)}`,
     );
-    return mapCustomer(row);
+    return mapCustomer(row, establishment);
   }
   return null;
 }
@@ -179,7 +258,7 @@ export async function deleteCustomer(orgId: number, id: number) {
     .returning();
 
   if (row) {
-    await recordActivity(orgId, "customer", `حذف عميل: ${row.name}`);
+    await recordActivity(orgId, "customer", `حذف سائق: ${row.name}`);
     return true;
   }
   return false;

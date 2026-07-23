@@ -7,6 +7,9 @@ export function toCreateCustomerBody(values: CustomerFormValues): CreateCustomer
   return {
     name: values.name,
     clientType: values.clientType,
+    establishmentId: isNonIndividualClientType(values.clientType)
+      ? Number(values.establishmentId)
+      : null,
     idNumber: values.idNumber,
     birthDate: values.birthDate,
     mobile: values.mobile,
@@ -14,12 +17,6 @@ export function toCreateCustomerBody(values: CustomerFormValues): CreateCustomer
     nationality: values.nationality,
     hasTaxNumber: values.hasTaxNumber,
     taxNumber: values.hasTaxNumber ? values.taxNumber?.trim() || null : null,
-    establishmentName: isNonIndividualClientType(values.clientType)
-      ? values.establishmentName.trim()
-      : null,
-    establishmentNumber: isNonIndividualClientType(values.clientType)
-      ? values.establishmentNumber.trim()
-      : null,
   };
 }
 

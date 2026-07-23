@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { CUSTOMER_FIELD_ERRORS, isValidIsoDateString } from "./customer-field-errors.js";
-import { validateEstablishmentInput } from "./customer-establishment.js";
+import { validateCustomerEstablishmentLink, isNonIndividualClientType } from "./customer-establishment.js";
 import { validateCustomerTaxInput } from "./customer-tax.js";
 import type { CustomerType } from "./types.js";
 
@@ -24,41 +24,46 @@ export const CustomerBodyObjectSchema = z.object({
   nationality: trimmedRequired(CUSTOMER_FIELD_ERRORS.nationality),
   hasTaxNumber: z.boolean(),
   taxNumber: z.string().nullable().optional(),
-  establishmentName: z.string().nullable().optional(),
-  /** Suffix digits after the fixed 700 prefix (non-individual clients). */
-  establishmentNumber: z.string().nullable().optional(),
+  establishmentId: z.number().int().positive().nullable().optional(),
 });
 
 export function refineCustomerBodyEstablishment(
   data: {
     clientType: CustomerType;
-    establishmentName?: string | null;
-    establishmentNumber?: string | null;
+    establishmentId?: number | null;
   },
   ctx: z.RefinementCtx,
 ): void {
-  const error = validateEstablishmentInput(
-    data.clientType,
-    data.establishmentName,
-    data.establishmentNumber,
-  );
-  if (typeof error === "string") {
-    const path =
-      error.includes("اسم المنشأة") ? "establishmentName" : "establishmentNumber";
-    ctx.addIssue({ code: "custom", message: error, path: [path] });
+  const error = validateCustomerEstablishmentLink(data.clientType, data.establishmentId);
+  if (error) {
+    ctx.addIssue({ code: "custom", message: error, path: ["establishmentId"] });
   }
 }
 
 export function refineCustomerBodyTax(
-  data: { hasTaxNumber: boolean; taxNumber?: string | null },
+  data: {
+    clientType: CustomerType;
+    hasTaxNumber: boolean;
+    taxNumber?: string | null;
+  },
   ctx: z.RefinementCtx,
 ): void {
-  const taxError = validateCustomerTaxInput(data.hasTaxNumber, data.taxNumber);
-  if (taxError) {
+  if (!isNonIndividualClientType(data.clientType)) {
+    const taxError = validateCustomerTaxInput(data.hasTaxNumber, data.taxNumber);
+    if (taxError) {
+      ctx.addIssue({
+        code: "custom",
+        message: taxError,
+        path: ["taxNumber"],
+      });
+    }
+    return;
+  }
+  if (data.hasTaxNumber || data.taxNumber?.trim()) {
     ctx.addIssue({
       code: "custom",
-      message: taxError,
-      path: ["taxNumber"],
+      message: "الرقم الضريبي يُدار من بيانات المنشأة",
+      path: ["hasTaxNumber"],
     });
   }
 }

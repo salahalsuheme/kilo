@@ -7,11 +7,12 @@ import {
   useUpdateCustomer,
 } from "@/lib/api-client-react-tenant";
 import type { Customer, CreateCustomerBody, CustomerType } from "@/lib/api-client-react-tenant";
-import { stripEstablishmentNumberSuffix } from "@workspace/customers-domain";
+import { isNonIndividualClientType } from "@workspace/customers-domain";
 import { resolveQueryError } from "@/lib/api-error";
 import { withOrgKey } from "@/lib/tenant-cache";
 import { useOrgId } from "@/hooks/use-invalidate";
 import { useMutationErrorSlots } from "@/hooks/use-mutation-error-slots";
+import type { CustomerFormValues } from "@/features/customers/customer-form.schema";
 
 export const PAGE_SIZE = 10;
 
@@ -67,7 +68,7 @@ export function useCustomers({
 
   const createMutation = useCreateCustomer({
     mutation: {
-      ...handlers("create", "تعذر إنشاء العميل", () => {
+      ...handlers("create", "تعذر إنشاء السائق", () => {
         invalidateList();
         onCreateSuccess?.();
       }),
@@ -76,7 +77,7 @@ export function useCustomers({
 
   const updateMutation = useUpdateCustomer({
     mutation: {
-      ...handlers("update", "تعذر تحديث العميل", () => {
+      ...handlers("update", "تعذر تحديث السائق", () => {
         invalidateList();
         onUpdateSuccess?.();
       }),
@@ -85,29 +86,45 @@ export function useCustomers({
 
   const deleteMutation = useDeleteCustomer({
     mutation: {
-      ...handlers("delete", "تعذر حذف العميل", () => {
+      ...handlers("delete", "تعذر حذف السائق", () => {
         invalidateList();
         onDeleteSuccess?.();
       }),
     },
   });
 
-  const submitCreate = (body: CreateCustomerBody) => {
+  const toBody = (values: CustomerFormValues): CreateCustomerBody => ({
+    name: values.name,
+    clientType: values.clientType,
+    establishmentId: isNonIndividualClientType(values.clientType)
+      ? Number(values.establishmentId)
+      : null,
+    idNumber: values.idNumber,
+    birthDate: values.birthDate,
+    mobile: values.mobile,
+    licenseNumber: values.licenseNumber,
+    nationality: values.nationality,
+    hasTaxNumber: values.hasTaxNumber,
+    taxNumber: values.hasTaxNumber ? values.taxNumber?.trim() || null : null,
+  });
+
+  const submitCreate = (values: CustomerFormValues) => {
     clearBefore("create");
-    createMutation.mutate({ data: body });
+    createMutation.mutate({ data: toBody(values) });
   };
-  const submitUpdate = (id: number, body: CreateCustomerBody) => {
+  const submitUpdate = (id: number, values: CustomerFormValues) => {
     clearBefore("update");
-    updateMutation.mutate({ id, data: body });
+    updateMutation.mutate({ id, data: toBody(values) });
   };
   const submitDelete = (id: number) => {
     clearBefore("delete");
     deleteMutation.mutate({ id });
   };
 
-  const buildEditDefaultValues = (customer: Customer) => ({
+  const buildEditDefaultValues = (customer: Customer): CustomerFormValues => ({
     name: customer.name,
     clientType: customer.clientType,
+    establishmentId: customer.establishmentId ? String(customer.establishmentId) : "",
     idNumber: customer.idNumber,
     birthDate: customer.birthDate ? String(customer.birthDate).slice(0, 10) : "",
     mobile: customer.mobile,
@@ -115,15 +132,13 @@ export function useCustomers({
     nationality: customer.nationality,
     hasTaxNumber: customer.hasTaxNumber,
     taxNumber: customer.taxNumber ?? "",
-    establishmentName: customer.establishmentName ?? "",
-    establishmentNumber: stripEstablishmentNumberSuffix(customer.establishmentNumber),
   });
 
   return {
     customers: listQuery.data?.data ?? [],
     total: listQuery.data?.total ?? 0,
     isLoading: listQuery.isLoading,
-    listError: resolveQueryError(listQuery.isError, listQuery.error, "تعذر تحميل العملاء"),
+    listError: resolveQueryError(listQuery.isError, listQuery.error, "تعذر تحميل السائقين"),
     PAGE_SIZE,
     createIsPending: createMutation.isPending,
     updateIsPending: updateMutation.isPending,
@@ -135,5 +150,6 @@ export function useCustomers({
     submitCreate,
     submitUpdate,
     submitDelete,
+    toBody,
   };
 }

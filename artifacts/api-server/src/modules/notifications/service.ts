@@ -13,7 +13,7 @@ import {
   type VehicleDocumentType,
 } from "@workspace/notifications-domain";
 import { db } from "../../db/index.js";
-import { cars, contracts, customers } from "../../db/schema.js";
+import { cars, contracts, customers, establishments } from "../../db/schema.js";
 import { syncContractExpirations } from "../contracts/service.js";
 
 type ListParams = z.infer<typeof ListNotificationsQueryParams>;
@@ -47,12 +47,13 @@ export async function listNotifications(orgId: number, params: Partial<ListParam
     .select({
       contract: contracts,
       customerName: customers.name,
-      customerEstablishmentName: customers.establishmentName,
+      customerEstablishmentName: establishments.name,
       customerMobile: customers.mobile,
       vehiclePlateNumber: cars.plateNumber,
     })
     .from(contracts)
     .innerJoin(customers, eq(contracts.customerId, customers.id))
+    .leftJoin(establishments, eq(contracts.establishmentId, establishments.id))
     .innerJoin(cars, eq(contracts.carId, cars.id))
     .where(and(eq(contracts.orgId, orgId), isNull(contracts.deletedAt)));
 

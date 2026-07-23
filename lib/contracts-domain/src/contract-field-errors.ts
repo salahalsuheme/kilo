@@ -1,5 +1,6 @@
 export const CONTRACT_FIELD_ERRORS = {
-  customerId: "اسم العميل مطلوب",
+  customerId: "اسم السائق مطلوب",
+  establishmentId: "المنشأة مطلوبة",
   carId: "المركبة مطلوبة",
   templateId: "قالب العقد مطلوب",
   startAt: "تاريخ ووقت بداية العقد مطلوب",

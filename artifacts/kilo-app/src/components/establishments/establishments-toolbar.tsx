@@ -9,10 +9,9 @@ import {
   mobileToolbarSearchWrapClass,
   mobileToolbarSelectClass,
 } from "@/components/mobile";
-import { CLIENT_TYPE_LABELS } from "@/features/customers/customer-form.schema";
-import type { CustomerFormValues } from "@/features/customers/customer-form.schema";
+import { ESTABLISHMENT_TYPE_LABELS } from "@/features/establishments/establishment-form.schema";
 
-interface CustomersToolbarProps {
+interface EstablishmentsToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
   typeFilter: string;
@@ -20,22 +19,15 @@ interface CustomersToolbarProps {
   rowCount: number;
   total: number;
   isLoading: boolean;
-  onNewCustomer: () => void;
+  onNewEstablishment: () => void;
 }
 
-const CLIENT_TYPE_OPTIONS: Array<{
-  value: string;
-  label: string;
-}> = [
+const TYPE_OPTIONS = [
   { value: "all", label: "كل الأنواع" },
-  ...(
-    Object.entries(CLIENT_TYPE_LABELS) as Array<
-      [CustomerFormValues["clientType"], string]
-    >
-  ).map(([value, label]) => ({ value, label })),
+  ...Object.entries(ESTABLISHMENT_TYPE_LABELS).map(([value, label]) => ({ value, label })),
 ];
 
-export function CustomersToolbar({
+export function EstablishmentsToolbar({
   search,
   onSearchChange,
   typeFilter,
@@ -43,34 +35,34 @@ export function CustomersToolbar({
   rowCount,
   total,
   isLoading,
-  onNewCustomer,
-}: CustomersToolbarProps) {
+  onNewEstablishment,
+}: EstablishmentsToolbarProps) {
   return (
     <MobileToolbar>
       <Button
-        onClick={onNewCustomer}
+        onClick={onNewEstablishment}
         className={`${mobileToolbarBtnClass} bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 shadow-sm`}
       >
         <Plus className="h-4 w-4 me-2" />
-        سائق جديد
+        منشأة جديدة
       </Button>
       <SearchInput
-        name="customers-search"
+        name="establishments-search"
         value={search}
         onChange={(e) => onSearchChange(e.target.value)}
-        placeholder="ابحث في العملاء .."
+        placeholder="ابحث في المنشآت .."
         className="bg-white"
         wrapperClassName={mobileToolbarSearchWrapClass}
       />
       <StatusFilterSelect
         value={typeFilter}
         onValueChange={onTypeFilterChange}
-        options={CLIENT_TYPE_OPTIONS}
+        options={TYPE_OPTIONS}
         triggerClassName={mobileToolbarSelectClass}
       />
       {!isLoading && (
         <span className={mobileToolbarCountClass}>
-          عرض {rowCount} من {total} عميل
+          عرض {rowCount} من {total} منشأة
         </span>
       )}
     </MobileToolbar>

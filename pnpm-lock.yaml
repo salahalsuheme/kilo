@@ -83,6 +83,9 @@ importers:
       '@workspace/customers-domain':
         specifier: workspace:*
         version: link:../../lib/customers-domain
+      '@workspace/establishments-domain':
+        specifier: workspace:*
+        version: link:../../lib/establishments-domain
       '@workspace/finance-domain':
         specifier: workspace:*
         version: link:../../lib/finance-domain
@@ -240,6 +243,9 @@ importers:
       '@workspace/customers-domain':
         specifier: workspace:*
         version: link:../../lib/customers-domain
+      '@workspace/establishments-domain':
+        specifier: workspace:*
+        version: link:../../lib/establishments-domain
       '@workspace/finance-domain':
         specifier: workspace:*
         version: link:../../lib/finance-domain
@@ -377,6 +383,18 @@ importers:
 
   lib/customers-domain:
     dependencies:
+      '@workspace/establishments-domain':
+        specifier: workspace:*
+        version: link:../establishments-domain
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
+
+  lib/establishments-domain:
+    dependencies:
+      '@workspace/customers-domain':
+        specifier: workspace:*
+        version: link:../customers-domain
       zod:
         specifier: 'catalog:'
         version: 4.3.6

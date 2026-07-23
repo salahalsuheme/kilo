@@ -31,6 +31,7 @@
     "@workspace/api-client-react": "workspace:*",
     "@workspace/contracts-domain": "workspace:*",
     "@workspace/customers-domain": "workspace:*",
+    "@workspace/establishments-domain": "workspace:*",
     "@workspace/finance-domain": "workspace:*",
     "@workspace/invoices-domain": "workspace:*",
     "@workspace/notifications-domain": "workspace:*",

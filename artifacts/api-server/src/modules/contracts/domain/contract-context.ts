@@ -6,12 +6,18 @@ import {
   rentalDurationDays,
   type CreateContractBodyInput,
 } from "@workspace/contracts-domain";
+import {
+  ESTABLISHMENT_TYPE_LABELS,
+  formatEstablishmentFullName,
+} from "@workspace/establishments-domain";
+import type { EstablishmentType } from "@workspace/establishments-domain";
 import { COOLING_TYPE_LABELS } from "@workspace/vehicles-domain";
 import { db } from "../../../db/index.js";
 import {
   cars,
   contractTemplates,
   customers,
+  establishments,
   orgSettings,
 } from "../../../db/schema.js";
 import type { VehicleCoolingType } from "@workspace/vehicles-domain";
@@ -59,6 +65,21 @@ export async function getContractCustomer(orgId: number, customerId: number) {
   return row ?? null;
 }
 
+export async function getContractEstablishment(orgId: number, establishmentId: number) {
+  const [row] = await db
+    .select()
+    .from(establishments)
+    .where(
+      and(
+        eq(establishments.orgId, orgId),
+        eq(establishments.id, establishmentId),
+        isNull(establishments.deletedAt),
+      ),
+    )
+    .limit(1);
+  return row ?? null;
+}
+
 export async function getContractCar(orgId: number, carId: number) {
   const [row] = await db
     .select()
@@ -93,18 +114,33 @@ export async function buildRenderedContractContent(
     return null;
   }
 
+  const establishment =
+    body.establishmentId != null
+      ? await getContractEstablishment(orgId, body.establishmentId)
+      : null;
+
   const rentalDays = rentalDurationDays(body.startAt, body.endAt);
   const variables = buildContractTemplateVariables({
     org: { businessName: orgTax.businessName },
-    customer: {
+    driver: {
       name: customer.name,
       idNumber: customer.idNumber,
       mobile: customer.mobile,
       nationality: customer.nationality,
       licenseNumber: customer.licenseNumber,
-      establishmentName: customer.establishmentName,
-      establishmentNumber: customer.establishmentNumber,
     },
+    establishment: establishment
+      ? {
+          name: establishment.name,
+          fullName: formatEstablishmentFullName(
+            establishment.clientType as EstablishmentType,
+            establishment.name,
+          ),
+          number: establishment.establishmentNumber,
+          clientTypeLabel:
+            ESTABLISHMENT_TYPE_LABELS[establishment.clientType as EstablishmentType],
+        }
+      : null,
     car: {
       brand: car.brand,
       modelYear: car.modelYear,

@@ -102,8 +102,9 @@ export function ContractTemplateDialog({
                     <Textarea {...field} rows={14} className="font-mono text-sm" dir="rtl" />
                   </FormControl>
                   <p className="text-xs text-muted-foreground">
-                    استخدم المتغيرات مثل {"{{customer.name}}"} (اسم السائق)،
-                    {" {{customer.establishmentName}}"} (اسم المنشأة)، {"{{car.plateNumber}}"} و
+                    استخدم المتغيرات مثل {"{{driver.name}}"} (اسم السائق)،
+                    {" {{establishment.fullName}}"} (اسم المنشأة مع النوع: شركة/مؤسسة)،
+                    {" {{establishment.name}}"} (اسم المنشأة فقط)، {"{{car.plateNumber}}"} و
                     {" {{contract.totalInclVat}}"}
                   </p>
                   <FormMessage />

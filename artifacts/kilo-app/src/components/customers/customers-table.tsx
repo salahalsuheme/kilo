@@ -1,5 +1,7 @@
 import type { Customer } from "@/lib/api-client-react-tenant";
 import { CUSTOMER_FIELD_LABELS, INVOICE_TYPE_LABELS } from "@workspace/customers-domain";
+import { formatEstablishmentFullName } from "@workspace/establishments-domain";
+import type { EstablishmentType } from "@workspace/establishments-domain";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -128,7 +130,12 @@ export function CustomersTable({
                     </TableCell>
                     <TableCell className="align-top">
                       <div className="min-w-0 font-medium">
-                        {customer.establishmentName ?? "—"}
+                        {customer.establishmentName && customer.establishmentClientType
+                          ? formatEstablishmentFullName(
+                              customer.establishmentClientType as EstablishmentType,
+                              customer.establishmentName,
+                            )
+                          : "—"}
                       </div>
                     </TableCell>
                     <TableCell className="align-top">

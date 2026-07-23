@@ -33,6 +33,7 @@ import type {
   CreateContractBody,
   CreateContractTemplateBody,
   CreateCustomerBody,
+  CreateEstablishmentBody,
   CreateFixedSubscriptionBody,
   CreateOrgUserBody,
   CreatePurchaseBody,
@@ -40,6 +41,8 @@ import type {
   Customer,
   CustomerList,
   DashboardSummary,
+  Establishment,
+  EstablishmentList,
   FinanceReport,
   FixedSubscription,
   FixedSubscriptionList,
@@ -50,6 +53,7 @@ import type {
   ListActivityEventsParams,
   ListContractsParams,
   ListCustomersParams,
+  ListEstablishmentsParams,
   ListInvoicesParams,
   ListNotificationsParams,
   ListPurchasesParams,
@@ -71,6 +75,7 @@ import type {
   UpdateContractStatusBody,
   UpdateContractTemplateBody,
   UpdateCustomerBody,
+  UpdateEstablishmentBody,
   UpdateFinanceInvoiceStatusBody,
   UpdateFixedSubscriptionBody,
   UpdateInvoiceBody,
@@ -1090,6 +1095,351 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getDeleteCustomerMutationOptions(options));
+    }
+
+export const getListEstablishmentsUrl = (params?: ListEstablishmentsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/establishments?${stringifiedParams}` : `/api/establishments`
+}
+
+export const listEstablishments = async (params?: ListEstablishmentsParams, options?: RequestInit): Promise<EstablishmentList> => {
+
+  return customFetch<EstablishmentList>(getListEstablishmentsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListEstablishmentsQueryKey = (params?: ListEstablishmentsParams,) => {
+    return [
+    `/api/establishments`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListEstablishmentsQueryOptions = <TData = Awaited<ReturnType<typeof listEstablishments>>, TError = ErrorType<unknown>>(params?: ListEstablishmentsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEstablishments>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListEstablishmentsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listEstablishments>>> = ({ signal }) => listEstablishments(params, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listEstablishments>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListEstablishmentsQueryResult = NonNullable<Awaited<ReturnType<typeof listEstablishments>>>
+export type ListEstablishmentsQueryError = ErrorType<unknown>
+
+
+
+export function useListEstablishments<TData = Awaited<ReturnType<typeof listEstablishments>>, TError = ErrorType<unknown>>(
+ params?: ListEstablishmentsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listEstablishments>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListEstablishmentsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateEstablishmentUrl = () => {
+
+
+
+
+  return `/api/establishments`
+}
+
+export const createEstablishment = async (createEstablishmentBody: CreateEstablishmentBody, options?: RequestInit): Promise<Establishment> => {
+
+  return customFetch<Establishment>(getCreateEstablishmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createEstablishmentBody)
+  }
+);}
+
+
+
+
+
+export const getCreateEstablishmentMutationOptions = <TError = ErrorType<ApiErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEstablishment>>, TError,{data: BodyType<CreateEstablishmentBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createEstablishment>>, TError,{data: BodyType<CreateEstablishmentBody>}, TContext> => {
+
+const mutationKey = ['createEstablishment'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createEstablishment>>, {data: BodyType<CreateEstablishmentBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createEstablishment(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateEstablishmentMutationResult = NonNullable<Awaited<ReturnType<typeof createEstablishment>>>
+    export type CreateEstablishmentMutationBody = BodyType<CreateEstablishmentBody>
+    export type CreateEstablishmentMutationError = ErrorType<ApiErrorMessage>
+
+    export const useCreateEstablishment = <TError = ErrorType<ApiErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createEstablishment>>, TError,{data: BodyType<CreateEstablishmentBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createEstablishment>>,
+        TError,
+        {data: BodyType<CreateEstablishmentBody>},
+        TContext
+      > => {
+      return useMutation(getCreateEstablishmentMutationOptions(options));
+    }
+
+export const getGetEstablishmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/establishments/${id}`
+}
+
+export const getEstablishment = async (id: number, options?: RequestInit): Promise<Establishment> => {
+
+  return customFetch<Establishment>(getGetEstablishmentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEstablishmentQueryKey = (id: number,) => {
+    return [
+    `/api/establishments/${id}`
+    ] as const;
+    }
+
+
+export const getGetEstablishmentQueryOptions = <TData = Awaited<ReturnType<typeof getEstablishment>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEstablishment>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEstablishmentQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEstablishment>>> = ({ signal }) => getEstablishment(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEstablishment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEstablishmentQueryResult = NonNullable<Awaited<ReturnType<typeof getEstablishment>>>
+export type GetEstablishmentQueryError = ErrorType<void>
+
+
+
+export function useGetEstablishment<TData = Awaited<ReturnType<typeof getEstablishment>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEstablishment>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEstablishmentQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateEstablishmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/establishments/${id}`
+}
+
+export const updateEstablishment = async (id: number,
+    updateEstablishmentBody: UpdateEstablishmentBody, options?: RequestInit): Promise<Establishment> => {
+
+  return customFetch<Establishment>(getUpdateEstablishmentUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateEstablishmentBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateEstablishmentMutationOptions = <TError = ErrorType<ApiErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEstablishment>>, TError,{id: number;data: BodyType<UpdateEstablishmentBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateEstablishment>>, TError,{id: number;data: BodyType<UpdateEstablishmentBody>}, TContext> => {
+
+const mutationKey = ['updateEstablishment'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateEstablishment>>, {id: number;data: BodyType<UpdateEstablishmentBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateEstablishment(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateEstablishmentMutationResult = NonNullable<Awaited<ReturnType<typeof updateEstablishment>>>
+    export type UpdateEstablishmentMutationBody = BodyType<UpdateEstablishmentBody>
+    export type UpdateEstablishmentMutationError = ErrorType<ApiErrorMessage>
+
+    export const useUpdateEstablishment = <TError = ErrorType<ApiErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateEstablishment>>, TError,{id: number;data: BodyType<UpdateEstablishmentBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateEstablishment>>,
+        TError,
+        {id: number;data: BodyType<UpdateEstablishmentBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateEstablishmentMutationOptions(options));
+    }
+
+export const getDeleteEstablishmentUrl = (id: number,) => {
+
+
+
+
+  return `/api/establishments/${id}`
+}
+
+export const deleteEstablishment = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteEstablishmentUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteEstablishmentMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEstablishment>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteEstablishment>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteEstablishment'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteEstablishment>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteEstablishment(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteEstablishmentMutationResult = NonNullable<Awaited<ReturnType<typeof deleteEstablishment>>>
+
+    export type DeleteEstablishmentMutationError = ErrorType<unknown>
+
+    export const useDeleteEstablishment = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteEstablishment>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteEstablishment>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteEstablishmentMutationOptions(options));
     }
 
 export const getListUsersUrl = (params?: ListUsersParams,) => {

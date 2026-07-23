@@ -13,6 +13,7 @@ import {
   rentalDurationDays,
   resolveContractPenaltySnapshot,
   snapshotPenaltyAtClose,
+  validateContractEstablishmentLink,
   type ContractStatus,
   type CreateContractBodyInput,
   type UpdateContractBodyInput,
@@ -20,9 +21,11 @@ import {
 } from "@workspace/contracts-domain";
 import type { InvoiceType } from "@workspace/customers-domain";
 import { formatCustomerDisplayName } from "@workspace/customers-domain";
+import { formatEstablishmentFullName } from "@workspace/establishments-domain";
+import type { EstablishmentType } from "@workspace/establishments-domain";
 import { isVehicleRentable } from "@workspace/vehicles-domain";
 import { db } from "../../db/index.js";
-import { cars, contracts, customers } from "../../db/schema.js";
+import { cars, contracts, customers, establishments } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
 import {
   createDraftInvoiceForContract,
@@ -52,7 +55,9 @@ function toNumber(value: string | number): number {
 
 function mapContractRow(
   row: typeof contracts.$inferSelect,
-  customerName: string,
+  driverName: string,
+  establishmentName: string | null,
+  establishmentFullName: string | null,
   vehicleBrand: string,
   vehiclePlateNumber: string,
   vehicleCoolingType: string,
@@ -70,7 +75,11 @@ function mapContractRow(
     id: row.id,
     contractNumber: row.contractNumber,
     customerId: row.customerId,
-    customerName,
+    customerName: formatCustomerDisplayName(driverName, establishmentName),
+    driverName,
+    establishmentId: row.establishmentId,
+    establishmentName,
+    establishmentFullName,
     carId: row.carId,
     vehicleBrand,
     vehiclePlateNumber,
@@ -169,6 +178,28 @@ async function assertReferences(orgId: number, body: CreateBody): Promise<string
   if (!customer) return CONTRACT_STATUS_ERRORS.customerNotFound;
   if (!car) return CONTRACT_STATUS_ERRORS.carNotFound;
   if (!template) return CONTRACT_STATUS_ERRORS.templateNotFound;
+
+  const establishmentError = validateContractEstablishmentLink(body.establishmentId, {
+    clientType: customer.clientType,
+    establishmentId: customer.establishmentId,
+  });
+  if (establishmentError) return establishmentError;
+
+  if (body.establishmentId != null) {
+    const establishment = await db
+      .select({ id: establishments.id })
+      .from(establishments)
+      .where(
+        and(
+          eq(establishments.orgId, orgId),
+          eq(establishments.id, body.establishmentId),
+          isNull(establishments.deletedAt),
+        ),
+      )
+      .limit(1);
+    if (!establishment.length) return "المنشأة غير موجودة";
+  }
+
   return null;
 }
 
@@ -247,14 +278,16 @@ export async function listContracts(orgId: number, params: Partial<ListParams>) 
   const rows = await db
     .select({
       contract: contracts,
-      customerName: customers.name,
-      customerEstablishmentName: customers.establishmentName,
+      driverName: customers.name,
+      establishmentName: establishments.name,
+      establishmentClientType: establishments.clientType,
       vehicleBrand: cars.brand,
       vehiclePlateNumber: cars.plateNumber,
       vehicleCoolingType: cars.coolingType,
     })
     .from(contracts)
     .innerJoin(customers, eq(contracts.customerId, customers.id))
+    .leftJoin(establishments, eq(contracts.establishmentId, establishments.id))
     .innerJoin(cars, eq(contracts.carId, cars.id))
     .where(where)
     .orderBy(desc(contracts.createdAt))
@@ -265,7 +298,14 @@ export async function listContracts(orgId: number, params: Partial<ListParams>) 
     data: rows.map((row) =>
       mapContractRow(
         row.contract,
-        formatCustomerDisplayName(row.customerName, row.customerEstablishmentName),
+        row.driverName,
+        row.establishmentName,
+        row.establishmentName && row.establishmentClientType
+          ? formatEstablishmentFullName(
+              row.establishmentClientType as EstablishmentType,
+              row.establishmentName,
+            )
+          : null,
         row.vehicleBrand,
         row.vehiclePlateNumber,
         row.vehicleCoolingType,
@@ -283,14 +323,16 @@ export async function getContract(orgId: number, id: number) {
   const [row] = await db
     .select({
       contract: contracts,
-      customerName: customers.name,
-      customerEstablishmentName: customers.establishmentName,
+      driverName: customers.name,
+      establishmentName: establishments.name,
+      establishmentClientType: establishments.clientType,
       vehicleBrand: cars.brand,
       vehiclePlateNumber: cars.plateNumber,
       vehicleCoolingType: cars.coolingType,
     })
     .from(contracts)
     .innerJoin(customers, eq(contracts.customerId, customers.id))
+    .leftJoin(establishments, eq(contracts.establishmentId, establishments.id))
     .innerJoin(cars, eq(contracts.carId, cars.id))
     .where(
       and(eq(contracts.orgId, orgId), eq(contracts.id, id), isNull(contracts.deletedAt)),
@@ -300,7 +342,14 @@ export async function getContract(orgId: number, id: number) {
   return row
     ? mapContractRow(
         row.contract,
-        formatCustomerDisplayName(row.customerName, row.customerEstablishmentName),
+        row.driverName,
+        row.establishmentName,
+        row.establishmentName && row.establishmentClientType
+          ? formatEstablishmentFullName(
+              row.establishmentClientType as EstablishmentType,
+              row.establishmentName,
+            )
+          : null,
         row.vehicleBrand,
         row.vehiclePlateNumber,
         row.vehicleCoolingType,
@@ -349,6 +398,7 @@ async function insertContract(orgId: number, body: CreateBody, status: ContractS
         contractSeq,
         contractNumber,
         customerId: body.customerId,
+        establishmentId: body.establishmentId ?? null,
         carId: body.carId,
         templateId: body.templateId,
         startAt: body.startAt,
@@ -415,6 +465,7 @@ export async function updateContract(orgId: number, id: number, body: UpdateBody
     .update(contracts)
     .set({
       customerId: body.customerId,
+      establishmentId: body.establishmentId ?? null,
       carId: body.carId,
       templateId: body.templateId,
       startAt: body.startAt,

@@ -7,11 +7,21 @@ import {
 
 /** Form schema: API body fields plus taxNumber as a plain string for controlled inputs. */
 export const customerFormSchema = CustomerBodyObjectSchema.extend({
+  establishmentId: z.string(),
   taxNumber: z.string(),
-  establishmentName: z.string(),
-  establishmentNumber: z.string(),
 })
-  .superRefine(refineCustomerBodyEstablishment)
+  .superRefine((data, ctx) =>
+    refineCustomerBodyEstablishment(
+      {
+        clientType: data.clientType,
+        establishmentId:
+          data.establishmentId && data.establishmentId !== "none"
+            ? Number(data.establishmentId)
+            : null,
+      },
+      ctx,
+    ),
+  )
   .superRefine(refineCustomerBodyTax);
 
 export type CustomerFormValues = z.infer<typeof customerFormSchema>;

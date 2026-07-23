@@ -16,7 +16,7 @@ import {
 } from "@workspace/invoices-domain";
 import type { InvoiceStatus } from "@workspace/invoices-domain";
 import { db } from "../../db/index.js";
-import { cars, contracts, customers, invoices } from "../../db/schema.js";
+import { cars, contracts, customers, establishments, invoices } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
 import { getOrgTaxContext } from "../finance/domain/tax-context.js";
 import { getOrCreateSettings } from "../settings/service.js";
@@ -121,11 +121,12 @@ export async function createPenaltyDraftInvoiceForContract(
       customerId: contracts.customerId,
       carId: contracts.carId,
       customerName: customers.name,
-      customerEstablishmentName: customers.establishmentName,
+      customerEstablishmentName: establishments.name,
       invoiceType: customers.invoiceType,
     })
     .from(contracts)
     .innerJoin(customers, eq(contracts.customerId, customers.id))
+    .leftJoin(establishments, eq(customers.establishmentId, establishments.id))
     .where(and(eq(contracts.orgId, orgId), eq(contracts.id, contractId)))
     .limit(1);
 
@@ -342,12 +343,13 @@ export async function listInvoices(orgId: number, params: Partial<ListParams>) {
     .select({
       invoice: invoices,
       customerName: customers.name,
-      customerEstablishmentName: customers.establishmentName,
+      customerEstablishmentName: establishments.name,
       vehicleBrand: cars.brand,
       vehiclePlateNumber: cars.plateNumber,
     })
     .from(invoices)
     .innerJoin(customers, eq(invoices.customerId, customers.id))
+    .leftJoin(establishments, eq(customers.establishmentId, establishments.id))
     .innerJoin(cars, eq(invoices.carId, cars.id))
     .where(where)
     .orderBy(desc(invoices.createdAt))
@@ -374,7 +376,7 @@ export async function getInvoice(orgId: number, id: number) {
     .select({
       invoice: invoices,
       customerName: customers.name,
-      customerEstablishmentName: customers.establishmentName,
+      customerEstablishmentName: establishments.name,
       customerIdNumber: customers.idNumber,
       customerMobile: customers.mobile,
       customerTaxNumber: customers.taxNumber,
@@ -387,6 +389,7 @@ export async function getInvoice(orgId: number, id: number) {
     })
     .from(invoices)
     .innerJoin(customers, eq(invoices.customerId, customers.id))
+    .leftJoin(establishments, eq(customers.establishmentId, establishments.id))
     .innerJoin(cars, eq(invoices.carId, cars.id))
     .innerJoin(contracts, eq(invoices.contractId, contracts.id))
     .where(and(eq(invoices.orgId, orgId), eq(invoices.id, id)))

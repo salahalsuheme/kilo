@@ -178,6 +178,12 @@ paths:
           in: query
           schema:
             $ref: "#/components/schemas/CustomerType"
+        - name: establishmentId
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: تصفية السائقين حسب المنشأة
         - name: page
           in: query
           schema:
@@ -265,6 +271,110 @@ paths:
       tags: [customers]
       parameters:
         - $ref: "#/components/parameters/CustomerId"
+      responses:
+        "204":
+          description: Deleted
+
+  /establishments:
+    get:
+      operationId: listEstablishments
+      tags: [establishments]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: clientType
+          in: query
+          schema:
+            $ref: "#/components/schemas/EstablishmentType"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated establishments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EstablishmentList"
+    post:
+      operationId: createEstablishment
+      tags: [establishments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEstablishmentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Establishment"
+        "409":
+          description: Duplicate unique field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /establishments/{id}:
+    get:
+      operationId: getEstablishment
+      tags: [establishments]
+      parameters:
+        - $ref: "#/components/parameters/EstablishmentId"
+      responses:
+        "200":
+          description: Establishment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Establishment"
+        "404":
+          description: Not found
+    put:
+      operationId: updateEstablishment
+      tags: [establishments]
+      parameters:
+        - $ref: "#/components/parameters/EstablishmentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateEstablishmentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Establishment"
+        "409":
+          description: Duplicate unique field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+    delete:
+      operationId: deleteEstablishment
+      tags: [establishments]
+      parameters:
+        - $ref: "#/components/parameters/EstablishmentId"
       responses:
         "204":
           description: Deleted
@@ -1389,6 +1499,12 @@ components:
       required: true
       schema:
         type: integer
+    EstablishmentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
     UserId:
       name: id
       in: path
@@ -1585,6 +1701,10 @@ components:
       type: string
       enum: [individual, institution, company, government]
 
+    EstablishmentType:
+      type: string
+      enum: [institution, company, government]
+
     InvoiceType:
       type: string
       enum: [simplified, standard]
@@ -1602,6 +1722,23 @@ components:
           description: اسم السائق
         clientType:
           $ref: "#/components/schemas/CustomerType"
+        establishmentId:
+          type: integer
+          nullable: true
+          description: معرّف المنشأة — مطلوب لغير الأفراد
+        establishmentName:
+          type: string
+          nullable: true
+          description: اسم المنشأة (مُجمّع من السجل المرتبط)
+        establishmentNumber:
+          type: string
+          nullable: true
+          description: رقم المنشأة في وزارة الداخلية
+        establishmentClientType:
+          allOf:
+            - $ref: "#/components/schemas/EstablishmentType"
+          nullable: true
+          description: نوع المنشأة (مؤسسة/شركة/حكومي)
         idNumber:
           type: string
         birthDate:
@@ -1620,16 +1757,6 @@ components:
         taxNumber:
           type: string
           nullable: true
-        establishmentName:
-          type: string
-          nullable: true
-          description: اسم المنشأة — مطلوب لغير الأفراد
-        establishmentNumber:
-          type: string
-          nullable: true
-          description: >
-            رقم المنشأة في وزارة الداخلية (يبدأ بـ 700).
-            يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.
         invoiceType:
           $ref: "#/components/schemas/InvoiceType"
         createdAt:
@@ -1659,6 +1786,11 @@ components:
           description: اسم السائق
         clientType:
           $ref: "#/components/schemas/CustomerType"
+        establishmentId:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: معرّف المنشأة — مطلوب لغير الأفراد
         idNumber:
           type: string
           minLength: 1
@@ -1677,19 +1809,11 @@ components:
         hasTaxNumber:
           type: boolean
           default: false
+          description: للأفراد فقط — غير الأفراد يُؤخذ من المنشأة
         taxNumber:
           type: string
           nullable: true
-        establishmentName:
-          type: string
-          nullable: true
-          description: اسم المنشأة — مطلوب لغير الأفراد
-        establishmentNumber:
-          type: string
-          nullable: true
-          description: >
-            رقم المنشأة في وزارة الداخلية (يبدأ بـ 700).
-            يمكن تكراره لعدة سائقين تابعين لنفس المنشأة.
+          description: للأفراد فقط
       required: [name, clientType, idNumber, birthDate, mobile, licenseNumber, nationality, hasTaxNumber]
 
     UpdateCustomerBody:
@@ -1703,6 +1827,82 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Customer"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    Establishment:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: اسم المنشأة (بدون بادئة النوع)
+        clientType:
+          $ref: "#/components/schemas/EstablishmentType"
+        establishmentNumber:
+          type: string
+          description: رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)
+        hasTaxNumber:
+          type: boolean
+        taxNumber:
+          type: string
+          nullable: true
+        invoiceType:
+          $ref: "#/components/schemas/InvoiceType"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - clientType
+        - establishmentNumber
+        - hasTaxNumber
+        - invoiceType
+        - createdAt
+        - updatedAt
+
+    CreateEstablishmentBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: اسم المنشأة (بدون بادئة النوع)
+        clientType:
+          $ref: "#/components/schemas/EstablishmentType"
+        establishmentNumber:
+          type: string
+          minLength: 1
+          description: الأرقام بعد بادئة 700
+        hasTaxNumber:
+          type: boolean
+          default: false
+        taxNumber:
+          type: string
+          nullable: true
+      required: [name, clientType, establishmentNumber, hasTaxNumber]
+
+    UpdateEstablishmentBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateEstablishmentBody"
+
+    EstablishmentList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Establishment"
         total:
           type: integer
         page:
@@ -1870,8 +2070,25 @@ components:
           description: "مثال: CT01-2026"
         customerId:
           type: integer
+          description: معرّف السائق
         customerName:
           type: string
+          description: اسم العرض (منشأة - سائق أو السائق فقط)
+        driverName:
+          type: string
+          description: اسم السائق
+        establishmentId:
+          type: integer
+          nullable: true
+          description: معرّف المنشأة
+        establishmentName:
+          type: string
+          nullable: true
+          description: اسم المنشأة بدون بادئة النوع
+        establishmentFullName:
+          type: string
+          nullable: true
+          description: اسم المنشأة مع النوع (مثل شركة كذا أو مؤسسة كذا)
         carId:
           type: integer
         vehicleBrand:
@@ -1931,6 +2148,7 @@ components:
         - contractNumber
         - customerId
         - customerName
+        - driverName
         - carId
         - vehicleBrand
         - vehiclePlateNumber
@@ -1997,6 +2215,12 @@ components:
         customerId:
           type: integer
           minimum: 1
+          description: معرّف السائق
+        establishmentId:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: معرّف المنشأة — مطلوب لسائقي المنشآت
         carId:
           type: integer
           minimum: 1

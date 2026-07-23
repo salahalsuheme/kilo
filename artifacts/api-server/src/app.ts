@@ -9,6 +9,7 @@ import { pool } from "./db/index.js";
 import { getCorsOrigins, getSessionSecret } from "./env.js";
 import authRouter from "./modules/auth/routes.js";
 import customersRouter from "./modules/customers/routes.js";
+import establishmentsRouter from "./modules/establishments/routes.js";
 import usersRouter from "./modules/users/routes.js";
 import vehiclesRouter from "./modules/vehicles/routes.js";
 import dashboardRouter from "./modules/dashboard/routes.js";
@@ -90,6 +91,7 @@ export function createApp() {
   api.get("/healthz", (_req, res) => res.json({ ok: true }));
   api.use(authRouter);
   api.use(customersRouter);
+  api.use(establishmentsRouter);
   api.use(usersRouter);
   api.use(vehiclesRouter);
   api.use(contractsRouter);

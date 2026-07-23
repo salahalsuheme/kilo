@@ -1,21 +1,25 @@
 import { useState, useEffect } from "react";
-import type { Customer } from "@/lib/api-client-react-tenant";
+import type { Customer, Establishment } from "@/lib/api-client-react-tenant";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiErrorBanner } from "@/components/api-error-banner";
 import { PageHeader } from "@/components/page-header";
 import { useCustomers } from "@/hooks/use-customers";
+import { useEstablishments } from "@/hooks/use-establishments";
 import { CustomerDialog } from "@/components/customers/customer-dialog";
 import { CustomersToolbar } from "@/components/customers/customers-toolbar";
 import { CustomersTable } from "@/components/customers/customers-table";
+import { EstablishmentDialog } from "@/components/establishments/establishment-dialog";
+import { EstablishmentsToolbar } from "@/components/establishments/establishments-toolbar";
+import { EstablishmentsTable } from "@/components/establishments/establishments-table";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { TenantPagination } from "@/components/tenant-pagination";
 import { mobileListPanelClass } from "@/components/mobile";
-import type { CustomerFormValues } from "@/features/customers/customer-form.schema";
-import { isNonIndividualClientType } from "@workspace/customers-domain";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CustomersPage() {
   usePageTitle("العملاء");
 
+  const [activeTab, setActiveTab] = useState("drivers");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
@@ -23,23 +27,14 @@ export default function CustomersPage() {
   const [editCustomer, setEditCustomer] = useState<Customer | null>(null);
   const [deleteCustomerId, setDeleteCustomerId] = useState<number | null>(null);
 
-  const {
-    customers,
-    total,
-    isLoading,
-    listError,
-    PAGE_SIZE,
-    createIsPending,
-    updateIsPending,
-    deleteIsPending,
-    createError,
-    updateError,
-    deleteError,
-    buildEditDefaultValues,
-    submitCreate,
-    submitUpdate,
-    submitDelete,
-  } = useCustomers({
+  const [establishmentSearch, setEstablishmentSearch] = useState("");
+  const [establishmentTypeFilter, setEstablishmentTypeFilter] = useState("all");
+  const [establishmentPage, setEstablishmentPage] = useState(1);
+  const [isCreateEstablishmentOpen, setIsCreateEstablishmentOpen] = useState(false);
+  const [editEstablishment, setEditEstablishment] = useState<Establishment | null>(null);
+  const [deleteEstablishmentId, setDeleteEstablishmentId] = useState<number | null>(null);
+
+  const customersHook = useCustomers({
     search,
     typeFilter,
     page,
@@ -48,102 +43,178 @@ export default function CustomersPage() {
     onDeleteSuccess: () => setDeleteCustomerId(null),
   });
 
+  const establishmentsHook = useEstablishments({
+    search: establishmentSearch,
+    typeFilter: establishmentTypeFilter,
+    page: establishmentPage,
+    onCreateSuccess: () => setIsCreateEstablishmentOpen(false),
+    onUpdateSuccess: () => setEditEstablishment(null),
+    onDeleteSuccess: () => setDeleteEstablishmentId(null),
+  });
+
   useEffect(() => {
     setPage(1);
   }, [search, typeFilter]);
 
   useEffect(() => {
-    if (total === 0) return;
-    const maxPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
-    if (page > maxPage) setPage(maxPage);
-  }, [total, page, PAGE_SIZE]);
+    setEstablishmentPage(1);
+  }, [establishmentSearch, establishmentTypeFilter]);
 
-  const toBody = (values: CustomerFormValues) => ({
-    name: values.name,
-    clientType: values.clientType,
-    idNumber: values.idNumber,
-    birthDate: values.birthDate,
-    mobile: values.mobile,
-    licenseNumber: values.licenseNumber,
-    nationality: values.nationality,
-    hasTaxNumber: values.hasTaxNumber,
-    taxNumber: values.hasTaxNumber ? values.taxNumber?.trim() || null : null,
-    establishmentName: isNonIndividualClientType(values.clientType)
-      ? values.establishmentName.trim()
-      : null,
-    establishmentNumber: isNonIndividualClientType(values.clientType)
-      ? values.establishmentNumber.trim()
-      : null,
-  });
+  useEffect(() => {
+    if (customersHook.total === 0) return;
+    const maxPage = Math.max(1, Math.ceil(customersHook.total / customersHook.PAGE_SIZE));
+    if (page > maxPage) setPage(maxPage);
+  }, [customersHook.total, page, customersHook.PAGE_SIZE]);
+
+  useEffect(() => {
+    if (establishmentsHook.total === 0) return;
+    const maxPage = Math.max(
+      1,
+      Math.ceil(establishmentsHook.total / establishmentsHook.ESTABLISHMENTS_PAGE_SIZE),
+    );
+    if (establishmentPage > maxPage) setEstablishmentPage(maxPage);
+  }, [establishmentsHook.total, establishmentPage, establishmentsHook.ESTABLISHMENTS_PAGE_SIZE]);
 
   return (
     <div className="space-y-6">
-      <PageHeader title="العملاء" description="إدارة بيانات العملاء" />
+      <PageHeader title="العملاء" description="إدارة المنشآت والسائقين" />
 
-      <ApiErrorBanner message={listError} />
+      <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
+        <TabsList>
+          <TabsTrigger value="drivers">السائقون</TabsTrigger>
+          <TabsTrigger value="establishments">المنشآت</TabsTrigger>
+        </TabsList>
 
-      <div className="flex flex-col">
-        <div className={mobileListPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
-          <CustomersToolbar
-            search={search}
-            onSearchChange={setSearch}
-            typeFilter={typeFilter}
-            onTypeFilterChange={setTypeFilter}
-            rowCount={customers.length}
-            total={total}
-            isLoading={isLoading}
-            onNewCustomer={() => setIsCreateOpen(true)}
-          />
-
-          <div className="mt-4 space-y-4">
-            <CustomersTable
-              customers={customers}
-              isLoading={isLoading}
+        <TabsContent value="drivers" className="space-y-4">
+          <ApiErrorBanner message={customersHook.listError} />
+          <div className={mobileListPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
+            <CustomersToolbar
               search={search}
+              onSearchChange={setSearch}
               typeFilter={typeFilter}
-              onEdit={setEditCustomer}
-              onDelete={setDeleteCustomerId}
+              onTypeFilterChange={setTypeFilter}
+              rowCount={customersHook.customers.length}
+              total={customersHook.total}
+              isLoading={customersHook.isLoading}
+              onNewCustomer={() => setIsCreateOpen(true)}
             />
-            <TenantPagination
-              page={page}
-              pageSize={PAGE_SIZE}
-              total={total}
-              onPageChange={setPage}
-            />
+            <div className="mt-4 space-y-4">
+              <CustomersTable
+                customers={customersHook.customers}
+                isLoading={customersHook.isLoading}
+                search={search}
+                typeFilter={typeFilter}
+                onEdit={setEditCustomer}
+                onDelete={setDeleteCustomerId}
+              />
+              <TenantPagination
+                page={page}
+                pageSize={customersHook.PAGE_SIZE}
+                total={customersHook.total}
+                onPageChange={setPage}
+              />
+            </div>
           </div>
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="establishments" className="space-y-4">
+          <ApiErrorBanner message={establishmentsHook.listError} />
+          <div className={mobileListPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
+            <EstablishmentsToolbar
+              search={establishmentSearch}
+              onSearchChange={setEstablishmentSearch}
+              typeFilter={establishmentTypeFilter}
+              onTypeFilterChange={setEstablishmentTypeFilter}
+              rowCount={establishmentsHook.establishments.length}
+              total={establishmentsHook.total}
+              isLoading={establishmentsHook.isLoading}
+              onNewEstablishment={() => setIsCreateEstablishmentOpen(true)}
+            />
+            <div className="mt-4 space-y-4">
+              <EstablishmentsTable
+                establishments={establishmentsHook.establishments}
+                isLoading={establishmentsHook.isLoading}
+                search={establishmentSearch}
+                typeFilter={establishmentTypeFilter}
+                onEdit={setEditEstablishment}
+                onDelete={setDeleteEstablishmentId}
+              />
+              <TenantPagination
+                page={establishmentPage}
+                pageSize={establishmentsHook.ESTABLISHMENTS_PAGE_SIZE}
+                total={establishmentsHook.total}
+                onPageChange={setEstablishmentPage}
+              />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <CustomerDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        title="إضافة عميل"
-        onSubmit={(values) => submitCreate(toBody(values))}
-        isPending={createIsPending}
-        errorMessage={createError}
+        title="إضافة سائق"
+        onSubmit={(values) => customersHook.submitCreate(values)}
+        isPending={customersHook.createIsPending}
+        errorMessage={customersHook.createError}
       />
 
       {editCustomer && (
         <CustomerDialog
           open
           onOpenChange={(open) => !open && setEditCustomer(null)}
-          title="تعديل عميل"
-          defaultValues={buildEditDefaultValues(editCustomer)}
-          onSubmit={(values) => submitUpdate(editCustomer.id, toBody(values))}
-          isPending={updateIsPending}
-          errorMessage={updateError}
+          title="تعديل سائق"
+          defaultValues={customersHook.buildEditDefaultValues(editCustomer)}
+          onSubmit={(values) => customersHook.submitUpdate(editCustomer.id, values)}
+          isPending={customersHook.updateIsPending}
+          errorMessage={customersHook.updateError}
         />
       )}
 
       <DeleteConfirmDialog
         open={deleteCustomerId != null}
         onOpenChange={(open) => !open && setDeleteCustomerId(null)}
-        title="حذف العميل"
-        description="هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء."
-        isPending={deleteIsPending}
-        errorMessage={deleteError}
+        title="حذف السائق"
+        description="هل أنت متأكد من حذف هذا السائق؟ لا يمكن التراجع عن هذا الإجراء."
+        isPending={customersHook.deleteIsPending}
+        errorMessage={customersHook.deleteError}
         onConfirm={() => {
-          if (deleteCustomerId != null) submitDelete(deleteCustomerId);
+          if (deleteCustomerId != null) customersHook.submitDelete(deleteCustomerId);
+        }}
+      />
+
+      <EstablishmentDialog
+        open={isCreateEstablishmentOpen}
+        onOpenChange={setIsCreateEstablishmentOpen}
+        title="إضافة منشأة"
+        onSubmit={establishmentsHook.submitCreate}
+        isPending={establishmentsHook.createIsPending}
+        errorMessage={establishmentsHook.createError}
+      />
+
+      {editEstablishment && (
+        <EstablishmentDialog
+          open
+          onOpenChange={(open) => !open && setEditEstablishment(null)}
+          title="تعديل منشأة"
+          defaultValues={establishmentsHook.buildEditDefaultValues(editEstablishment)}
+          onSubmit={(values) => establishmentsHook.submitUpdate(editEstablishment.id, values)}
+          isPending={establishmentsHook.updateIsPending}
+          errorMessage={establishmentsHook.updateError}
+        />
+      )}
+
+      <DeleteConfirmDialog
+        open={deleteEstablishmentId != null}
+        onOpenChange={(open) => !open && setDeleteEstablishmentId(null)}
+        title="حذف المنشأة"
+        description="هل أنت متأكد من حذف هذه المنشأة؟ لا يمكن التراجع عن هذا الإجراء."
+        isPending={establishmentsHook.deleteIsPending}
+        errorMessage={establishmentsHook.deleteError}
+        onConfirm={() => {
+          if (deleteEstablishmentId != null) {
+            establishmentsHook.submitDelete(deleteEstablishmentId);
+          }
         }}
       />
     </div>

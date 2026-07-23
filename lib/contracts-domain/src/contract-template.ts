@@ -16,17 +16,25 @@ export function formatContractDateTime(value: Date | string): string {
   }).format(date);
 }
 
+export interface ContractTemplateDriverInput {
+  name: string;
+  idNumber: string;
+  mobile: string;
+  nationality: string;
+  licenseNumber?: string | null;
+}
+
+export interface ContractTemplateEstablishmentInput {
+  name: string;
+  fullName: string;
+  number: string;
+  clientTypeLabel: string;
+}
+
 export interface ContractTemplateContextInput {
   org: { businessName: string };
-  customer: {
-    name: string;
-    idNumber: string;
-    mobile: string;
-    nationality: string;
-    licenseNumber?: string | null;
-    establishmentName?: string | null;
-    establishmentNumber?: string | null;
-  };
+  driver: ContractTemplateDriverInput;
+  establishment?: ContractTemplateEstablishmentInput | null;
   car: {
     brand: string;
     modelYear: number;
@@ -48,16 +56,31 @@ export interface ContractTemplateContextInput {
 export function buildContractTemplateVariables(
   input: ContractTemplateContextInput,
 ): Record<string, string> {
-  const { org, customer, car, contract } = input;
+  const { org, driver, establishment, car, contract } = input;
+  const establishmentName = establishment?.name.trim() ?? "";
+  const establishmentFullName = establishment?.fullName.trim() ?? "";
+  const establishmentNumber = establishment?.number.trim() ?? "";
+  const establishmentTypeLabel = establishment?.clientTypeLabel.trim() ?? "";
+
   return {
     "org.businessName": org.businessName,
-    "customer.name": customer.name.trim(),
-    "customer.establishmentName": customer.establishmentName?.trim() ?? "",
-    "customer.establishmentNumber": customer.establishmentNumber?.trim() ?? "",
-    "customer.idNumber": customer.idNumber,
-    "customer.mobile": customer.mobile,
-    "customer.nationality": customer.nationality,
-    "customer.licenseNumber": customer.licenseNumber ?? "",
+    "driver.name": driver.name.trim(),
+    "driver.idNumber": driver.idNumber,
+    "driver.mobile": driver.mobile,
+    "driver.nationality": driver.nationality,
+    "driver.licenseNumber": driver.licenseNumber ?? "",
+    "establishment.name": establishmentName,
+    "establishment.fullName": establishmentFullName,
+    "establishment.number": establishmentNumber,
+    "establishment.typeLabel": establishmentTypeLabel,
+    "customer.name": driver.name.trim(),
+    "customer.idNumber": driver.idNumber,
+    "customer.mobile": driver.mobile,
+    "customer.nationality": driver.nationality,
+    "customer.licenseNumber": driver.licenseNumber ?? "",
+    "customer.establishmentName": establishmentName,
+    "customer.establishmentFullName": establishmentFullName,
+    "customer.establishmentNumber": establishmentNumber,
     "car.brand": car.brand,
     "car.modelYear": String(car.modelYear),
     "car.plateNumber": car.plateNumber,

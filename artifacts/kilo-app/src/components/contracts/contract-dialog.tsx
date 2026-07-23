@@ -1,5 +1,7 @@
 import { useEffect, useMemo, type ReactNode } from "react";
-import { formatCustomerDisplayName } from "@workspace/customers-domain";
+import { formatEstablishmentFullName } from "@workspace/establishments-domain";
+import type { EstablishmentType } from "@workspace/establishments-domain";
+import { isNonIndividualClientType } from "@workspace/customers-domain";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -10,14 +12,18 @@ import { formatSarCurrency } from "@workspace/invoices-domain";
 import { VEHICLE_STATUS_LABELS } from "@workspace/vehicles-domain";
 import {
   useGetCustomer,
+  useGetEstablishment,
   useGetSettings,
   getGetCustomerQueryKey,
+  getGetEstablishmentQueryKey,
   getGetSettingsQueryKey,
   getListContractTemplatesQueryKey,
   getListCustomersQueryKey,
+  getListEstablishmentsQueryKey,
   getListVehiclesQueryKey,
   useListContractTemplates,
   useListCustomers,
+  useListEstablishments,
   useListVehicles,
 } from "@/lib/api-client-react-tenant";
 import {
@@ -92,16 +98,34 @@ export function ContractDialog({
     mode: "onTouched",
   });
 
+  const establishmentId = form.watch("establishmentId");
   const customerId = form.watch("customerId");
   const carId = form.watch("carId");
   const templateId = form.watch("templateId");
   const watched = form.watch();
 
   const customersQuery = useListCustomers(
+    {
+      page: 1,
+      pageSize: 100,
+      establishmentId: establishmentId ? Number(establishmentId) : undefined,
+    },
+    {
+      query: {
+        queryKey: getListCustomersQueryKey({
+          page: 1,
+          pageSize: 100,
+          establishmentId: establishmentId ? Number(establishmentId) : undefined,
+        }),
+        enabled: open,
+      },
+    },
+  );
+  const establishmentsQuery = useListEstablishments(
     { page: 1, pageSize: 100 },
     {
       query: {
-        queryKey: getListCustomersQueryKey({ page: 1, pageSize: 100 }),
+        queryKey: getListEstablishmentsQueryKey({ page: 1, pageSize: 100 }),
         enabled: open,
       },
     },
@@ -133,6 +157,22 @@ export function ContractDialog({
       enabled: open && Boolean(customerId),
     },
   });
+  const establishmentQuery = useGetEstablishment(Number(establishmentId), {
+    query: {
+      queryKey: getGetEstablishmentQueryKey(Number(establishmentId)),
+      enabled: open && Boolean(establishmentId),
+    },
+  });
+
+  const selectableDrivers = useMemo(() => {
+    const all = customersQuery.data?.data ?? [];
+    if (!establishmentId) {
+      return all.filter((customer) => customer.clientType === "individual");
+    }
+    return all.filter(
+      (customer) => customer.establishmentId === Number(establishmentId),
+    );
+  }, [customersQuery.data?.data, establishmentId]);
 
   const selectedVehicle = useMemo(
     () => vehiclesQuery.data?.data.find((vehicle) => String(vehicle.id) === carId) ?? null,
@@ -160,6 +200,7 @@ export function ContractDialog({
         templateBody: selectedTemplate?.body ?? "",
         settings: settingsQuery.data,
         customer: customerQuery.data ?? null,
+        establishment: establishmentQuery.data ?? null,
         vehicle: selectedVehicle,
         contractNumber,
         values: {
@@ -173,6 +214,7 @@ export function ContractDialog({
       selectedTemplate?.body,
       settingsQuery.data,
       customerQuery.data,
+      establishmentQuery.data,
       selectedVehicle,
       contractNumber,
       watched.startAt,
@@ -214,6 +256,29 @@ export function ContractDialog({
     }
   }, [open, defaultValues?.templateId, templatesQuery.data?.data, form]);
 
+  useEffect(() => {
+    if (!customerQuery.data) return;
+    if (isNonIndividualClientType(customerQuery.data.clientType)) {
+      if (customerQuery.data.establishmentId) {
+        form.setValue("establishmentId", String(customerQuery.data.establishmentId), {
+          shouldValidate: true,
+        });
+      }
+    } else {
+      form.setValue("establishmentId", "", { shouldValidate: true });
+    }
+  }, [customerQuery.data, form]);
+
+  useEffect(() => {
+    if (!establishmentId) return;
+    const currentCustomer = customersQuery.data?.data.find(
+      (customer) => String(customer.id) === customerId,
+    );
+    if (currentCustomer && currentCustomer.establishmentId !== Number(establishmentId)) {
+      form.setValue("customerId", "", { shouldValidate: true });
+    }
+  }, [establishmentId, customerId, customersQuery.data?.data, form]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-6xl">
@@ -234,20 +299,62 @@ export function ContractDialog({
             <div className="space-y-4">
               <FormField
                 control={form.control}
-                name="customerId"
+                name="establishmentId"
                 render={({ field }) => (
                   <FormItem>
-                    <RequiredFormLabel>اسم العميل</RequiredFormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} dir="rtl">
+                    <FormLabel>المنشأة</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value === "none" ? "" : value);
+                        form.setValue("customerId", "", { shouldValidate: true });
+                      }}
+                      value={field.value || "none"}
+                      dir="rtl"
+                    >
                       <FormControl>
                         <SelectTrigger dir="rtl" className="text-right">
-                          <SelectValue placeholder="اختر العميل" />
+                          <SelectValue placeholder="بدون منشأة (فرد)" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent dir="rtl" className="text-right">
-                        {(customersQuery.data?.data ?? []).map((customer) => (
+                        <SelectItem value="none" className="text-right">
+                          بدون منشأة (عقد فرد)
+                        </SelectItem>
+                        {(establishmentsQuery.data?.data ?? []).map((establishment) => (
+                          <SelectItem
+                            key={establishment.id}
+                            value={String(establishment.id)}
+                            className="text-right"
+                          >
+                            {formatEstablishmentFullName(
+                              establishment.clientType as EstablishmentType,
+                              establishment.name,
+                            )}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="customerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <RequiredFormLabel>اسم السائق</RequiredFormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} dir="rtl">
+                      <FormControl>
+                        <SelectTrigger dir="rtl" className="text-right">
+                          <SelectValue placeholder="اختر السائق" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent dir="rtl" className="text-right">
+                        {selectableDrivers.map((customer) => (
                           <SelectItem key={customer.id} value={String(customer.id)} className="text-right">
-                            {formatCustomerDisplayName(customer.name, customer.establishmentName)}
+                            {customer.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
