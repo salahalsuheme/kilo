@@ -5,6 +5,7 @@ export {
   PRINT_PAGE_FRAME_BORDER,
   PRINT_PAGE_MARGIN,
   PRINT_PAGE_FRAME_RADIUS,
+  PRINT_PAGE_SHEET_CSS,
 } from "./print-page-frame.js";
 export { escapeHtml, absoluteAssetUrl, sanitizePdfFilename } from "./html-utils.js";
 export {

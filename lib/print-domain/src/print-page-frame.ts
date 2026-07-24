@@ -1,39 +1,24 @@
-/** Single source of truth — must match @page margin and the fixed frame inset. */
+/** Whitespace around content on every sheet. */
 export const PRINT_PAGE_MARGIN = "12mm";
 
-/** Padding between the page frame border and document content. */
+/** Space between the page border and text. */
 export const PRINT_CONTENT_PADDING = "4mm";
 
 export const PRINT_PAGE_FRAME_RADIUS = "3mm";
 
 export const PRINT_PAGE_FRAME_BORDER = "1px solid #d1d5db";
 
-/** Shared rules: fixed box repeats on every printed/PDF page in Chromium. */
-export const PRINT_PAGE_FRAME_CSS = `
-  .print-page-frame {
-    display: none;
-    pointer-events: none;
-  }
-  .print-page-frame__box {
-    position: fixed;
-    top: ${PRINT_PAGE_MARGIN};
-    right: ${PRINT_PAGE_MARGIN};
-    bottom: ${PRINT_PAGE_MARGIN};
-    left: ${PRINT_PAGE_MARGIN};
+/** Per-page border on flowing content (Chromium print + PDF). */
+export const PRINT_PAGE_SHEET_CSS = `
+  .print-doc {
     border: ${PRINT_PAGE_FRAME_BORDER};
     border-radius: ${PRINT_PAGE_FRAME_RADIUS};
+    padding: ${PRINT_CONTENT_PADDING};
     box-sizing: border-box;
-    z-index: 2147483647;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 `;
 
-export const PRINT_PAGE_FRAME_ACTIVE_CSS = `
-  .print-page-frame {
-    display: block;
-  }
-`;
-
-/** Playwright: margins come from CSS @page only (avoid double margins). */
+/** Playwright: use CSS @page margins only. */
 export const PLAYWRIGHT_PDF_PAGE_MARGIN = "0";
