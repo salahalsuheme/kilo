@@ -27,9 +27,23 @@ export {
   type TaxSettingsPatch,
 } from "./settings-sections.js";
 export {
+  resolveOrgBusinessNameDisplay,
+} from "./org-business-name.js";
+export {
   resolveOrgTaxNumber,
   validateOrgTaxNumber,
 } from "./org-tax.js";
+export {
+  PutCompanySettingsFieldsSchema,
+  PutSettingsUnifiedNumberSchema,
+  type PutCompanySettingsFieldsInput,
+} from "./company-settings.schema.js";
+export {
+  draftToEstablishmentNumberSuffix,
+  resolveOrgUnifiedNumberFromPutSuffix,
+  unifiedNumberDraftToPutSuffix,
+  validateOrgUnifiedNumberDraft,
+} from "./org-unified-number.js";
 export {
   EMPTY_NATIONAL_ADDRESS,
   NATIONAL_ADDRESS_FIELD_LABELS,

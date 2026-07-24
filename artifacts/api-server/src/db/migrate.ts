@@ -572,6 +572,9 @@ ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_building_numb
 ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_additional_number TEXT;
 ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_postal_code TEXT;
 ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS national_address_short_address TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS unified_number TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS stamp_url TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS signature_url TEXT;
 `;
 
 const INVOICES_MULTI_PER_CONTRACT_PATCH = `

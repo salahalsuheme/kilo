@@ -5,6 +5,8 @@ import {
   getGetSettingsQueryKey,
   useGetSettings,
   useUploadSettingsLogo,
+  useUploadSettingsSignature,
+  useUploadSettingsStamp,
 } from "@/lib/api-client-react-tenant";
 import { getApiErrorMessage, resolveQueryError } from "@/lib/api-error";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +17,7 @@ import { CompanySettingsCard } from "@/components/settings/CompanySettingsCard";
 import { TaxSettingsCard } from "@/components/settings/TaxSettingsCard";
 import { NationalAddressSettingsCard } from "@/components/settings/NationalAddressSettingsCard";
 import { NotificationSettingsCard } from "@/components/settings/NotificationSettingsCard";
+import { StampSignatureSettingsCard } from "@/components/settings/StampSignatureSettingsCard";
 
 export default function SettingsPage() {
   usePageTitle("الإعدادات");
@@ -24,6 +27,8 @@ export default function SettingsPage() {
 
   const { data: settings, isLoading, isError, error: loadQueryError } = useGetSettings();
   const uploadLogoMutation = useUploadSettingsLogo();
+  const uploadStampMutation = useUploadSettingsStamp();
+  const uploadSignatureMutation = useUploadSettingsSignature();
   const loadError = resolveQueryError(isError, loadQueryError, "تعذر تحميل الإعدادات");
 
   const invalidateSettings = () => {
@@ -44,6 +49,26 @@ export default function SettingsPage() {
       invalidateSettings();
     } catch (uploadError) {
       setError(getApiErrorMessage(uploadError, "تعذر رفع الشعار"));
+    }
+  };
+
+  const handleStampUpload = async (file: File) => {
+    clearError();
+    try {
+      await uploadStampMutation.mutateAsync({ data: { file } });
+      invalidateSettings();
+    } catch (uploadError) {
+      setError(getApiErrorMessage(uploadError, "تعذر رفع الختم"));
+    }
+  };
+
+  const handleSignatureUpload = async (file: File) => {
+    clearError();
+    try {
+      await uploadSignatureMutation.mutateAsync({ data: { file } });
+      invalidateSettings();
+    } catch (uploadError) {
+      setError(getApiErrorMessage(uploadError, "تعذر رفع التوقيع"));
     }
   };
 
@@ -78,6 +103,14 @@ export default function SettingsPage() {
           onValidationError={handleValidationError}
         />
       </div>
+
+      <StampSignatureSettingsCard
+        settings={settings}
+        isStampUploading={uploadStampMutation.isPending}
+        isSignatureUploading={uploadSignatureMutation.isPending}
+        onStampUpload={handleStampUpload}
+        onSignatureUpload={handleSignatureUpload}
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
         <NationalAddressSettingsCard

@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { Contract, ContractStatus } from "@/lib/api-client-react-tenant";
+import { useGetSettings } from "@/lib/api-client-react-tenant";
 import { getDraftActivationError } from "@workspace/contracts-domain";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiErrorBanner } from "@/components/api-error-banner";
 import { PageHeader } from "@/components/page-header";
 import { MobileScrollTabs, mobileTabPanelClass } from "@/components/mobile";
-import { useContracts, toContractBody } from "@/hooks/use-contracts";
+import { useContracts, toContractBody, contractTaxContextFromSettings } from "@/hooks/use-contracts";
 import { useContractPrint } from "@/hooks/use-contract-print";
 import type { PrintMode } from "@/lib/print/open-print-document";
 import { ContractDialog } from "@/components/contracts/contract-dialog";
@@ -62,6 +63,7 @@ export default function ContractsPage() {
     requestDelete: requestDeleteDamageForm,
     confirmDelete: confirmDeleteDamageForm,
     downloadForm,
+    printForm,
     saveIsPending,
     deleteIsPending: damageDeleteIsPending,
   } = useVehicleDamageForm();
@@ -110,6 +112,12 @@ export default function ContractsPage() {
       setActivateValidationError(null);
     },
   });
+
+  const { data: orgSettings } = useGetSettings();
+  const contractTax = useMemo(
+    () => contractTaxContextFromSettings(orgSettings),
+    [orgSettings],
+  );
 
   useEffect(() => {
     setPage(1);
@@ -206,6 +214,9 @@ export default function ContractsPage() {
                   onDownloadDamageForm={(contract) => {
                     void downloadForm(contract);
                   }}
+                  onPrintDamageForm={(contract) => {
+                    void printForm(contract);
+                  }}
                   onDeleteDamageForm={requestDeleteDamageForm}
                 />
                 <TenantPagination
@@ -226,7 +237,7 @@ export default function ContractsPage() {
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
         title="إضافة عقد"
-        onSubmit={(values) => submitCreate(toContractBody(values))}
+        onSubmit={(values) => submitCreate(toContractBody(values, contractTax))}
         isPending={createIsPending}
         errorMessage={createError}
       />
@@ -238,7 +249,7 @@ export default function ContractsPage() {
           title="تعديل عقد"
           contractNumber={editContract.contractNumber}
           defaultValues={buildEditDefaultValues(editContract)}
-          onSubmit={(values) => submitUpdate(editContract.id, toContractBody(values))}
+          onSubmit={(values) => submitUpdate(editContract.id, toContractBody(values, contractTax))}
           isPending={updateIsPending}
           errorMessage={updateError}
         />

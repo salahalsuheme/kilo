@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ESTABLISHMENT_FIELD_ERRORS } from "./establishment-field-errors.js";
+import { EstablishmentNumberSuffixSchema } from "./establishment-number.schema.js";
 import {
   isValidEstablishmentNumber,
   normalizeEstablishmentNumber,
@@ -14,8 +15,7 @@ export const EstablishmentBodyObjectSchema = z.object({
   clientType: z.enum(["institution", "company", "government"], {
     message: ESTABLISHMENT_FIELD_ERRORS.clientType,
   }),
-  /** Suffix digits after the fixed 700 prefix. */
-  establishmentNumber: trimmedRequired(ESTABLISHMENT_FIELD_ERRORS.establishmentNumber),
+  establishmentNumber: EstablishmentNumberSuffixSchema,
   hasTaxNumber: z.boolean(),
   taxNumber: z.string().nullable().optional(),
 });
@@ -49,8 +49,8 @@ export function refineEstablishmentBodyTax(
 }
 
 export const CreateEstablishmentBodySchema = EstablishmentBodyObjectSchema.superRefine(
-  refineEstablishmentBodyNumber,
-).superRefine(refineEstablishmentBodyTax);
+  refineEstablishmentBodyTax,
+);
 
 export const UpdateEstablishmentBodySchema = CreateEstablishmentBodySchema;
 

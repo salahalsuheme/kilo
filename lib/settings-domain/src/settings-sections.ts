@@ -1,4 +1,11 @@
+import {
+  stripEstablishmentNumberSuffix,
+} from "@workspace/establishments-domain";
 import { resolveOrgTaxNumber, validateOrgTaxNumber } from "./org-tax.js";
+import {
+  unifiedNumberDraftToPutSuffix,
+  validateOrgUnifiedNumberDraft,
+} from "./org-unified-number.js";
 import {
   NATIONAL_ADDRESS_FIELD_ORDER,
   normalizeNationalAddress,
@@ -8,6 +15,8 @@ import {
 
 export interface CompanySettingsDraft {
   businessName: string;
+  /** Full unified number (700 + 7 digits) or empty when unset. */
+  unifiedNumber: string;
 }
 
 export interface TaxSettingsDraft {
@@ -21,7 +30,10 @@ export interface NotificationSettingsDraft {
   notificationSmsEnabled: boolean;
 }
 
-export type CompanySettingsPatch = Pick<CompanySettingsDraft, "businessName">;
+export type CompanySettingsPatch = Pick<CompanySettingsDraft, "businessName"> & {
+  /** OpenAPI PutSettingsBody.unifiedNumber — suffix after 700, or null to clear. */
+  unifiedNumber: string | null;
+};
 
 export type TaxSettingsPatch = {
   taxEnabled: boolean;
@@ -39,11 +51,14 @@ export function validateCompanySettingsDraft(draft: CompanySettingsDraft): strin
   if (!draft.businessName.trim()) {
     return "اسم الشركة مطلوب";
   }
-  return null;
+  return validateOrgUnifiedNumberDraft(draft.unifiedNumber);
 }
 
 export function buildCompanySettingsPatch(draft: CompanySettingsDraft): CompanySettingsPatch {
-  return { businessName: draft.businessName.trim() };
+  return {
+    businessName: draft.businessName.trim(),
+    unifiedNumber: unifiedNumberDraftToPutSuffix(draft.unifiedNumber),
+  };
 }
 
 export function validateTaxSettingsDraft(draft: TaxSettingsDraft): string | null {
@@ -84,6 +99,7 @@ export function buildNotificationSettingsPatch(
 
 export interface SavedCompanySettings {
   businessName: string;
+  unifiedNumber: string | null;
 }
 
 export interface SavedTaxSettings {
@@ -98,7 +114,14 @@ export function isCompanySettingsDirty(
   draft: CompanySettingsDraft,
   saved: SavedCompanySettings,
 ): boolean {
-  return buildCompanySettingsPatch(draft).businessName !== saved.businessName;
+  const patch = buildCompanySettingsPatch(draft);
+  const savedSuffix = saved.unifiedNumber
+    ? stripEstablishmentNumberSuffix(saved.unifiedNumber)
+    : null;
+  return (
+    patch.businessName !== saved.businessName ||
+    (patch.unifiedNumber ?? "") !== (savedSuffix ?? "")
+  );
 }
 
 export function isTaxSettingsDirty(

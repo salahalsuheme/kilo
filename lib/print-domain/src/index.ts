@@ -5,7 +5,7 @@ export {
   buildQrDataUrl,
   type OrgPrintHeaderInput,
 } from "./org-print-header.js";
-export { formatContractBodyHtml } from "./format-contract-body-html.js";
+export { formatContractBodyHtml, type ContractBodyFormatOptions } from "./format-contract-body-html.js";
 export {
   buildContractPrintHtml,
   type ContractPrintInput,
@@ -13,4 +13,8 @@ export {
 } from "./build-contract-print-html.js";
 export { buildNationalAddressPrintHtml } from "./build-national-address-print-html.js";
 export { buildInvoicePrintHtml, type InvoicePrintInput } from "./build-invoice-print-html.js";
+export {
+  buildVehicleDamageFormPrintHtml,
+  type VehicleDamageFormPrintInput,
+} from "./build-vehicle-damage-form-print-html.js";
 export { buildPrintPageHtml, buildPdfPageHtml } from "./build-print-page.js";

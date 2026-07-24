@@ -26,9 +26,15 @@ export {
 } from "./contract-penalty.js";
 export {
   computeContractAmounts,
+  computeContractAmountsFromTotalInclVat,
+  deriveAmountExVatFromTotalInclVat,
   roundMoney,
   type ContractAmounts,
 } from "./contract-tax.js";
+export {
+  formatContractMoneyDisplay,
+  formatContractSarDisplay,
+} from "./format-contract-display-money.js";
 export {
   buildContractTemplateVariables,
   formatContractDateTime,
@@ -37,6 +43,38 @@ export {
   type ContractTemplateDriverInput,
   type ContractTemplateEstablishmentInput,
 } from "./contract-template.js";
+export { normalizeRenderedContractContentForStorage } from "./normalize-rendered-contract-content.js";
+export {
+  CONTRACT_ORG_SIGNATURE_DISPLAY,
+  CONTRACT_ORG_STAMP_DISPLAY,
+  applyContractOrgMediaDisplayStyles,
+  contractOrgMediaDisplayCss,
+  contractOrgMediaImgStyleAttribute,
+} from "./contract-org-media-display.js";
+export {
+  buildContractOrgMediaImgHtml,
+  buildContractOrgSignatureTemplateLine,
+  buildContractOrgStampTemplateLine,
+  CONTRACT_ORG_SIGNATURE_LINE,
+  CONTRACT_ORG_STAMP_LINE,
+  formatLegacyContractOrgMediaLine,
+  isContractOrgSignatureLine,
+  isContractOrgStampLine,
+  isLegacyContractOrgMediaLine,
+  lineContainsContractOrgMediaMarkers,
+  lineContainsLegacyContractOrgMedia,
+  orgMediaFlagsFromLineText,
+  stripContractOrgMediaMarkersFromLine,
+  type ContractOrgMediaKind,
+} from "./contract-template-org-media.js";
+export {
+  buildContractSpacerTemplateLine,
+  CONTRACT_SPACER_LINE,
+  CONTRACT_SPACER_MIN_HEIGHT_MM,
+  isContractSpacerLine,
+  lineContainsContractSpacerMarker,
+  stripContractSpacerMarkersFromLine,
+} from "./contract-template-spacer.js";
 export { validateContractEstablishmentLink } from "./contract-establishment.js";
 export {
   ContractBodyObjectSchema,
@@ -89,3 +127,9 @@ export {
   type VehicleDamageFormBodyInput,
   type VehicleDamageMarker,
 } from "./vehicle-damage-form.schema.js";
+export {
+  VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE,
+  VEHICLE_DAMAGE_FORM_PRINT_LABELS,
+  formatVehicleDamageFormPrintEstablishmentName,
+  vehicleDamageFormDocumentHeading,
+} from "./vehicle-damage-form-labels.js";

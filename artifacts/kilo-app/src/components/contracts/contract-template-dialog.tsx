@@ -105,7 +105,12 @@ export function ContractTemplateDialog({
                     استخدم المتغيرات مثل {"{{driver.name}}"} (اسم السائق)،
                     {" {{establishment.fullName}}"} (اسم المنشأة مع النوع: شركة/مؤسسة)،
                     {" {{establishment.name}}"} (اسم المنشأة فقط)، {"{{car.plateNumber}}"} و
-                    {" {{contract.totalInclVat}}"}
+                    {" {{contract.totalInclVat}}"}، {"{{org.businessName}}"} أو {"{{businessName}}"} (اسم الشركة من الإعدادات)،
+                    {" {{org.stamp}}"} (صورة الختم)،
+                    {" {{org.signature}}"} (صورة التوقيع، أصغر من الختم — ضعهما في سطرين متتاليين ليظهرا جنب بعض)،
+                    {" {{contract.spacer}}"} أو {" {{spacer}}"} (فراغ عمودي للتوقيع — سطر مستقل؛ كرّره لزيادة المسافة)
+                    <br />
+                    عنوان بند: سطر بالصيغة {"*نص العنوان*"} فقط (خط عريض وخط تحته في الطباعة، بأي طول).
                   </p>
                   <FormMessage />
                 </FormItem>

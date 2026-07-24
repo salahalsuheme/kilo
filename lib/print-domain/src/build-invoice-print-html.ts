@@ -38,6 +38,7 @@ export interface InvoicePrintInput {
   sellerBusinessName: string;
   sellerLogoUrl?: string | null;
   sellerTaxNumber?: string | null;
+  sellerUnifiedNumber?: string | null;
   sellerNationalAddress: NationalAddress;
 }
 
@@ -71,7 +72,7 @@ export async function buildInvoicePrintHtml(
     {
       businessName: invoice.sellerBusinessName,
       logoUrl: invoice.sellerLogoUrl,
-      taxNumber: invoice.sellerTaxNumber,
+      unifiedNumber: invoice.sellerUnifiedNumber,
     },
     qrDataUrl,
     assetOrigin,

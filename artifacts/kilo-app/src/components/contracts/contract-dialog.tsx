@@ -1,14 +1,12 @@
 import { useEffect, useMemo, type ReactNode } from "react";
-import { formatEstablishmentFullName } from "@workspace/establishments-domain";
-import type { EstablishmentType } from "@workspace/establishments-domain";
 import { isNonIndividualClientType } from "@workspace/customers-domain";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  computeContractAmounts,
+  computeContractAmountsFromTotalInclVat,
   formatContractDateTime,
+  formatContractSarDisplay,
 } from "@workspace/contracts-domain";
-import { formatSarCurrency } from "@workspace/invoices-domain";
 import { VEHICLE_STATUS_LABELS } from "@workspace/vehicles-domain";
 import {
   useGetCustomer,
@@ -58,6 +56,8 @@ import {
 import { ApiErrorBanner } from "@/components/api-error-banner";
 import { useDialogFormErrors } from "@/hooks/use-dialog-form-errors";
 import { buildContractPreviewContent } from "@/features/contracts/contract-preview";
+import { ContractPreviewBody } from "@/components/contracts/contract-preview-body";
+import { EstablishmentSearchSelect } from "@/components/establishments/establishment-search-select";
 
 interface ContractDialogProps {
   open: boolean;
@@ -206,7 +206,7 @@ export function ContractDialog({
         values: {
           startAt: watched.startAt,
           endAt: watched.endAt,
-          amountExVat: Number(watched.amountExVat) || 0,
+          totalInclVat: Number(watched.totalInclVat) || 0,
           authorizationNumber: watched.authorizationNumber,
         },
       }),
@@ -219,20 +219,26 @@ export function ContractDialog({
       contractNumber,
       watched.startAt,
       watched.endAt,
-      watched.amountExVat,
+      watched.totalInclVat,
       watched.authorizationNumber,
     ],
   );
 
-  const amounts = useMemo(
-    () =>
-      computeContractAmounts(
-        Number(watched.amountExVat) || 0,
-        settingsQuery.data?.taxEnabled ?? true,
-        settingsQuery.data?.taxRate ?? 15,
-      ),
-    [watched.amountExVat, settingsQuery.data?.taxEnabled, settingsQuery.data?.taxRate],
+  const contractTax = useMemo(
+    () => ({
+      taxEnabled: settingsQuery.data?.taxEnabled ?? true,
+      taxRate: settingsQuery.data?.taxRate ?? 15,
+    }),
+    [settingsQuery.data?.taxEnabled, settingsQuery.data?.taxRate],
   );
+
+  const amounts = useMemo(() => {
+    return computeContractAmountsFromTotalInclVat(
+      Number(watched.totalInclVat) || 0,
+      contractTax.taxEnabled,
+      contractTax.taxRate,
+    );
+  }, [watched.totalInclVat, contractTax]);
 
   useEffect(() => {
     if (open) {
@@ -303,37 +309,16 @@ export function ContractDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>المنشأة</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value === "none" ? "" : value);
-                        form.setValue("customerId", "", { shouldValidate: true });
-                      }}
-                      value={field.value || "none"}
-                      dir="rtl"
-                    >
-                      <FormControl>
-                        <SelectTrigger dir="rtl" className="text-right">
-                          <SelectValue placeholder="بدون منشأة (فرد)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent dir="rtl" className="text-right">
-                        <SelectItem value="none" className="text-right">
-                          بدون منشأة (عقد فرد)
-                        </SelectItem>
-                        {(establishmentsQuery.data?.data ?? []).map((establishment) => (
-                          <SelectItem
-                            key={establishment.id}
-                            value={String(establishment.id)}
-                            className="text-right"
-                          >
-                            {formatEstablishmentFullName(
-                              establishment.clientType as EstablishmentType,
-                              establishment.name,
-                            )}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <EstablishmentSearchSelect
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          form.setValue("customerId", "", { shouldValidate: true });
+                        }}
+                        establishments={establishmentsQuery.data?.data ?? []}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -484,10 +469,10 @@ export function ContractDialog({
 
               <FormField
                 control={form.control}
-                name="amountExVat"
+                name="totalInclVat"
                 render={({ field }) => (
                   <FormItem>
-                    <RequiredFormLabel>قيمة العقد (قبل الضريبة)</RequiredFormLabel>
+                    <RequiredFormLabel>قيمة العقد (شامل الضريبة)</RequiredFormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -506,10 +491,10 @@ export function ContractDialog({
 
               <div className="rounded-lg border bg-muted/30 p-3 text-sm space-y-1">
                 <p>
-                  الضريبة ({amounts.taxRate}%): {formatSarCurrency(amounts.taxAmount)}
+                  الضريبة ({amounts.taxRate}%): {formatContractSarDisplay(amounts.taxAmount)}
                 </p>
                 <p className="font-medium">
-                  الإجمالي شامل الضريبة: {formatSarCurrency(amounts.totalInclVat)}
+                  الإجمالي شامل الضريبة: {formatContractSarDisplay(amounts.totalInclVat)}
                 </p>
               </div>
 
@@ -521,9 +506,11 @@ export function ContractDialog({
             <div className="flex min-h-[280px] flex-col rounded-xl border bg-white lg:min-h-[420px]">
               <div className="border-b px-4 py-3 font-medium">معاينة العقد</div>
               <ScrollArea className="flex-1 p-4">
-                <pre className="whitespace-pre-wrap text-sm leading-7 font-arabic">
-                  {previewContent}
-                </pre>
+                <ContractPreviewBody
+                  content={previewContent}
+                  stampUrl={settingsQuery.data?.stampUrl}
+                  signatureUrl={settingsQuery.data?.signatureUrl}
+                />
               </ScrollArea>
               {watched.startAt && (
                 <div className="border-t px-4 py-2 text-xs text-muted-foreground">

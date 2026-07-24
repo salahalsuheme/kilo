@@ -7,13 +7,20 @@ import {
   type VehicleDamageFormBodyInput,
   type VehicleDamageMarker,
 } from "@workspace/contracts-domain";
+import {
+  formatEstablishmentFullName,
+  type EstablishmentType,
+} from "@workspace/establishments-domain";
 import { db } from "../../db/index.js";
-import { contracts } from "../../db/schema.js";
+import { contracts, customers, establishments } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
 
 export type VehicleDamageFormResponse = {
   contractId: number;
   contractNumber: string;
+  driverName: string;
+  establishmentName: string | null;
+  establishmentFullName: string | null;
   markers: VehicleDamageMarker[];
   updatedAt: string;
 };
@@ -25,8 +32,13 @@ async function getContractDamageRow(orgId: number, contractId: number) {
       contractNumber: contracts.contractNumber,
       vehicleDamageMarkers: contracts.vehicleDamageMarkers,
       updatedAt: contracts.updatedAt,
+      driverName: customers.name,
+      establishmentName: establishments.name,
+      establishmentClientType: establishments.clientType,
     })
     .from(contracts)
+    .innerJoin(customers, eq(contracts.customerId, customers.id))
+    .leftJoin(establishments, eq(contracts.establishmentId, establishments.id))
     .where(
       and(
         eq(contracts.orgId, orgId),
@@ -43,9 +55,19 @@ function mapDamageFormRow(
   row: NonNullable<Awaited<ReturnType<typeof getContractDamageRow>>>,
 ): VehicleDamageFormResponse {
   const markers = parseVehicleDamageMarkers(row.vehicleDamageMarkers) ?? [];
+  const establishmentFullName =
+    row.establishmentName && row.establishmentClientType
+      ? formatEstablishmentFullName(
+          row.establishmentClientType as EstablishmentType,
+          row.establishmentName,
+        )
+      : null;
   return {
     contractId: row.id,
     contractNumber: row.contractNumber,
+    driverName: row.driverName,
+    establishmentName: row.establishmentName,
+    establishmentFullName,
     markers,
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -105,7 +127,13 @@ export async function upsertContractVehicleDamageForm(
     `حفظ نموذج أضرار المركبة: ${updated.contractNumber}`,
   );
 
-  return { data: mapDamageFormRow(updated) };
+  return {
+    data: mapDamageFormRow({
+      ...row,
+      vehicleDamageMarkers: updated.vehicleDamageMarkers,
+      updatedAt: updated.updatedAt,
+    }),
+  };
 }
 
 export async function deleteContractVehicleDamageForm(orgId: number, contractId: number) {

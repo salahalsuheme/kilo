@@ -1,3 +1,10 @@
+import {
+  buildContractOrgSignatureTemplateLine,
+  buildContractOrgStampTemplateLine,
+} from "./contract-template-org-media.js";
+import { buildContractSpacerTemplateLine } from "./contract-template-spacer.js";
+import { formatContractMoneyDisplay } from "./format-contract-display-money.js";
+
 const PLACEHOLDER_PATTERN = /\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g;
 
 export function renderContractTemplate(
@@ -32,7 +39,11 @@ export interface ContractTemplateEstablishmentInput {
 }
 
 export interface ContractTemplateContextInput {
-  org: { businessName: string };
+  org: {
+    businessName: string;
+    stampUrl?: string | null;
+    signatureUrl?: string | null;
+  };
   driver: ContractTemplateDriverInput;
   establishment?: ContractTemplateEstablishmentInput | null;
   car: {
@@ -64,6 +75,13 @@ export function buildContractTemplateVariables(
 
   return {
     "org.businessName": org.businessName,
+    businessName: org.businessName,
+    "org.stampUrl": org.stampUrl?.trim() ?? "",
+    "org.signatureUrl": org.signatureUrl?.trim() ?? "",
+    "org.stamp": buildContractOrgStampTemplateLine(org.stampUrl),
+    "org.signature": buildContractOrgSignatureTemplateLine(org.signatureUrl),
+    "contract.spacer": buildContractSpacerTemplateLine(),
+    spacer: buildContractSpacerTemplateLine(),
     "driver.name": driver.name.trim(),
     "driver.idNumber": driver.idNumber,
     "driver.mobile": driver.mobile,
@@ -90,8 +108,8 @@ export function buildContractTemplateVariables(
     "contract.startAt": formatContractDateTime(contract.startAt),
     "contract.endAt": formatContractDateTime(contract.endAt),
     "contract.rentalDays": String(contract.rentalDays),
-    "contract.amountExVat": contract.amountExVat.toFixed(2),
-    "contract.taxAmount": contract.taxAmount.toFixed(2),
-    "contract.totalInclVat": contract.totalInclVat.toFixed(2),
+    "contract.amountExVat": formatContractMoneyDisplay(contract.amountExVat),
+    "contract.taxAmount": formatContractMoneyDisplay(contract.taxAmount),
+    "contract.totalInclVat": formatContractMoneyDisplay(contract.totalInclVat),
   };
 }

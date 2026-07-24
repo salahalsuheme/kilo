@@ -1,3 +1,4 @@
+import { resolveOrgBusinessNameDisplay } from "@workspace/settings-domain";
 import { eq } from "drizzle-orm";
 import { PutSettingsBody } from "@workspace/api-zod";
 import { EMPTY_NATIONAL_ADDRESS } from "@workspace/settings-domain";
@@ -10,14 +11,21 @@ import {
   mergeSettingsNationalAddress,
 } from "./domain/national-address.js";
 import { resolveSettingsTaxNumber } from "./domain/org-tax.js";
+import { resolveSettingsUnifiedNumber } from "./domain/org-unified-number.js";
 
-function mapSettings(row: typeof orgSettings.$inferSelect) {
+function mapSettings(
+  row: typeof orgSettings.$inferSelect,
+  organizationName?: string | null,
+) {
   return {
-    businessName: row.businessName,
+    businessName: resolveOrgBusinessNameDisplay(row.businessName, organizationName),
     logoUrl: row.logoUrl,
+    stampUrl: row.stampUrl,
+    signatureUrl: row.signatureUrl,
     taxEnabled: row.taxEnabled,
     taxRate: Number(row.taxRate),
     taxNumber: row.taxNumber,
+    unifiedNumber: row.unifiedNumber,
     nationalAddress: mapNationalAddressRow(row),
     notificationEmailEnabled: row.notificationEmailEnabled,
     notificationSmsEnabled: row.notificationSmsEnabled,
@@ -38,6 +46,12 @@ function nationalAddressToColumns(address: ReturnType<typeof mapNationalAddressR
 }
 
 export async function getOrCreateSettings(orgId: number) {
+  const [org] = await db
+    .select({ name: organizations.name })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1);
+
   let [settings] = await db
     .select()
     .from(orgSettings)
@@ -45,11 +59,6 @@ export async function getOrCreateSettings(orgId: number) {
     .limit(1);
 
   if (!settings) {
-    const [org] = await db
-      .select()
-      .from(organizations)
-      .where(eq(organizations.id, orgId))
-      .limit(1);
     [settings] = await db
       .insert(orgSettings)
       .values({
@@ -59,7 +68,7 @@ export async function getOrCreateSettings(orgId: number) {
       .returning();
   }
 
-  return mapSettings(settings);
+  return mapSettings(settings, org?.name);
 }
 
 export async function updateSettings(orgId: number, body: z.infer<typeof PutSettingsBody>) {
@@ -77,6 +86,10 @@ export async function updateSettings(orgId: number, body: z.infer<typeof PutSett
       taxRate: body.taxRate != null ? String(body.taxRate) : undefined,
       taxNumber:
         body.taxNumber !== undefined ? resolveSettingsTaxNumber(body.taxNumber) : undefined,
+      unifiedNumber:
+        body.unifiedNumber !== undefined
+          ? resolveSettingsUnifiedNumber(body.unifiedNumber)
+          : undefined,
       ...(body.nationalAddress
         ? nationalAddressToColumns(nextNationalAddress)
         : {}),
@@ -88,7 +101,12 @@ export async function updateSettings(orgId: number, body: z.infer<typeof PutSett
     .returning();
 
   await recordActivity(orgId, "settings", "تحديث إعدادات الشركة");
-  return mapSettings(row);
+  const [org] = await db
+    .select({ name: organizations.name })
+    .from(organizations)
+    .where(eq(organizations.id, orgId))
+    .limit(1);
+  return mapSettings(row, org?.name);
 }
 
 export async function updateLogo(orgId: number, logoUrl: string) {
@@ -99,5 +117,27 @@ export async function updateLogo(orgId: number, logoUrl: string) {
     .where(eq(orgSettings.orgId, orgId))
     .returning();
   await recordActivity(orgId, "settings", "تحديث شعار الشركة");
-  return { logoUrl: row.logoUrl };
+  return { logoUrl: row.logoUrl! };
+}
+
+export async function updateStamp(orgId: number, stampUrl: string) {
+  await getOrCreateSettings(orgId);
+  const [row] = await db
+    .update(orgSettings)
+    .set({ stampUrl, updatedAt: new Date() })
+    .where(eq(orgSettings.orgId, orgId))
+    .returning();
+  await recordActivity(orgId, "settings", "تحديث ختم الشركة");
+  return { stampUrl: row.stampUrl! };
+}
+
+export async function updateSignature(orgId: number, signatureUrl: string) {
+  await getOrCreateSettings(orgId);
+  const [row] = await db
+    .update(orgSettings)
+    .set({ signatureUrl, updatedAt: new Date() })
+    .where(eq(orgSettings.orgId, orgId))
+    .returning();
+  await recordActivity(orgId, "settings", "تحديث توقيع الشركة");
+  return { signatureUrl: row.signatureUrl! };
 }

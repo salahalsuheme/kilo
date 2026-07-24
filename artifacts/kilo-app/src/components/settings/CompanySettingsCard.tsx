@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { OrgSettings } from "@/lib/api-client-react-tenant";
 import {
+  ESTABLISHMENT_NUMBER_PREFIX,
+  ESTABLISHMENT_NUMBER_SUFFIX_LENGTH,
+} from "@workspace/establishments-domain";
+import {
   buildCompanySettingsPatch,
   isCompanySettingsDirty,
   validateCompanySettingsDraft,
@@ -9,6 +13,11 @@ import { SettingsCardShell } from "@/components/settings/settings-card-shell";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+
+const UNIFIED_NUMBER_MAX_LENGTH =
+  ESTABLISHMENT_NUMBER_PREFIX.length + ESTABLISHMENT_NUMBER_SUFFIX_LENGTH;
+
+const UNIFIED_NUMBER_HINT = "الرقم الموحد للمنشأة (يبدأ بـ 700)";
 
 interface CompanySettingsCardProps {
   settings: OrgSettings;
@@ -29,18 +38,22 @@ export function CompanySettingsCard({
 }: CompanySettingsCardProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [businessName, setBusinessName] = useState(settings.businessName);
+  const [unifiedNumber, setUnifiedNumber] = useState(settings.unifiedNumber ?? "");
 
   useEffect(() => {
     setBusinessName(settings.businessName);
-  }, [settings.businessName]);
+    setUnifiedNumber(settings.unifiedNumber ?? "");
+  }, [settings.businessName, settings.unifiedNumber]);
 
-  const isDirty = isCompanySettingsDirty(
-    { businessName },
-    { businessName: settings.businessName },
-  );
+  const saved = {
+    businessName: settings.businessName,
+    unifiedNumber: settings.unifiedNumber ?? null,
+  };
+
+  const isDirty = isCompanySettingsDirty({ businessName, unifiedNumber }, saved);
 
   const handleSave = async () => {
-    const draft = { businessName };
+    const draft = { businessName, unifiedNumber };
     const validationError = validateCompanySettingsDraft(draft);
     if (validationError) {
       onValidationError(validationError);
@@ -102,6 +115,19 @@ export function CompanySettingsCard({
             value={businessName}
             onChange={(e) => setBusinessName(e.target.value)}
           />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="unifiedNumber">الرقم الموحد</Label>
+          <Input
+            id="unifiedNumber"
+            dir="ltr"
+            className="text-end"
+            inputMode="numeric"
+            maxLength={UNIFIED_NUMBER_MAX_LENGTH}
+            value={unifiedNumber}
+            onChange={(e) => setUnifiedNumber(e.target.value.replace(/\D/g, ""))}
+          />
+          <p className="text-sm text-muted-foreground">{UNIFIED_NUMBER_HINT}</p>
         </div>
       </div>
     </SettingsCardShell>

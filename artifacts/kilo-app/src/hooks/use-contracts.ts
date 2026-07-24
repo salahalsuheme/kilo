@@ -23,6 +23,11 @@ import {
   defaultContractStartAt,
   type ContractFormValues,
 } from "@/features/contracts/contract-form.schema";
+import {
+  contractFormValuesToCreateBody,
+  contractTaxContextFromSettings,
+  type ContractFormTaxContext,
+} from "@/features/contracts/contract-form.mapper";
 
 export const PAGE_SIZE = 10;
 
@@ -142,7 +147,7 @@ export function useContracts({
     templateId: String(contract.templateId),
     startAt: toDateTimeLocalFromIso(contract.startAt),
     endAt: toDateTimeLocalFromIso(contract.endAt),
-    amountExVat: String(contract.amountExVat),
+    totalInclVat: String(contract.totalInclVat),
     authorizationNumber: contract.authorizationNumber,
   });
 
@@ -174,17 +179,13 @@ function toDateTimeLocalFromIso(iso: string): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-export function toContractBody(values: ContractFormValues): CreateContractBody {
-  return {
-    customerId: Number(values.customerId),
-    establishmentId: values.establishmentId ? Number(values.establishmentId) : null,
-    carId: Number(values.carId),
-    templateId: Number(values.templateId),
-    startAt: new Date(values.startAt).toISOString(),
-    endAt: new Date(values.endAt).toISOString(),
-    amountExVat: Number(values.amountExVat),
-    authorizationNumber: values.authorizationNumber.trim(),
-  };
+export function toContractBody(
+  values: ContractFormValues,
+  tax: ContractFormTaxContext,
+): CreateContractBody {
+  return contractFormValuesToCreateBody(values, tax);
 }
+
+export { contractTaxContextFromSettings };
 
 export { defaultContractStartAt, defaultContractEndAt };

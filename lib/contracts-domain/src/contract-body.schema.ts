@@ -11,6 +11,7 @@ export const ContractBodyObjectSchema = z.object({
   amountExVat: z.coerce
     .number({ message: CONTRACT_FIELD_ERRORS.amountExVat })
     .positive(CONTRACT_FIELD_ERRORS.amountPositive),
+  totalInclVat: z.coerce.number().positive().optional(),
   authorizationNumber: z
     .string()
     .trim()

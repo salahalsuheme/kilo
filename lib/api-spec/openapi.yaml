@@ -817,11 +817,12 @@ paths:
     get:
       operationId: getContractVehicleDamageForm
       tags: [contracts]
+      summary: محضر أستلام مركبة — عرض مخطط الأضرار
       parameters:
         - $ref: "#/components/parameters/ContractId"
       responses:
         "200":
-          description: Vehicle damage form
+          description: محضر أستلام مركبة (مخطط أضرار المركبة)
           content:
             application/json:
               schema:
@@ -831,6 +832,7 @@ paths:
     put:
       operationId: upsertContractVehicleDamageForm
       tags: [contracts]
+      summary: محضر أستلام مركبة — حفظ مخطط الأضرار
       parameters:
         - $ref: "#/components/parameters/ContractId"
       requestBody:
@@ -841,7 +843,7 @@ paths:
               $ref: "#/components/schemas/VehicleDamageFormBody"
       responses:
         "200":
-          description: Saved vehicle damage form
+          description: محضر أستلام مركبة (تم الحفظ)
           content:
             application/json:
               schema:
@@ -1463,6 +1465,52 @@ paths:
                   logoUrl:
                     type: string
                 required: [logoUrl]
+
+  /settings/stamp:
+    post:
+      operationId: uploadSettingsStamp
+      tags: [settings]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        "200":
+          description: Stamp image uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadSettingsStamp200"
+
+  /settings/signature:
+    post:
+      operationId: uploadSettingsSignature
+      tags: [settings]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required: [file]
+      responses:
+        "200":
+          description: Signature image uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadSettingsSignature200"
 
   /auth/profile-photo:
     post:
@@ -2194,12 +2242,24 @@ components:
       required: [markers]
 
     VehicleDamageForm:
+      description: محضر أستلام مركبة — مخطط أضرار المركبة عند التسليم المرتبط بعقد تأجير
       type: object
       properties:
         contractId:
           type: integer
         contractNumber:
           type: string
+        driverName:
+          type: string
+          description: اسم السائق (محضر الاستلام)
+        establishmentName:
+          type: string
+          nullable: true
+          description: اسم المنشأة بدون بادئة النوع
+        establishmentFullName:
+          type: string
+          nullable: true
+          description: اسم المنشأة مع النوع (للطباعة)
         markers:
           type: array
           items:
@@ -2207,7 +2267,7 @@ components:
         updatedAt:
           type: string
           format: date-time
-      required: [contractId, contractNumber, markers, updatedAt]
+      required: [contractId, contractNumber, driverName, markers, updatedAt]
 
     CreateContractBody:
       type: object
@@ -2236,6 +2296,11 @@ components:
         amountExVat:
           type: number
           minimum: 0.01
+          description: المبلغ قبل الضريبة (يُشتق من الإجمالي عند إرسال totalInclVat)
+        totalInclVat:
+          type: number
+          minimum: 0.01
+          description: الإجمالي شامل الضريبة كما أُدخل في الواجهة؛ عند الإرسال يُطبَّق توزيع TTC (الضريبة = الإجمالي − الأساس)
         authorizationNumber:
           type: string
           minLength: 1
@@ -2294,6 +2359,11 @@ components:
         body:
           type: string
           minLength: 1
+          description: >
+            نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}.
+            {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl/signatureUrl).
+            {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره).
+            عناوين *بند* فقط.
       required: [name, body]
 
     UpdateContractTemplateBody:
@@ -2434,6 +2504,9 @@ components:
               type: string
               nullable: true
             sellerTaxNumber:
+              type: string
+              nullable: true
+            sellerUnifiedNumber:
               type: string
               nullable: true
             sellerNationalAddress:
@@ -3032,6 +3105,20 @@ components:
           type: integer
       required: [data, total, page, pageSize]
 
+    UploadSettingsStamp200:
+      type: object
+      properties:
+        stampUrl:
+          type: string
+      required: [stampUrl]
+
+    UploadSettingsSignature200:
+      type: object
+      properties:
+        signatureUrl:
+          type: string
+      required: [signatureUrl]
+
     OrgSettings:
       type: object
       properties:
@@ -3048,6 +3135,18 @@ components:
           type: string
           nullable: true
           description: Organization VAT registration number for invoices (ZATCA)
+        unifiedNumber:
+          type: string
+          nullable: true
+          description: رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)
+        stampUrl:
+          type: string
+          nullable: true
+          description: رابط صورة ختم الشركة لقوالب العقود
+        signatureUrl:
+          type: string
+          nullable: true
+          description: رابط صورة توقيع الشركة لقوالب العقود
         nationalAddress:
           $ref: "#/components/schemas/NationalAddress"
         notificationEmailEnabled:
@@ -3148,6 +3247,10 @@ components:
           type: string
           nullable: true
           description: Organization VAT registration number for invoices (ZATCA)
+        unifiedNumber:
+          type: string
+          nullable: true
+          description: الأرقام بعد بادئة 700
         nationalAddress:
           $ref: "#/components/schemas/PutNationalAddressBody"
         notificationEmailEnabled:

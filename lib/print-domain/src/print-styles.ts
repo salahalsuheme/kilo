@@ -1,3 +1,5 @@
+import { CONTRACT_SPACER_MIN_HEIGHT_MM } from "@workspace/contracts-domain";
+
 export const PRINT_BASE_STYLES = `
   @page { size: A4; margin: 14mm; }
   * { box-sizing: border-box; }
@@ -24,6 +26,29 @@ export const PRINT_BASE_STYLES = `
     margin-bottom: 18px;
   }
   .print-header__brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .print-header.print-header--contract-brand {
+    direction: rtl;
+    justify-content: flex-start;
+  }
+  .print-header--contract-brand .print-header__brand {
+    display: flex;
+    flex-direction: row;
+    direction: rtl;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 14px;
+    width: fit-content;
+    max-width: 100%;
+    flex: 0 0 auto;
+  }
+  .print-header--contract-brand .print-header__copy {
+    text-align: right;
+    direction: rtl;
+    min-width: 0;
+  }
+  .print-header--contract-brand .print-header__name {
+    display: block;
+  }
   .print-header__logo {
     width: 72px;
     height: 72px;
@@ -66,6 +91,55 @@ export const PRINT_BASE_STYLES = `
     font-size: 18px;
     font-weight: 700;
   }
+  .vehicle-damage-print-parties {
+    margin: 16px 0 12px;
+    font-size: 14px;
+  }
+  .vehicle-damage-print-party-line {
+    margin: 0 0 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+  }
+  .vehicle-damage-print-party-label {
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .vehicle-damage-print-party-value {
+    min-width: 0;
+  }
+  .vehicle-damage-print-divider {
+    border: none;
+    border-top: 1px solid #9ca3af;
+    margin: 14px 0 16px;
+  }
+  .vehicle-damage-print-signature {
+    margin: 0 0 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px;
+    font-size: 14px;
+  }
+  .vehicle-damage-print-signature-label {
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .vehicle-damage-print-signature-line {
+    flex: 1 1 180px;
+    min-width: 120px;
+    border-bottom: 1px solid #111827;
+    min-height: 1.4em;
+  }
+  .vehicle-damage-print-diagram {
+    text-align: center;
+    margin-top: 12px;
+  }
+  .vehicle-damage-print-diagram img {
+    max-width: 100%;
+    height: auto;
+  }
   .print-subtitle {
     text-align: center;
     margin: 0 0 16px;
@@ -77,6 +151,8 @@ export const PRINT_BASE_STYLES = `
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 16px;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   .print-box {
     border: 1px solid #d1d5db;
@@ -84,6 +160,8 @@ export const PRINT_BASE_STYLES = `
     padding: 14px 16px;
     background: #fafafa;
     min-width: 0;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
   .print-box__title {
     font-size: 13px;
@@ -169,6 +247,45 @@ export const PRINT_BASE_STYLES = `
     color: #1f2937;
   }
   .print-line:last-child { margin-bottom: 0; }
+  .print-line--media {
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+  .print-line--media-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    flex-wrap: nowrap;
+  }
+  .print-spacer-block {
+    width: 100%;
+  }
+  .print-spacer {
+    min-height: ${CONTRACT_SPACER_MIN_HEIGHT_MM}mm;
+    width: 100%;
+  }
+  img.contract-org-stamp,
+  .print-line--media .contract-org-stamp {
+    display: inline-block;
+    max-height: 120px;
+    max-width: 250px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    vertical-align: middle;
+  }
+  img.contract-org-signature,
+  .print-line--media .contract-org-signature {
+    display: inline-block;
+    max-height: 72px;
+    max-width: 200px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    vertical-align: middle;
+  }
   .print-footer {
     margin-top: 24px;
     padding-top: 12px;

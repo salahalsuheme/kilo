@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocation } from "wouter";
 import { Car, Users, Zap, type LucideIcon } from "lucide-react";
 import { ContractsIcon } from "@/components/icons/contracts-icon";
@@ -11,7 +11,8 @@ import {
   toCreateCustomerBody,
   toCreateVehicleBody,
 } from "@/features/dashboard/quick-start.mappers";
-import { toContractBody } from "@/hooks/use-contracts";
+import { toContractBody, contractTaxContextFromSettings } from "@/hooks/use-contracts";
+import { useGetSettings } from "@/lib/api-client-react-tenant";
 import { useDashboardQuickStart } from "@/hooks/use-dashboard-quick-start";
 
 type QuickStartAction = "contract" | "customer" | "vehicle";
@@ -64,6 +65,12 @@ export function DashboardQuickStartCard() {
     onVehicleCreateSuccess: () => handleCreateSuccess("vehicle"),
   });
 
+  const { data: orgSettings } = useGetSettings();
+  const contractTax = useMemo(
+    () => contractTaxContextFromSettings(orgSettings),
+    [orgSettings],
+  );
+
   return (
     <>
       <Card className="glass-card border-0">
@@ -96,7 +103,7 @@ export function DashboardQuickStartCard() {
         open={openAction === "contract"}
         onOpenChange={(open) => !open && closeDialog()}
         title="إنشاء عقد تأجير جديد"
-        onSubmit={(values) => submitCreateContract(toContractBody(values))}
+        onSubmit={(values) => submitCreateContract(toContractBody(values, contractTax))}
         isPending={contractCreateIsPending}
         errorMessage={contractCreateError}
       />

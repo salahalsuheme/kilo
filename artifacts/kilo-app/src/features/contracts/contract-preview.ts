@@ -1,12 +1,13 @@
 import {
   buildContractTemplateVariables,
-  computeContractAmounts,
+  computeContractAmountsFromTotalInclVat,
   renderContractTemplate,
   rentalDurationDays,
 } from "@workspace/contracts-domain";
 import { formatEstablishmentFullName, ESTABLISHMENT_TYPE_LABELS } from "@workspace/establishments-domain";
 import type { EstablishmentType } from "@workspace/establishments-domain";
 import { COOLING_TYPE_LABELS } from "@workspace/vehicles-domain";
+import { resolveOrgBusinessNameDisplay } from "@workspace/settings-domain";
 import type { Customer, Establishment, OrgSettings, Vehicle } from "@/lib/api-client-react-tenant";
 
 interface BuildPreviewInput {
@@ -19,7 +20,7 @@ interface BuildPreviewInput {
   values: {
     startAt: string;
     endAt: string;
-    amountExVat: number;
+    totalInclVat: number;
     authorizationNumber: string;
   };
 }
@@ -43,14 +44,20 @@ export function buildContractPreviewContent({
     return "أدخل تواريخ صالحة لعرض المعاينة.";
   }
 
-  const amounts = computeContractAmounts(
-    values.amountExVat,
-    settings?.taxEnabled ?? true,
-    settings?.taxRate ?? 15,
+  const taxEnabled = settings?.taxEnabled ?? true;
+  const taxRate = settings?.taxRate ?? 15;
+  const amounts = computeContractAmountsFromTotalInclVat(
+    values.totalInclVat,
+    taxEnabled,
+    taxRate,
   );
 
   const variables = buildContractTemplateVariables({
-    org: { businessName: settings?.businessName ?? "—" },
+    org: {
+      businessName: resolveOrgBusinessNameDisplay(settings?.businessName),
+      stampUrl: settings?.stampUrl ?? null,
+      signatureUrl: settings?.signatureUrl ?? null,
+    },
     driver: {
       name: customer.name,
       idNumber: customer.idNumber,

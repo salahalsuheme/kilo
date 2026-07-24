@@ -794,6 +794,8 @@ export const ListContractsResponse = zod.object({
 
 export const createContractBodyAmountExVatMin = 0.01;
 
+export const createContractBodyTotalInclVatMin = 0.01;
+
 
 
 
@@ -804,7 +806,8 @@ export const CreateContractBody = zod.object({
   "templateId": zod.number().min(1),
   "startAt": zod.date(),
   "endAt": zod.date(),
-  "amountExVat": zod.number().min(createContractBodyAmountExVatMin),
+  "amountExVat": zod.number().min(createContractBodyAmountExVatMin).describe('المبلغ قبل الضريبة (يُشتق من الإجمالي عند إرسال totalInclVat)'),
+  "totalInclVat": zod.number().min(createContractBodyTotalInclVatMin).optional().describe('الإجمالي شامل الضريبة كما أُدخل في الواجهة؛ عند الإرسال يُطبَّق توزيع TTC (الضريبة = الإجمالي − الأساس)'),
   "authorizationNumber": zod.string().min(1).describe('رقم التفويض')
 })
 
@@ -890,6 +893,8 @@ export const UpdateContractParams = zod.object({
 
 export const updateContractBodyOneAmountExVatMin = 0.01;
 
+export const updateContractBodyOneTotalInclVatMin = 0.01;
+
 
 
 
@@ -900,7 +905,8 @@ export const UpdateContractBody = zod.object({
   "templateId": zod.number().min(1),
   "startAt": zod.date(),
   "endAt": zod.date(),
-  "amountExVat": zod.number().min(updateContractBodyOneAmountExVatMin),
+  "amountExVat": zod.number().min(updateContractBodyOneAmountExVatMin).describe('المبلغ قبل الضريبة (يُشتق من الإجمالي عند إرسال totalInclVat)'),
+  "totalInclVat": zod.number().min(updateContractBodyOneTotalInclVatMin).optional().describe('الإجمالي شامل الضريبة كما أُدخل في الواجهة؛ عند الإرسال يُطبَّق توزيع TTC (الضريبة = الإجمالي − الأساس)'),
   "authorizationNumber": zod.string().min(1).describe('رقم التفويض')
 })
 
@@ -1043,6 +1049,9 @@ export const UploadContractSignedAttachmentResponse = zod.object({
 })
 
 
+/**
+ * @summary محضر أستلام مركبة — عرض مخطط الأضرار
+ */
 export const GetContractVehicleDamageFormParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -1058,14 +1067,20 @@ export const getContractVehicleDamageFormResponseMarkersItemYMax = 1;
 export const GetContractVehicleDamageFormResponse = zod.object({
   "contractId": zod.number(),
   "contractNumber": zod.string(),
+  "driverName": zod.string().describe('اسم السائق (محضر الاستلام)'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (للطباعة)'),
   "markers": zod.array(zod.object({
   "x": zod.number().min(getContractVehicleDamageFormResponseMarkersItemXMin).max(getContractVehicleDamageFormResponseMarkersItemXMax),
   "y": zod.number().min(getContractVehicleDamageFormResponseMarkersItemYMin).max(getContractVehicleDamageFormResponseMarkersItemYMax)
 })),
   "updatedAt": zod.coerce.date()
-})
+}).describe('محضر أستلام مركبة — مخطط أضرار المركبة عند التسليم المرتبط بعقد تأجير')
 
 
+/**
+ * @summary محضر أستلام مركبة — حفظ مخطط الأضرار
+ */
 export const UpsertContractVehicleDamageFormParams = zod.object({
   "id": zod.coerce.number()
 })
@@ -1096,12 +1111,15 @@ export const upsertContractVehicleDamageFormResponseMarkersItemYMax = 1;
 export const UpsertContractVehicleDamageFormResponse = zod.object({
   "contractId": zod.number(),
   "contractNumber": zod.string(),
+  "driverName": zod.string().describe('اسم السائق (محضر الاستلام)'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (للطباعة)'),
   "markers": zod.array(zod.object({
   "x": zod.number().min(upsertContractVehicleDamageFormResponseMarkersItemXMin).max(upsertContractVehicleDamageFormResponseMarkersItemXMax),
   "y": zod.number().min(upsertContractVehicleDamageFormResponseMarkersItemYMin).max(upsertContractVehicleDamageFormResponseMarkersItemYMax)
 })),
   "updatedAt": zod.coerce.date()
-})
+}).describe('محضر أستلام مركبة — مخطط أضرار المركبة عند التسليم المرتبط بعقد تأجير')
 
 
 export const DeleteContractVehicleDamageFormParams = zod.object({
@@ -1128,7 +1146,7 @@ export const ListContractTemplatesResponse = zod.object({
 
 export const CreateContractTemplateBody = zod.object({
   "name": zod.string().min(1),
-  "body": zod.string().min(1)
+  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl\/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). عناوين \*بند\* فقط.\n')
 })
 
 export const CreateContractTemplateResponse = zod.object({
@@ -1163,7 +1181,7 @@ export const UpdateContractTemplateParams = zod.object({
 
 export const UpdateContractTemplateBody = zod.object({
   "name": zod.string().min(1),
-  "body": zod.string().min(1)
+  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl\/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). عناوين \*بند\* فقط.\n')
 })
 
 export const UpdateContractTemplateResponse = zod.object({
@@ -1251,6 +1269,7 @@ export const GetInvoiceResponse = zod.object({
   "sellerBusinessName": zod.string(),
   "sellerLogoUrl": zod.string().nullish(),
   "sellerTaxNumber": zod.string().nullish(),
+  "sellerUnifiedNumber": zod.string().nullish(),
   "sellerNationalAddress": zod.object({
   "region": zod.string().nullable().describe('المنطقة'),
   "city": zod.string().nullable().describe('المدينة'),
@@ -1305,6 +1324,7 @@ export const UpdateInvoiceResponse = zod.object({
   "sellerBusinessName": zod.string(),
   "sellerLogoUrl": zod.string().nullish(),
   "sellerTaxNumber": zod.string().nullish(),
+  "sellerUnifiedNumber": zod.string().nullish(),
   "sellerNationalAddress": zod.object({
   "region": zod.string().nullable().describe('المنطقة'),
   "city": zod.string().nullable().describe('المدينة'),
@@ -1355,6 +1375,7 @@ export const UpdateInvoiceStatusResponse = zod.object({
   "sellerBusinessName": zod.string(),
   "sellerLogoUrl": zod.string().nullish(),
   "sellerTaxNumber": zod.string().nullish(),
+  "sellerUnifiedNumber": zod.string().nullish(),
   "sellerNationalAddress": zod.object({
   "region": zod.string().nullable().describe('المنطقة'),
   "city": zod.string().nullable().describe('المدينة'),
@@ -1892,6 +1913,9 @@ export const GetSettingsResponse = zod.object({
   "taxEnabled": zod.boolean(),
   "taxRate": zod.number(),
   "taxNumber": zod.string().nullish().describe('Organization VAT registration number for invoices (ZATCA)'),
+  "unifiedNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
+  "stampUrl": zod.string().nullish().describe('رابط صورة ختم الشركة لقوالب العقود'),
+  "signatureUrl": zod.string().nullish().describe('رابط صورة توقيع الشركة لقوالب العقود'),
   "nationalAddress": zod.object({
   "region": zod.string().nullable().describe('المنطقة'),
   "city": zod.string().nullable().describe('المدينة'),
@@ -1912,6 +1936,7 @@ export const PutSettingsBody = zod.object({
   "taxEnabled": zod.boolean().optional(),
   "taxRate": zod.number().optional(),
   "taxNumber": zod.string().nullish().describe('Organization VAT registration number for invoices (ZATCA)'),
+  "unifiedNumber": zod.string().nullish().describe('الأرقام بعد بادئة 700'),
   "nationalAddress": zod.object({
   "region": zod.string().nullish(),
   "city": zod.string().nullish(),
@@ -1932,6 +1957,9 @@ export const PutSettingsResponse = zod.object({
   "taxEnabled": zod.boolean(),
   "taxRate": zod.number(),
   "taxNumber": zod.string().nullish().describe('Organization VAT registration number for invoices (ZATCA)'),
+  "unifiedNumber": zod.string().nullish().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
+  "stampUrl": zod.string().nullish().describe('رابط صورة ختم الشركة لقوالب العقود'),
+  "signatureUrl": zod.string().nullish().describe('رابط صورة توقيع الشركة لقوالب العقود'),
   "nationalAddress": zod.object({
   "region": zod.string().nullable().describe('المنطقة'),
   "city": zod.string().nullable().describe('المدينة'),
@@ -1953,6 +1981,24 @@ export const UploadSettingsLogoBody = zod.object({
 
 export const UploadSettingsLogoResponse = zod.object({
   "logoUrl": zod.string()
+})
+
+
+export const UploadSettingsStampBody = zod.object({
+  "file": zod.instanceof(File)
+})
+
+export const UploadSettingsStampResponse = zod.object({
+  "stampUrl": zod.string()
+})
+
+
+export const UploadSettingsSignatureBody = zod.object({
+  "file": zod.instanceof(File)
+})
+
+export const UploadSettingsSignatureResponse = zod.object({
+  "signatureUrl": zod.string()
 })
 
 

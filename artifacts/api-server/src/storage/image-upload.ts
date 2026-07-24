@@ -37,6 +37,10 @@ function imageUpload(
 
 export const logoUpload = imageUpload("logo");
 
+export const stampUpload = imageUpload("stamp");
+
+export const signatureUpload = imageUpload("signature");
+
 export const profilePhotoUpload = imageUpload("profile");
 
 export const userPhotoUpload = imageUpload("user", (req, file) => {

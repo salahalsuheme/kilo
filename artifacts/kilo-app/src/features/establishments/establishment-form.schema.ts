@@ -1,16 +1,13 @@
 import { z } from "zod";
 import {
   EstablishmentBodyObjectSchema,
-  refineEstablishmentBodyNumber,
   refineEstablishmentBodyTax,
 } from "@workspace/establishments-domain";
 
 export const establishmentFormSchema = EstablishmentBodyObjectSchema.extend({
   taxNumber: z.string(),
   establishmentNumber: z.string(),
-})
-  .superRefine(refineEstablishmentBodyNumber)
-  .superRefine(refineEstablishmentBodyTax);
+}).superRefine(refineEstablishmentBodyTax);
 
 export type EstablishmentFormValues = z.infer<typeof establishmentFormSchema>;
 

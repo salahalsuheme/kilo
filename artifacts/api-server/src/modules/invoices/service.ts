@@ -421,6 +421,7 @@ export async function getInvoice(orgId: number, id: number) {
     sellerBusinessName: settings.businessName,
     sellerLogoUrl: settings.logoUrl,
     sellerTaxNumber: settings.taxNumber,
+    sellerUnifiedNumber: settings.unifiedNumber,
     sellerNationalAddress: settings.nationalAddress,
   };
 }

@@ -1,7 +1,10 @@
+import { resolveOrgBusinessNameDisplay } from "@workspace/settings-domain";
 import { and, eq, isNull } from "drizzle-orm";
 import {
   buildContractTemplateVariables,
   computeContractAmounts,
+  computeContractAmountsFromTotalInclVat,
+  normalizeRenderedContractContentForStorage,
   renderContractTemplate,
   rentalDurationDays,
   type CreateContractBodyInput,
@@ -19,6 +22,7 @@ import {
   customers,
   establishments,
   orgSettings,
+  organizations,
 } from "../../../db/schema.js";
 import type { VehicleCoolingType } from "@workspace/vehicles-domain";
 
@@ -94,6 +98,9 @@ export function resolveContractAmounts(
   taxEnabled: boolean,
   taxRate: number,
 ) {
+  if (body.totalInclVat != null && Number.isFinite(body.totalInclVat)) {
+    return computeContractAmountsFromTotalInclVat(body.totalInclVat, taxEnabled, taxRate);
+  }
   return computeContractAmounts(body.amountExVat, taxEnabled, taxRate);
 }
 
@@ -103,8 +110,19 @@ export async function buildRenderedContractContent(
   amounts: ReturnType<typeof computeContractAmounts>,
   contractNumber?: string,
 ) {
-  const [orgTax, customer, car, template] = await Promise.all([
-    getOrgTaxSettings(orgId),
+  const [orgContext, customer, car, template] = await Promise.all([
+    db
+      .select({
+        businessName: orgSettings.businessName,
+        stampUrl: orgSettings.stampUrl,
+        signatureUrl: orgSettings.signatureUrl,
+        organizationName: organizations.name,
+      })
+      .from(orgSettings)
+      .leftJoin(organizations, eq(orgSettings.orgId, organizations.id))
+      .where(eq(orgSettings.orgId, orgId))
+      .limit(1)
+      .then((rows) => rows[0] ?? null),
     getContractCustomer(orgId, body.customerId),
     getContractCar(orgId, body.carId),
     getContractTemplate(orgId, body.templateId),
@@ -121,7 +139,14 @@ export async function buildRenderedContractContent(
 
   const rentalDays = rentalDurationDays(body.startAt, body.endAt);
   const variables = buildContractTemplateVariables({
-    org: { businessName: orgTax.businessName },
+    org: {
+      businessName: resolveOrgBusinessNameDisplay(
+        orgContext?.businessName,
+        orgContext?.organizationName,
+      ),
+      stampUrl: orgContext?.stampUrl ?? null,
+      signatureUrl: orgContext?.signatureUrl ?? null,
+    },
     driver: {
       name: customer.name,
       idNumber: customer.idNumber,
@@ -159,5 +184,7 @@ export async function buildRenderedContractContent(
     },
   });
 
-  return renderContractTemplate(template.body, variables);
+  return normalizeRenderedContractContentForStorage(
+    renderContractTemplate(template.body, variables),
+  );
 }

@@ -7,6 +7,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "@workspace/customers-domain": "workspace:*"
+    "@workspace/customers-domain": "workspace:*",
+    "@workspace/establishments-domain": "workspace:*",
+    "zod": "catalog:"
   }
 }

@@ -4,3 +4,50 @@
 @import "./styles/targa-base.css";
 @import "./styles/mobile-shell.css";
 @plugin "@tailwindcss/typography";
+
+.contract-preview-body .print-contract-body {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contract-preview-body .print-line {
+  margin: 0 0 0.5rem;
+}
+
+.contract-preview-body .print-line--media-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 1.25rem;
+  flex-wrap: nowrap;
+}
+
+.contract-preview-body .print-spacer {
+  min-height: 40mm;
+  width: 100%;
+}
+
+.contract-preview-body img.contract-org-stamp,
+.contract-preview-body .contract-org-stamp {
+  display: inline-block;
+  max-height: 120px;
+  max-width: 250px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.contract-preview-body img.contract-org-signature,
+.contract-preview-body .contract-org-signature {
+  display: inline-block;
+  max-height: 72px;
+  max-width: 200px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  vertical-align: middle;
+}
+

@@ -1,6 +1,6 @@
 import type { Contract, ContractStatus } from "@/lib/api-client-react-tenant";
 import { CONTRACT_STATUS_LABELS, formatContractDateTime } from "@workspace/contracts-domain";
-import { formatSarCurrency } from "@workspace/invoices-domain";
+import { formatContractSarDisplay } from "@workspace/contracts-domain";
 import {
   CONTRACT_STATUS_BADGE_BASE_CLASS,
   CONTRACT_EXPIRING_SOON_BADGE_BASE_CLASS,
@@ -36,6 +36,7 @@ interface ContractsTableProps {
   onDownloadSigned: (contract: Contract) => void;
   onOpenDamageForm: (contract: Contract) => void;
   onDownloadDamageForm: (contract: Contract) => void;
+  onPrintDamageForm: (contract: Contract) => void;
   onDeleteDamageForm: (contract: Contract) => void;
   isUploadPending?: boolean;
 }
@@ -53,6 +54,7 @@ export function ContractsTable({
   onDownloadSigned,
   onOpenDamageForm,
   onDownloadDamageForm,
+  onPrintDamageForm,
   onDeleteDamageForm,
   isUploadPending,
 }: ContractsTableProps) {
@@ -139,14 +141,14 @@ export function ContractsTable({
                   <TableCell className="text-sm">
                     {contract.penaltyTotal > 0 ? (
                       <span className="font-medium text-red-600">
-                        {formatSarCurrency(contract.penaltyTotal)}
+                        {formatContractSarDisplay(contract.penaltyTotal)}
                       </span>
                     ) : (
                       "—"
                     )}
                   </TableCell>
                   <TableCell className="text-sm whitespace-nowrap">
-                    {formatSarCurrency(contract.totalInclVat)}
+                    {formatContractSarDisplay(contract.totalInclVat)}
                   </TableCell>
                   <TableCell className="text-sm">
                     {contract.isSigned ? (
@@ -189,6 +191,7 @@ export function ContractsTable({
                         onDownloadSigned={onDownloadSigned}
                         onOpenDamageForm={onOpenDamageForm}
                         onDownloadDamageForm={onDownloadDamageForm}
+                        onPrintDamageForm={onPrintDamageForm}
                         onDeleteDamageForm={onDeleteDamageForm}
                         isUploadPending={isUploadPending}
                       />

@@ -380,9 +380,18 @@ export interface VehicleDamageFormBody {
   markers: VehicleDamageMarker[];
 }
 
+/**
+ * محضر أستلام مركبة — مخطط أضرار المركبة عند التسليم المرتبط بعقد تأجير
+ */
 export interface VehicleDamageForm {
   contractId: number;
   contractNumber: string;
+  /** اسم السائق (محضر الاستلام) */
+  driverName: string;
+  /** اسم المنشأة بدون بادئة النوع */
+  establishmentName?: string | null;
+  /** اسم المنشأة مع النوع (للطباعة) */
+  establishmentFullName?: string | null;
   markers: VehicleDamageMarker[];
   updatedAt: string;
 }
@@ -404,8 +413,16 @@ export interface CreateContractBody {
   templateId: number;
   startAt: string;
   endAt: string;
-  /** @minimum 0.01 */
+  /**
+     * المبلغ قبل الضريبة (يُشتق من الإجمالي عند إرسال totalInclVat)
+     * @minimum 0.01
+     */
   amountExVat: number;
+  /**
+     * الإجمالي شامل الضريبة كما أُدخل في الواجهة؛ عند الإرسال يُطبَّق توزيع TTC (الضريبة = الإجمالي − الأساس)
+     * @minimum 0.01
+     */
+  totalInclVat?: number;
   /**
      * رقم التفويض
      * @minLength 1
@@ -437,7 +454,10 @@ export interface ContractTemplate {
 export interface CreateContractTemplateBody {
   /** @minLength 1 */
   name: string;
-  /** @minLength 1 */
+  /**
+     * نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). عناوين *بند* فقط.
+     * @minLength 1
+     */
   body: string;
 }
 
@@ -536,6 +556,7 @@ export type InvoiceDetail = Invoice & ({
   sellerBusinessName: string;
   sellerLogoUrl?: string | null;
   sellerTaxNumber?: string | null;
+  sellerUnifiedNumber?: string | null;
   sellerNationalAddress: NationalAddress;
 });
 
@@ -835,6 +856,14 @@ export interface NotificationList {
   pageSize: number;
 }
 
+export interface UploadSettingsStamp200 {
+  stampUrl: string;
+}
+
+export interface UploadSettingsSignature200 {
+  signatureUrl: string;
+}
+
 export interface OrgSettings {
   businessName: string;
   logoUrl?: string | null;
@@ -842,6 +871,12 @@ export interface OrgSettings {
   taxRate: number;
   /** Organization VAT registration number for invoices (ZATCA) */
   taxNumber?: string | null;
+  /** رقم المنشأة في وزارة الداخلية (يبدأ بـ 700) */
+  unifiedNumber?: string | null;
+  /** رابط صورة ختم الشركة لقوالب العقود */
+  stampUrl?: string | null;
+  /** رابط صورة توقيع الشركة لقوالب العقود */
+  signatureUrl?: string | null;
   nationalAddress: NationalAddress;
   notificationEmailEnabled: boolean;
   notificationSmsEnabled: boolean;
@@ -864,6 +899,8 @@ export interface PutSettingsBody {
   taxRate?: number;
   /** Organization VAT registration number for invoices (ZATCA) */
   taxNumber?: string | null;
+  /** الأرقام بعد بادئة 700 */
+  unifiedNumber?: string | null;
   nationalAddress?: PutNationalAddressBody;
   notificationEmailEnabled?: boolean;
   notificationSmsEnabled?: boolean;
@@ -1045,6 +1082,14 @@ export type UploadSettingsLogoBody = {
 
 export type UploadSettingsLogo200 = {
   logoUrl: string;
+};
+
+export type UploadSettingsStampBody = {
+  file: Blob;
+};
+
+export type UploadSettingsSignatureBody = {
+  file: Blob;
 };
 
 export type UploadProfilePhotoBody = {

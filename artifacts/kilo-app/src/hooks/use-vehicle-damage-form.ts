@@ -9,13 +9,30 @@ import {
 } from "@/lib/api-client-react-tenant";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { downloadBlob } from "@/lib/print/download-blob";
+import { openPrintDocument } from "@/lib/print/open-print-document";
 import {
   VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC,
 } from "@/lib/vehicle-damage/vehicle-damage-assets";
 import { renderVehicleDamageFormImage } from "@/lib/vehicle-damage/render-damage-form-image";
+import { buildVehicleDamageFormPrintHtml } from "@workspace/print-domain";
 import { withOrgKey } from "@/lib/tenant-cache";
 import { useOrgId } from "@/hooks/use-invalidate";
-import type { VehicleDamageMarker } from "@workspace/contracts-domain";
+import {
+  vehicleDamageFormDocumentHeading,
+  type VehicleDamageMarker,
+} from "@workspace/contracts-domain";
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") resolve(reader.result);
+      else reject(new Error("تعذر تحضير صورة النموذج للطباعة"));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error("تعذر تحضير صورة النموذج للطباعة"));
+    reader.readAsDataURL(blob);
+  });
+}
 
 export function useVehicleDamageForm() {
   const orgId = useOrgId();
@@ -88,18 +105,52 @@ export function useVehicleDamageForm() {
     }
   };
 
+  const loadSavedForm = (contract: Contract) =>
+    getContractVehicleDamageForm(contract.id);
+
+  const renderSavedFormImage = async (contract: Contract) => {
+    const form = await loadSavedForm(contract);
+    return renderVehicleDamageFormImage(VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC, form.markers);
+  };
+
   const downloadForm = async (contract: Contract) => {
     setActionError(null);
     try {
-      const form = await getContractVehicleDamageForm(contract.id);
-      const blob = await renderVehicleDamageFormImage(
-        VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC,
-        form.markers,
-      );
+      const blob = await renderSavedFormImage(contract);
       downloadBlob(blob, `${contract.contractNumber}-vehicle-damage.png`);
       return true;
     } catch {
       setActionError("تعذر تنزيل نموذج الأضرار");
+      return false;
+    }
+  };
+
+  const printForm = async (contract: Contract) => {
+    setActionError(null);
+    try {
+      const form = await loadSavedForm(contract);
+      const blob = await renderVehicleDamageFormImage(
+        VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC,
+        form.markers,
+      );
+      const diagramDataUrl = await blobToDataUrl(blob);
+      const bodyHtml = buildVehicleDamageFormPrintHtml({
+        diagramDataUrl,
+        driverName: form.driverName,
+        establishmentName: form.establishmentName,
+        establishmentFullName: form.establishmentFullName,
+      });
+      const opened = openPrintDocument({
+        title: vehicleDamageFormDocumentHeading(contract.contractNumber),
+        bodyHtml,
+      });
+      if (!opened) {
+        setActionError("تعذر فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة.");
+        return false;
+      }
+      return true;
+    } catch {
+      setActionError("تعذر طباعة نموذج الأضرار");
       return false;
     }
   };
@@ -118,6 +169,7 @@ export function useVehicleDamageForm() {
     requestDelete,
     confirmDelete,
     downloadForm,
+    printForm,
     saveIsPending: saveMutation.isPending,
     deleteIsPending: deleteMutation.isPending,
   };

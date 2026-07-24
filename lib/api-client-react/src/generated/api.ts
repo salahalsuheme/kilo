@@ -90,6 +90,10 @@ import type {
   UploadProfilePhotoBody,
   UploadSettingsLogo200,
   UploadSettingsLogoBody,
+  UploadSettingsSignature200,
+  UploadSettingsSignatureBody,
+  UploadSettingsStamp200,
+  UploadSettingsStampBody,
   UploadUserPhoto200,
   UploadUserPhotoBody,
   Vehicle,
@@ -2829,6 +2833,9 @@ export const getGetContractVehicleDamageFormUrl = (id: number,) => {
   return `/api/contracts/${id}/vehicle-damage-form`
 }
 
+/**
+ * @summary محضر أستلام مركبة — عرض مخطط الأضرار
+ */
 export const getContractVehicleDamageForm = async (id: number, options?: RequestInit): Promise<VehicleDamageForm> => {
 
   return customFetch<VehicleDamageForm>(getGetContractVehicleDamageFormUrl(id),
@@ -2873,6 +2880,9 @@ export type GetContractVehicleDamageFormQueryResult = NonNullable<Awaited<Return
 export type GetContractVehicleDamageFormQueryError = ErrorType<void>
 
 
+/**
+ * @summary محضر أستلام مركبة — عرض مخطط الأضرار
+ */
 
 export function useGetContractVehicleDamageForm<TData = Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError = ErrorType<void>>(
  id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDamageForm>>, TError, TData>, }
@@ -2900,6 +2910,9 @@ export const getUpsertContractVehicleDamageFormUrl = (id: number,) => {
   return `/api/contracts/${id}/vehicle-damage-form`
 }
 
+/**
+ * @summary محضر أستلام مركبة — حفظ مخطط الأضرار
+ */
 export const upsertContractVehicleDamageForm = async (id: number,
     vehicleDamageFormBody: VehicleDamageFormBody, options?: RequestInit): Promise<VehicleDamageForm> => {
 
@@ -2947,7 +2960,10 @@ const {mutation: mutationOptions} = options ?
     export type UpsertContractVehicleDamageFormMutationBody = BodyType<VehicleDamageFormBody>
     export type UpsertContractVehicleDamageFormMutationError = ErrorType<ApiErrorMessage | void>
 
-    export const useUpsertContractVehicleDamageForm = <TError = ErrorType<ApiErrorMessage | void>,
+    /**
+ * @summary محضر أستلام مركبة — حفظ مخطط الأضرار
+ */
+export const useUpsertContractVehicleDamageForm = <TError = ErrorType<ApiErrorMessage | void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext>, }
  ): UseMutationResult<
         Awaited<ReturnType<typeof upsertContractVehicleDamageForm>>,
@@ -5354,6 +5370,140 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getUploadSettingsLogoMutationOptions(options));
+    }
+
+export const getUploadSettingsStampUrl = () => {
+
+
+
+
+  return `/api/settings/stamp`
+}
+
+export const uploadSettingsStamp = async (uploadSettingsStampBody: UploadSettingsStampBody, options?: RequestInit): Promise<UploadSettingsStamp200> => {
+    const formData = new FormData();
+formData.append(`file`, uploadSettingsStampBody.file);
+
+  return customFetch<UploadSettingsStamp200>(getUploadSettingsStampUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getUploadSettingsStampMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadSettingsStamp>>, TError,{data: BodyType<UploadSettingsStampBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof uploadSettingsStamp>>, TError,{data: BodyType<UploadSettingsStampBody>}, TContext> => {
+
+const mutationKey = ['uploadSettingsStamp'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadSettingsStamp>>, {data: BodyType<UploadSettingsStampBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadSettingsStamp(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadSettingsStampMutationResult = NonNullable<Awaited<ReturnType<typeof uploadSettingsStamp>>>
+    export type UploadSettingsStampMutationBody = BodyType<UploadSettingsStampBody>
+    export type UploadSettingsStampMutationError = ErrorType<unknown>
+
+    export const useUploadSettingsStamp = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadSettingsStamp>>, TError,{data: BodyType<UploadSettingsStampBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadSettingsStamp>>,
+        TError,
+        {data: BodyType<UploadSettingsStampBody>},
+        TContext
+      > => {
+      return useMutation(getUploadSettingsStampMutationOptions(options));
+    }
+
+export const getUploadSettingsSignatureUrl = () => {
+
+
+
+
+  return `/api/settings/signature`
+}
+
+export const uploadSettingsSignature = async (uploadSettingsSignatureBody: UploadSettingsSignatureBody, options?: RequestInit): Promise<UploadSettingsSignature200> => {
+    const formData = new FormData();
+formData.append(`file`, uploadSettingsSignatureBody.file);
+
+  return customFetch<UploadSettingsSignature200>(getUploadSettingsSignatureUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getUploadSettingsSignatureMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadSettingsSignature>>, TError,{data: BodyType<UploadSettingsSignatureBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof uploadSettingsSignature>>, TError,{data: BodyType<UploadSettingsSignatureBody>}, TContext> => {
+
+const mutationKey = ['uploadSettingsSignature'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadSettingsSignature>>, {data: BodyType<UploadSettingsSignatureBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadSettingsSignature(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadSettingsSignatureMutationResult = NonNullable<Awaited<ReturnType<typeof uploadSettingsSignature>>>
+    export type UploadSettingsSignatureMutationBody = BodyType<UploadSettingsSignatureBody>
+    export type UploadSettingsSignatureMutationError = ErrorType<unknown>
+
+    export const useUploadSettingsSignature = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadSettingsSignature>>, TError,{data: BodyType<UploadSettingsSignatureBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadSettingsSignature>>,
+        TError,
+        {data: BodyType<UploadSettingsSignatureBody>},
+        TContext
+      > => {
+      return useMutation(getUploadSettingsSignatureMutationOptions(options));
     }
 
 export const getUploadProfilePhotoUrl = () => {

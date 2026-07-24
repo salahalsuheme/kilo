@@ -12,7 +12,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC } from "@/lib/vehicle-damage/vehicle-damage-assets";
-import type { VehicleDamageMarker } from "@workspace/contracts-domain";
+import {
+  VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE,
+  type VehicleDamageMarker,
+} from "@workspace/contracts-domain";
 
 interface VehicleDamageFormDialogProps {
   contract: Contract | null;
@@ -49,7 +52,7 @@ export function VehicleDamageFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>نموذج أضرار مركبة</DialogTitle>
+          <DialogTitle>{VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE}</DialogTitle>
           <DialogDescription className="text-start">
             العقد <bdi>{contract.contractNumber}</bdi> — انقر على المخطط لتحديد مواقع الأضرار والصدمات.
             كبّر بالعجلة أو باللمس (قرص)، واسحب للتحريك عند التكبير. انقر على نقطة محفوظة لحذفها.

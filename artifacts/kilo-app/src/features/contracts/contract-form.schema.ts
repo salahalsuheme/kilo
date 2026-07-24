@@ -48,9 +48,9 @@ export const contractFormSchema = z
     templateId: z.string().min(1, CONTRACT_FIELD_ERRORS.templateId),
     startAt: z.string().min(1, CONTRACT_FIELD_ERRORS.startAt),
     endAt: z.string().min(1, CONTRACT_FIELD_ERRORS.endAt),
-    amountExVat: z
+    totalInclVat: z
       .string()
-      .min(1, CONTRACT_FIELD_ERRORS.amountExVat)
+      .min(1, CONTRACT_FIELD_ERRORS.totalInclVat)
       .refine((value) => {
         const amount = Number(value);
         return !Number.isNaN(amount) && amount > 0;
@@ -86,7 +86,7 @@ export function createEmptyContractValues(): ContractFormValues {
     templateId: "",
     startAt,
     endAt: startAt,
-    amountExVat: "",
+    totalInclVat: "",
     authorizationNumber: "",
   };
 }

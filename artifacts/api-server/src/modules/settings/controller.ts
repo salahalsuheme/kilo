@@ -1,14 +1,14 @@
 import type { Request, Response } from "express";
 import { PutSettingsBody } from "@workspace/api-zod";
-import { getOrgId, getUserId, sendNotAuthenticated } from "../../lib/http.js";
-import { buildUploadFilename } from "@workspace/storage-domain";
-import { persistUploadedFile } from "../../storage/uploads-runtime.js";
+import { PutSettingsUnifiedNumberSchema } from "@workspace/settings-domain";
+import { getOrgId, getUserId, firstZodErrorMessage, sendNotAuthenticated } from "../../lib/http.js";
+import { handleOrgSettingsImageUpload } from "./domain/upload-org-image.js";
 import { validateSettingsTaxNumber } from "./domain/org-tax.js";
 import {
   mergeSettingsNationalAddress,
   validateSettingsNationalAddress,
 } from "./domain/national-address.js";
-import { getOrCreateSettings, updateLogo, updateSettings } from "./service.js";
+import { getOrCreateSettings, updateLogo, updateSettings, updateSignature, updateStamp } from "./service.js";
 import { EMPTY_NATIONAL_ADDRESS } from "@workspace/settings-domain";
 
 function requireSession(req: Request, res: Response): number | null {
@@ -45,11 +45,32 @@ export async function handlePutSettings(req: Request, res: Response): Promise<vo
     }
   }
 
-  if (parsed.data.nationalAddress) {
+  if (parsed.data.unifiedNumber !== undefined) {
+    const normalizedUnified =
+      parsed.data.unifiedNumber === "" ? null : parsed.data.unifiedNumber;
+    const unifiedParsed = PutSettingsUnifiedNumberSchema.safeParse(normalizedUnified);
+    if (!unifiedParsed.success) {
+      res.status(400).json({
+        message: firstZodErrorMessage(unifiedParsed.error, "بيانات غير صالحة"),
+      });
+      return;
+    }
+  }
+
+  const body =
+    parsed.data.unifiedNumber !== undefined
+      ? {
+          ...parsed.data,
+          unifiedNumber:
+            parsed.data.unifiedNumber === "" ? null : parsed.data.unifiedNumber,
+        }
+      : parsed.data;
+
+  if (body.nationalAddress) {
     const current = await getOrCreateSettings(orgId);
     const nextNationalAddress = mergeSettingsNationalAddress(
       current.nationalAddress ?? EMPTY_NATIONAL_ADDRESS,
-      parsed.data.nationalAddress,
+      body.nationalAddress,
     );
     const nationalAddressError = validateSettingsNationalAddress(nextNationalAddress);
     if (nationalAddressError) {
@@ -58,19 +79,17 @@ export async function handlePutSettings(req: Request, res: Response): Promise<vo
     }
   }
 
-  res.json(await updateSettings(orgId, parsed.data));
+  res.json(await updateSettings(orgId, body));
 }
 
 export async function handleUploadLogo(req: Request, res: Response): Promise<void> {
-  const orgId = requireSession(req, res);
-  if (!orgId) return;
+  await handleOrgSettingsImageUpload(req, res, "logo", updateLogo);
+}
 
-  const file = req.file;
-  if (!file) {
-    res.status(400).json({ message: "لم يتم رفع ملف" });
-    return;
-  }
-  const key = file.filename ?? buildUploadFilename("logo", file.originalname);
-  const logoUrl = await persistUploadedFile(file, key);
-  res.json(await updateLogo(orgId, logoUrl));
+export async function handleUploadStamp(req: Request, res: Response): Promise<void> {
+  await handleOrgSettingsImageUpload(req, res, "stamp", updateStamp);
+}
+
+export async function handleUploadSignature(req: Request, res: Response): Promise<void> {
+  await handleOrgSettingsImageUpload(req, res, "signature", updateSignature);
 }

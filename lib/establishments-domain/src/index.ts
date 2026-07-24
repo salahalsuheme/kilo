@@ -7,6 +7,11 @@ export {
   stripEstablishmentNumberSuffix,
 } from "./establishment-number.js";
 export {
+  EstablishmentNumberSuffixPutSchema,
+  EstablishmentNumberSuffixSchema,
+  validateEstablishmentNumberSuffixPut,
+} from "./establishment-number.schema.js";
+export {
   ESTABLISHMENT_FIELD_LABELS,
   ESTABLISHMENT_TYPE_LABELS,
 } from "./establishment-labels.js";

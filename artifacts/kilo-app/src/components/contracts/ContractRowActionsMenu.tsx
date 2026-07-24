@@ -24,6 +24,7 @@ interface ContractRowActionsMenuProps {
   onDownloadSigned: (contract: Contract) => void;
   onOpenDamageForm: (contract: Contract) => void;
   onDownloadDamageForm: (contract: Contract) => void;
+  onPrintDamageForm: (contract: Contract) => void;
   onDeleteDamageForm: (contract: Contract) => void;
   isUploadPending?: boolean;
 }
@@ -46,6 +47,7 @@ export function ContractRowActionsMenu({
   onDownloadSigned,
   onOpenDamageForm,
   onDownloadDamageForm,
+  onPrintDamageForm,
   onDeleteDamageForm,
   isUploadPending,
 }: ContractRowActionsMenuProps) {
@@ -169,6 +171,15 @@ export function ContractRowActionsMenu({
             </DropdownMenuItem>
             {contract.hasVehicleDamageForm ? (
               <>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPrintDamageForm(contract);
+                  }}
+                >
+                  <Printer className="h-4 w-4 me-2" />
+                  طباعة النموذج
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
