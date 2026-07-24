@@ -1,17 +1,15 @@
-/** Top/bottom sheet margin. */
-export const PRINT_PAGE_MARGIN_BLOCK = "12mm";
-
-/** Left/right sheet margin — distance from paper edge to the border frame. */
-export const PRINT_PAGE_MARGIN_INLINE = "30mm";
+/** Space from paper edge to the border frame (keep small so the frame sits near page edges). */
+export const PRINT_PAGE_MARGIN_BLOCK = "10mm";
+export const PRINT_PAGE_MARGIN_INLINE = "10mm";
 
 export const PRINT_PAGE_AT_PAGE_RULE = `@page { size: A4; margin: ${PRINT_PAGE_MARGIN_BLOCK} ${PRINT_PAGE_MARGIN_INLINE}; }`;
 
 /** @deprecated Use PRINT_PAGE_AT_PAGE_RULE — kept for exports. */
 export const PRINT_PAGE_MARGIN = `${PRINT_PAGE_MARGIN_BLOCK} ${PRINT_PAGE_MARGIN_INLINE}`;
 
-/** Padding inside the border frame (block = top/bottom, inline = left/right). */
-export const PRINT_CONTENT_PADDING_BLOCK = "5mm";
-export const PRINT_CONTENT_PADDING_INLINE = "12mm";
+/** Small inset so text uses width inside the frame. */
+export const PRINT_CONTENT_PADDING_BLOCK = "4mm";
+export const PRINT_CONTENT_PADDING_INLINE = "4mm";
 
 export const PRINT_PAGE_FRAME_RADIUS = "3mm";
 
