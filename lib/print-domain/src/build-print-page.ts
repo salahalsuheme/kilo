@@ -14,6 +14,13 @@ const BROWSER_PRINT_DOCUMENT_TITLE = " ";
 const PRINT_BOOT_SCRIPT = `
 (function () {
   function doPrint() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.document.title = " ";
+      }
+    } catch (_e) {
+      /* cross-origin guard */
+    }
     window.focus();
     window.print();
   }

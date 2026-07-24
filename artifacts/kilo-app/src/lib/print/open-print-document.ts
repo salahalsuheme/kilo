@@ -16,6 +16,13 @@ function resolveFontStylesheetHref(): string {
 }
 
 export function openPrintDocument(options: OpenPrintDocumentOptions): boolean {
+  const savedParentTitle = document.title;
+  document.title = " ";
+
+  const restoreParentTitle = () => {
+    document.title = savedParentTitle;
+  };
+
   const iframe = document.createElement("iframe");
   iframe.setAttribute("title", options.iframeTitle ?? "طباعة");
   iframe.setAttribute("aria-hidden", "true");
@@ -43,6 +50,7 @@ export function openPrintDocument(options: OpenPrintDocumentOptions): boolean {
   const cleanup = () => {
     if (cleaned) return;
     cleaned = true;
+    restoreParentTitle();
     iframe.remove();
   };
 
