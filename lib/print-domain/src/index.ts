@@ -1,8 +1,9 @@
 export { PRINT_BASE_STYLES, PDF_RENDER_STYLES } from "./print-styles.js";
 export {
   PLAYWRIGHT_PDF_PAGE_MARGIN,
+  PRINT_CONTENT_PADDING,
   PRINT_PAGE_FRAME_BORDER,
-  PRINT_PAGE_FRAME_INSET,
+  PRINT_PAGE_MARGIN,
   PRINT_PAGE_FRAME_RADIUS,
 } from "./print-page-frame.js";
 export { escapeHtml, absoluteAssetUrl, sanitizePdfFilename } from "./html-utils.js";

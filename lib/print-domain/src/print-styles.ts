@@ -1,11 +1,13 @@
 import { CONTRACT_SPACER_MIN_HEIGHT_MM } from "@workspace/contracts-domain";
 import {
+  PRINT_CONTENT_PADDING,
   PRINT_PAGE_FRAME_ACTIVE_CSS,
   PRINT_PAGE_FRAME_CSS,
+  PRINT_PAGE_MARGIN,
 } from "./print-page-frame.js";
 
 export const PRINT_BASE_STYLES = `
-  @page { size: A4; margin: 14mm; }
+  @page { size: A4; margin: ${PRINT_PAGE_MARGIN}; }
   * { box-sizing: border-box; }
   html, body {
     margin: 0;
@@ -19,7 +21,11 @@ export const PRINT_BASE_STYLES = `
     print-color-adjust: exact;
   }
   body { direction: rtl; }
-  .print-doc { max-width: 186mm; margin: 0 auto; }
+  .print-doc {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
   .print-header {
     display: flex;
     align-items: flex-start;
@@ -309,10 +315,11 @@ export const PRINT_BASE_STYLES = `
     ${PRINT_PAGE_FRAME_ACTIVE_CSS}
     .print-doc {
       box-shadow: none;
-      padding: 2mm 1mm;
-      max-width: none;
       width: 100%;
+      max-width: none;
       margin: 0;
+      padding: ${PRINT_CONTENT_PADDING};
+      box-sizing: border-box;
     }
     .print-contract-body {
       border: none;
@@ -326,12 +333,15 @@ export const PRINT_BASE_STYLES = `
 
 /** PDF (Playwright): same per-page rounded frame as browser print. */
 export const PDF_RENDER_STYLES = `${PRINT_BASE_STYLES}
+  @page { size: A4; margin: ${PRINT_PAGE_MARGIN}; }
   body { padding: 0 !important; background: #fff !important; }
   ${PRINT_PAGE_FRAME_ACTIVE_CSS}
   .print-doc {
+    width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
-    padding: 2mm 1mm !important;
+    padding: ${PRINT_CONTENT_PADDING} !important;
+    box-sizing: border-box !important;
     box-shadow: none !important;
   }
   .print-contract-body {

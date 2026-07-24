@@ -1,7 +1,10 @@
-/** Inset from each physical page edge for the repeating rounded border frame. */
-export const PRINT_PAGE_FRAME_INSET = "6mm";
+/** Single source of truth — must match @page margin and the fixed frame inset. */
+export const PRINT_PAGE_MARGIN = "12mm";
 
-export const PRINT_PAGE_FRAME_RADIUS = "10px";
+/** Padding between the page frame border and document content. */
+export const PRINT_CONTENT_PADDING = "4mm";
+
+export const PRINT_PAGE_FRAME_RADIUS = "3mm";
 
 export const PRINT_PAGE_FRAME_BORDER = "1px solid #d1d5db";
 
@@ -13,10 +16,10 @@ export const PRINT_PAGE_FRAME_CSS = `
   }
   .print-page-frame__box {
     position: fixed;
-    top: ${PRINT_PAGE_FRAME_INSET};
-    right: ${PRINT_PAGE_FRAME_INSET};
-    bottom: ${PRINT_PAGE_FRAME_INSET};
-    left: ${PRINT_PAGE_FRAME_INSET};
+    top: ${PRINT_PAGE_MARGIN};
+    right: ${PRINT_PAGE_MARGIN};
+    bottom: ${PRINT_PAGE_MARGIN};
+    left: ${PRINT_PAGE_MARGIN};
     border: ${PRINT_PAGE_FRAME_BORDER};
     border-radius: ${PRINT_PAGE_FRAME_RADIUS};
     box-sizing: border-box;
@@ -32,5 +35,5 @@ export const PRINT_PAGE_FRAME_ACTIVE_CSS = `
   }
 `;
 
-/** Playwright PDF page margins (frame sits inside). */
-export const PLAYWRIGHT_PDF_PAGE_MARGIN = "8mm";
+/** Playwright: margins come from CSS @page only (avoid double margins). */
+export const PLAYWRIGHT_PDF_PAGE_MARGIN = "0";
