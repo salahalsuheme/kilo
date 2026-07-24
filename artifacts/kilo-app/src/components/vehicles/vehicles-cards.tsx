@@ -34,18 +34,18 @@ function VehicleCard({ vehicle, onSelect }: { vehicle: Vehicle; onSelect: (vehic
   return (
     <button type="button" onClick={() => onSelect(vehicle)} className={vehicleCardClass}>
       <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Car className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 pt-1.5 font-semibold text-gray-900 truncate">{vehicle.brand}</div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Car className="h-5 w-5" />
           </div>
-          <div
-            dir="ltr"
-            className="shrink-0 rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 tabular-nums"
-          >
-            {vehicle.plateNumber}
+          <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+            <div className="min-w-0 font-semibold text-gray-900 truncate">{vehicle.brand}</div>
+            <div
+              dir="ltr"
+              className="shrink-0 rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 tabular-nums"
+            >
+              {vehicle.plateNumber}
+            </div>
           </div>
         </div>
 
@@ -82,12 +82,12 @@ function VehicleCardSkeleton() {
   return (
     <div className={`${vehicleCardClass} pointer-events-none`}>
       <div className="space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex flex-1 items-start gap-3">
-            <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
-            <Skeleton className="h-4 w-28 pt-1.5" />
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+          <div className="flex flex-1 items-center justify-between gap-3">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-6 w-20 shrink-0 rounded-md" />
           </div>
-          <Skeleton className="h-6 w-20 shrink-0 rounded-md" />
         </div>
         <div className="space-y-2 border-t border-gray-100 pt-3">
             <Skeleton className="h-4 w-full" />
