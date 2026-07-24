@@ -145,7 +145,7 @@ export function useVehicleDamageForm() {
         bodyHtml,
       });
       if (!opened) {
-        setActionError("تعذر فتح نافذة الطباعة. يرجى السماح بالنوافذ المنبثقة.");
+        setActionError("تعذر بدء الطباعة. حاول مرة أخرى.");
         return false;
       }
       return true;

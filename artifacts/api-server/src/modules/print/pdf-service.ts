@@ -24,8 +24,10 @@ export async function buildContractPdf(orgId: number, contractId: number) {
 
   const assetOrigin = resolveAssetOrigin();
   const bodyHtml = buildContractPrintHtml(contract, settings, assetOrigin);
-  const pageHtml = buildPdfPageHtml(`عقد ${contract.contractNumber}`, bodyHtml);
-  const pdf = await renderHtmlToPdf(pageHtml);
+  const pageHtml = buildPdfPageHtml(`عقد ${contract.contractNumber}`, bodyHtml, {
+    fontStylesheetHref: `${assetOrigin}/fonts/ibm-plex-sans-arabic.css`,
+  });
+  const pdf = await renderHtmlToPdf(pageHtml, assetOrigin);
 
   return {
     filename: sanitizePdfFilename(`${contract.contractNumber}.pdf`),
@@ -39,8 +41,10 @@ export async function buildInvoicePdf(orgId: number, invoiceId: number) {
 
   const assetOrigin = resolveAssetOrigin();
   const bodyHtml = await buildInvoicePrintHtml(invoice, assetOrigin);
-  const pageHtml = buildPdfPageHtml(`فاتورة ${invoice.invoiceNumber}`, bodyHtml);
-  const pdf = await renderHtmlToPdf(pageHtml);
+  const pageHtml = buildPdfPageHtml(`فاتورة ${invoice.invoiceNumber}`, bodyHtml, {
+    fontStylesheetHref: `${assetOrigin}/fonts/ibm-plex-sans-arabic.css`,
+  });
+  const pdf = await renderHtmlToPdf(pageHtml, assetOrigin);
 
   return {
     filename: sanitizePdfFilename(`${invoice.invoiceNumber}.pdf`),

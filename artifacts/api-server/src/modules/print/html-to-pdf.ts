@@ -10,12 +10,15 @@ async function getBrowser(): Promise<Browser> {
   return browserPromise;
 }
 
-export async function renderHtmlToPdf(html: string): Promise<Buffer> {
+export async function renderHtmlToPdf(html: string, baseURL?: string): Promise<Buffer> {
   const browser = await getBrowser();
   const page = await browser.newPage();
 
   try {
-    await page.setContent(html, { waitUntil: "networkidle" });
+    await page.setContent(html, {
+      waitUntil: "networkidle",
+      ...(baseURL ? { baseURL } : {}),
+    });
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,

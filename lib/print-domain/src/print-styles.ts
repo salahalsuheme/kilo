@@ -6,7 +6,7 @@ export const PRINT_BASE_STYLES = `
   html, body {
     margin: 0;
     padding: 0;
-    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    font-family: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
     font-size: 13px;
     line-height: 1.55;
     color: #111827;

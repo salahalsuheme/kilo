@@ -1,33 +1,71 @@
 import { PDF_RENDER_STYLES, PRINT_BASE_STYLES } from "./print-styles.js";
+import { escapeHtml } from "./html-utils.js";
 
-export function buildPrintPageHtml(title: string, bodyHtml: string): string {
+export type BuildPrintPageOptions = {
+  /** Absolute or root-relative URL to the Arabic print font stylesheet */
+  fontStylesheetHref?: string;
+};
+
+const PRINT_BOOT_SCRIPT = `
+(function () {
+  function doPrint() {
+    window.focus();
+    window.print();
+  }
+  function whenReady() {
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        setTimeout(doPrint, 50);
+      });
+    } else {
+      setTimeout(doPrint, 200);
+    }
+  }
+  if (document.readyState === "complete") {
+    whenReady();
+  } else {
+    window.addEventListener("load", whenReady, { once: true });
+  }
+})();
+`.trim();
+
+export function buildPrintPageHtml(
+  title: string,
+  bodyHtml: string,
+  options?: BuildPrintPageOptions,
+): string {
+  const fontHref = options?.fontStylesheetHref ?? "/fonts/ibm-plex-sans-arabic.css";
+  const fontLink = `<link rel="stylesheet" href="${escapeHtml(fontHref)}" />`;
+
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
+  ${fontLink}
   <style>${PRINT_BASE_STYLES}</style>
 </head>
 <body>
   <div class="print-doc">${bodyHtml}</div>
-  <script>
-    window.addEventListener("load", function () {
-      setTimeout(function () {
-        window.focus();
-        window.print();
-      }, 200);
-    });
-  </script>
+  <script>${PRINT_BOOT_SCRIPT}<\/script>
 </body>
 </html>`;
 }
 
-export function buildPdfPageHtml(title: string, bodyHtml: string): string {
+export function buildPdfPageHtml(
+  title: string,
+  bodyHtml: string,
+  options?: BuildPrintPageOptions,
+): string {
+  const fontHref = options?.fontStylesheetHref ?? "/fonts/ibm-plex-sans-arabic.css";
+  const fontLink = `<link rel="stylesheet" href="${escapeHtml(fontHref)}" />`;
+
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
+  ${fontLink}
   <style>${PDF_RENDER_STYLES}</style>
 </head>
 <body>

@@ -98,6 +98,16 @@ export const useListCustomers = /*#__PURE__*/ wrapTenantQueryHook(
   gen.getListCustomersQueryKey as unknown as AnyKeyGetter,
 ) as typeof gen.useListCustomers;
 
+export const useListEstablishments = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useListEstablishments as unknown as AnyQueryHook,
+  gen.getListEstablishmentsQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useListEstablishments;
+
+export const useGetEstablishment = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useGetEstablishment as unknown as AnyQueryHook,
+  gen.getGetEstablishmentQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useGetEstablishment;
+
 export const useGetCustomer = /*#__PURE__*/ wrapTenantQueryHook(
   gen.useGetCustomer as unknown as AnyQueryHook,
   gen.getGetCustomerQueryKey as unknown as AnyKeyGetter,
