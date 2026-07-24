@@ -33,17 +33,23 @@ function VehicleCardField({ label, children }: { label: string; children: ReactN
 function VehicleCard({ vehicle, onSelect }: { vehicle: Vehicle; onSelect: (vehicle: Vehicle) => void }) {
   return (
     <button type="button" onClick={() => onSelect(vehicle)} className={vehicleCardClass}>
-      <div className="flex items-start gap-3">
-        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-          <Car className="h-5 w-5" />
-        </div>
-        <div className="min-w-0 flex-1 space-y-3">
-          <div className="min-w-0">
-            <div className="font-semibold text-gray-900 truncate">{vehicle.brand}</div>
-            <div className="text-xs text-muted-foreground truncate">{vehicle.plateNumber}</div>
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Car className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 pt-1.5 font-semibold text-gray-900 truncate">{vehicle.brand}</div>
           </div>
+          <div
+            dir="ltr"
+            className="shrink-0 rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 tabular-nums"
+          >
+            {vehicle.plateNumber}
+          </div>
+        </div>
 
-          <div className="space-y-2 border-t border-gray-100 pt-3">
+        <div className="space-y-2 border-t border-gray-100 pt-3">
             <VehicleCardField label={VEHICLE_FIELD_LABELS.modelYear}>
               <span dir="ltr" className="tabular-nums">
                 {vehicle.modelYear}
@@ -66,7 +72,6 @@ function VehicleCard({ vehicle, onSelect }: { vehicle: Vehicle; onSelect: (vehic
             <VehicleCardField label={VEHICLE_FIELD_LABELS.coolingType}>
               <Badge variant="secondary">{COOLING_TYPE_LABELS[vehicle.coolingType]}</Badge>
             </VehicleCardField>
-          </div>
         </div>
       </div>
     </button>
@@ -76,18 +81,18 @@ function VehicleCard({ vehicle, onSelect }: { vehicle: Vehicle; onSelect: (vehic
 function VehicleCardSkeleton() {
   return (
     <div className={`${vehicleCardClass} pointer-events-none`}>
-      <div className="flex items-start gap-3">
-        <Skeleton className="h-10 w-10 rounded-full shrink-0" />
-        <div className="flex-1 space-y-3">
-          <div className="space-y-1.5">
-            <Skeleton className="h-4 w-28" />
-            <Skeleton className="h-3 w-20" />
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-1 items-start gap-3">
+            <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+            <Skeleton className="h-4 w-28 pt-1.5" />
           </div>
-          <div className="space-y-2 border-t border-gray-100 pt-3">
+          <Skeleton className="h-6 w-20 shrink-0 rounded-md" />
+        </div>
+        <div className="space-y-2 border-t border-gray-100 pt-3">
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-5 w-full rounded-full" />
             <Skeleton className="h-5 w-full rounded-full" />
-          </div>
         </div>
       </div>
     </div>
