@@ -49,7 +49,7 @@ export function buildPrintPageHtml(
 </head>
 <body>
   <div class="print-doc">${bodyHtml}</div>
-  <div class="print-page-end-cap" aria-hidden="true"></div>
+  <div class="print-page-frame" aria-hidden="true"><div class="print-page-frame__box"></div></div>
   <script>${PRINT_BOOT_SCRIPT}<\/script>
 </body>
 </html>`;
@@ -75,7 +75,7 @@ export function buildPdfPageHtml(
 </head>
 <body>
   <div class="print-doc">${bodyHtml}</div>
-  <div class="print-page-end-cap" aria-hidden="true"></div>
+  <div class="print-page-frame" aria-hidden="true"><div class="print-page-frame__box"></div></div>
 </body>
 </html>`;
 }

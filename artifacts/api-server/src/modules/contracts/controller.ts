@@ -91,15 +91,20 @@ export async function handleDownloadContractPdf(req: Request, res: Response): Pr
   if (!orgId) return;
 
   const id = Number(req.params.id);
-  const result = await buildContractPdf(orgId, id);
-  if (!result) {
-    sendNotFound(res);
-    return;
-  }
+  try {
+    const result = await buildContractPdf(orgId, id);
+    if (!result) {
+      sendNotFound(res);
+      return;
+    }
 
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
-  res.send(result.pdf);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
+    res.send(result.pdf);
+  } catch (error) {
+    console.error("[contract-pdf]", { orgId, id, error });
+    res.status(500).json({ message: "تعذر إنشاء ملف PDF" });
+  }
 }
 
 export async function handleUploadContractSignedAttachment(

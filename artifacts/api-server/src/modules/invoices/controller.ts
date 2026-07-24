@@ -109,13 +109,18 @@ export async function handleDownloadInvoicePdf(req: Request, res: Response): Pro
   if (!orgId) return;
 
   const id = Number(req.params.id);
-  const result = await buildInvoicePdf(orgId, id);
-  if (!result) {
-    sendNotFound(res);
-    return;
-  }
+  try {
+    const result = await buildInvoicePdf(orgId, id);
+    if (!result) {
+      sendNotFound(res);
+      return;
+    }
 
-  res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
-  res.send(result.pdf);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${result.filename}"`);
+    res.send(result.pdf);
+  } catch (error) {
+    console.error("[invoice-pdf]", { orgId, id, error });
+    res.status(500).json({ message: "تعذر إنشاء ملف PDF" });
+  }
 }

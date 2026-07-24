@@ -29,10 +29,10 @@ export async function buildContractPdf(orgId: number, contractId: number) {
   const bodyHtml = buildContractPrintHtml(contract, settings, pdfBaseUrl);
   const pageHtml = await inlineUploadImagesInPrintHtml(
     buildPdfPageHtml(`عقد ${contract.contractNumber}`, bodyHtml, {
-      inlineFontFaceCss: loadPdfFontFaceCss(pdfBaseUrl),
+      inlineFontFaceCss: loadPdfFontFaceCss(),
     }),
   );
-  const pdf = await renderHtmlToPdf(pageHtml, pdfBaseUrl);
+  const pdf = await renderHtmlToPdf(pageHtml);
 
   return {
     filename: sanitizePdfFilename(`${contract.contractNumber}.pdf`),
@@ -48,10 +48,10 @@ export async function buildInvoicePdf(orgId: number, invoiceId: number) {
   const bodyHtml = await buildInvoicePrintHtml(invoice, pdfBaseUrl);
   const pageHtml = await inlineUploadImagesInPrintHtml(
     buildPdfPageHtml(`فاتورة ${invoice.invoiceNumber}`, bodyHtml, {
-      inlineFontFaceCss: loadPdfFontFaceCss(pdfBaseUrl),
+      inlineFontFaceCss: loadPdfFontFaceCss(),
     }),
   );
-  const pdf = await renderHtmlToPdf(pageHtml, pdfBaseUrl);
+  const pdf = await renderHtmlToPdf(pageHtml);
 
   return {
     filename: sanitizePdfFilename(`${invoice.invoiceNumber}.pdf`),

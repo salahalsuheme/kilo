@@ -1,4 +1,8 @@
 import { CONTRACT_SPACER_MIN_HEIGHT_MM } from "@workspace/contracts-domain";
+import {
+  PRINT_PAGE_FRAME_ACTIVE_CSS,
+  PRINT_PAGE_FRAME_CSS,
+} from "./print-page-frame.js";
 
 export const PRINT_BASE_STYLES = `
   @page { size: A4; margin: 14mm; }
@@ -294,9 +298,7 @@ export const PRINT_BASE_STYLES = `
     color: #6b7280;
     text-align: center;
   }
-  .print-page-end-cap {
-    display: none;
-  }
+  ${PRINT_PAGE_FRAME_CSS}
   @media screen {
     body { padding: 20px; background: #f3f4f6; }
     .print-doc { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
@@ -304,59 +306,39 @@ export const PRINT_BASE_STYLES = `
   @media print {
     html, body { width: auto; overflow: visible; }
     body { background: #fff; padding: 0; }
+    ${PRINT_PAGE_FRAME_ACTIVE_CSS}
     .print-doc {
       box-shadow: none;
-      padding: 0;
-      padding-bottom: 6mm;
+      padding: 2mm 1mm;
       max-width: none;
       width: 100%;
       margin: 0;
     }
-    .print-page-end-cap {
-      display: block;
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 12mm;
-      pointer-events: none;
-      z-index: 10000;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-    }
-    .print-page-end-cap::after {
-      content: "";
-      position: absolute;
-      left: 12mm;
-      right: 12mm;
-      bottom: 5mm;
-      height: 3px;
-      border-radius: 999px;
-      background: linear-gradient(
-        90deg,
-        rgba(156, 163, 175, 0) 0%,
-        rgba(156, 163, 175, 0.45) 7%,
-        rgba(107, 114, 128, 0.92) 16%,
-        rgba(107, 114, 128, 0.92) 84%,
-        rgba(156, 163, 175, 0.45) 93%,
-        rgba(156, 163, 175, 0) 100%
-      );
-      box-shadow: 0 1px 2px rgba(75, 85, 99, 0.18);
+    .print-contract-body {
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      margin-top: 16px;
+      background: transparent;
     }
   }
 `;
 
-/** PDF: page-end cap via Playwright footerTemplate; hide the in-document fixed bar. */
+/** PDF (Playwright): same per-page rounded frame as browser print. */
 export const PDF_RENDER_STYLES = `${PRINT_BASE_STYLES}
   body { padding: 0 !important; background: #fff !important; }
+  ${PRINT_PAGE_FRAME_ACTIVE_CSS}
   .print-doc {
     max-width: none !important;
     margin: 0 !important;
-    padding: 0 !important;
-    padding-bottom: 6mm !important;
+    padding: 2mm 1mm !important;
     box-shadow: none !important;
   }
-  .print-page-end-cap {
-    display: none !important;
+  .print-contract-body {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin-top: 16px !important;
+    background: transparent !important;
   }
 `;
