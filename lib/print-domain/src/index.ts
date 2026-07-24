@@ -29,5 +29,5 @@ export {
   buildVehicleDamageFormPrintHtml,
   type VehicleDamageFormPrintInput,
 } from "./build-vehicle-damage-form-print-html.js";
-export type { BuildPrintPageOptions } from "./build-print-page.js";
+export type { BuildPrintPageOptions, PrintSheetHeader } from "./build-print-page.js";
 export { buildPrintPageHtml, buildPdfPageHtml } from "./build-print-page.js";

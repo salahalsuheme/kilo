@@ -1,5 +1,6 @@
 import { CONTRACT_SPACER_MIN_HEIGHT_MM } from "@workspace/contracts-domain";
 import {
+  PRINT_BROWSER_SHEET_HEADER_CSS,
   PRINT_PAGE_AT_PAGE_RULE,
   PRINT_PAGE_SHEET_CSS,
 } from "./print-page-frame.js";
@@ -302,6 +303,7 @@ export const PRINT_BASE_STYLES = `
     color: #6b7280;
     text-align: center;
   }
+  ${PRINT_BROWSER_SHEET_HEADER_CSS}
   @media screen {
     body { padding: 20px; background: #f3f4f6; }
     .print-doc { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }

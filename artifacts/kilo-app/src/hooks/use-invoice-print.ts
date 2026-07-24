@@ -41,6 +41,7 @@ export function useInvoicePrint() {
       return openPrintDocument({
         bodyHtml,
         iframeTitle: `طباعة فاتورة ${invoice.invoiceNumber}`,
+        sheetHeaderReference: invoice.invoiceNumber,
       });
     },
     [orgId, queryClient],

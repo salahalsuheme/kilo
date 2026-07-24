@@ -1,11 +1,18 @@
 import { PDF_RENDER_STYLES, PRINT_BASE_STYLES } from "./print-styles.js";
 import { escapeHtml } from "./html-utils.js";
 
+export type PrintSheetHeader = {
+  reference: string;
+  printedAt: string;
+};
+
 export type BuildPrintPageOptions = {
   /** Absolute or root-relative URL to the Arabic print font stylesheet */
   fontStylesheetHref?: string;
   /** Server-side PDF: inlined @font-face CSS (preferred over external link) */
   inlineFontFaceCss?: string;
+  /** Browser print: document ref + timestamp (replaces URL in header area). */
+  sheetHeader?: PrintSheetHeader;
 };
 
 /** Blank document title so the browser does not print "عقد …" in the page header. */
@@ -41,6 +48,17 @@ const PRINT_BOOT_SCRIPT = `
 })();
 `.trim();
 
+function buildBrowserSheetHeaderHtml(sheetHeader: PrintSheetHeader | undefined): string {
+  if (!sheetHeader?.reference.trim()) return "";
+  const ref = escapeHtml(sheetHeader.reference.trim());
+  const at = escapeHtml(sheetHeader.printedAt.trim());
+  return `<div class="print-browser-sheet-header" aria-hidden="true">
+  <span class="print-browser-sheet-header__datetime" dir="ltr">${at}</span>
+  <span class="print-browser-sheet-header__sep" aria-hidden="true">|</span>
+  <span class="print-browser-sheet-header__ref" dir="ltr">${ref}</span>
+</div>`;
+}
+
 export function buildPrintPageHtml(
   bodyHtml: string,
   options?: BuildPrintPageOptions,
@@ -57,6 +75,7 @@ export function buildPrintPageHtml(
   <style>${PRINT_BASE_STYLES}</style>
 </head>
 <body>
+  ${buildBrowserSheetHeaderHtml(options?.sheetHeader)}
   <div class="print-doc">${bodyHtml}</div>
   <script>${PRINT_BOOT_SCRIPT}<\/script>
 </body>
