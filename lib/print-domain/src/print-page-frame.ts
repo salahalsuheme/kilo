@@ -1,8 +1,16 @@
-/** Whitespace around content on every sheet. */
-export const PRINT_PAGE_MARGIN = "12mm";
+/** Top/bottom sheet margin. */
+export const PRINT_PAGE_MARGIN_BLOCK = "12mm";
+
+/** Left/right sheet margin (wider than block). */
+export const PRINT_PAGE_MARGIN_INLINE = "17mm";
+
+export const PRINT_PAGE_AT_PAGE_RULE = `@page { size: A4; margin: ${PRINT_PAGE_MARGIN_BLOCK} ${PRINT_PAGE_MARGIN_INLINE}; }`;
+
+/** @deprecated Use PRINT_PAGE_AT_PAGE_RULE — kept for exports. */
+export const PRINT_PAGE_MARGIN = `${PRINT_PAGE_MARGIN_BLOCK} ${PRINT_PAGE_MARGIN_INLINE}`;
 
 /** Space between the page border and text. */
-export const PRINT_CONTENT_PADDING = "4mm";
+export const PRINT_CONTENT_PADDING = "5mm";
 
 export const PRINT_PAGE_FRAME_RADIUS = "3mm";
 
@@ -17,6 +25,50 @@ export const PRINT_PAGE_SHEET_CSS = `
     box-sizing: border-box;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
+  }
+`;
+
+/** Contract ref on every sheet — top-right (physical), not centered browser header. */
+export const PRINT_SHEET_CORNER_LABEL_CSS = `
+  .print-sheet-corner-label {
+    display: none;
+    pointer-events: none;
+  }
+  @media print {
+    .print-sheet-corner-label {
+      display: block;
+      position: fixed;
+      top: 2mm;
+      right: 2mm;
+      left: auto;
+      margin: 0;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: #111827;
+      text-align: right;
+      white-space: nowrap;
+      z-index: 2147483646;
+    }
+  }
+`;
+
+export const PRINT_SHEET_CORNER_LABEL_ACTIVE_CSS = `
+  .print-sheet-corner-label {
+    display: block !important;
+    position: fixed;
+    top: 2mm;
+    right: 2mm;
+    left: auto;
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #111827;
+    text-align: right;
+    white-space: nowrap;
+    z-index: 2147483646;
+    pointer-events: none;
   }
 `;
 

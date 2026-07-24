@@ -31,6 +31,13 @@ const PRINT_BOOT_SCRIPT = `
 })();
 `.trim();
 
+function buildPrintBody(title: string, bodyHtml: string, script?: string): string {
+  const cornerLabel = `<div class="print-sheet-corner-label" dir="rtl">${escapeHtml(title)}</div>`;
+  const doc = `<div class="print-doc">${bodyHtml}</div>`;
+  const scriptBlock = script ? `\n  <script>${script}<\/script>` : "";
+  return `${cornerLabel}\n  ${doc}${scriptBlock}`;
+}
+
 export function buildPrintPageHtml(
   title: string,
   bodyHtml: string,
@@ -48,8 +55,7 @@ export function buildPrintPageHtml(
   <style>${PRINT_BASE_STYLES}</style>
 </head>
 <body>
-  <div class="print-doc">${bodyHtml}</div>
-  <script>${PRINT_BOOT_SCRIPT}<\/script>
+  ${buildPrintBody(title, bodyHtml, PRINT_BOOT_SCRIPT)}
 </body>
 </html>`;
 }
@@ -73,7 +79,7 @@ export function buildPdfPageHtml(
   <style>${PDF_RENDER_STYLES}</style>
 </head>
 <body>
-  <div class="print-doc">${bodyHtml}</div>
+  ${buildPrintBody(title, bodyHtml)}
 </body>
 </html>`;
 }
