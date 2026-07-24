@@ -1,10 +1,7 @@
 import { CONTRACT_SPACER_MIN_HEIGHT_MM } from "@workspace/contracts-domain";
 import {
-  PRINT_CONTENT_PADDING,
   PRINT_PAGE_AT_PAGE_RULE,
   PRINT_PAGE_SHEET_CSS,
-  PRINT_SHEET_CORNER_LABEL_ACTIVE_CSS,
-  PRINT_SHEET_CORNER_LABEL_CSS,
 } from "./print-page-frame.js";
 
 export const PRINT_BASE_STYLES = `
@@ -305,7 +302,6 @@ export const PRINT_BASE_STYLES = `
     color: #6b7280;
     text-align: center;
   }
-  ${PRINT_SHEET_CORNER_LABEL_CSS}
   @media screen {
     body { padding: 20px; background: #f3f4f6; }
     .print-doc { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
@@ -333,7 +329,6 @@ export const PRINT_BASE_STYLES = `
 /** PDF (Playwright): same per-page sheet border as browser print. */
 export const PDF_RENDER_STYLES = `${PRINT_BASE_STYLES}
   body { padding: 0 !important; background: #fff !important; }
-  ${PRINT_SHEET_CORNER_LABEL_ACTIVE_CSS}
   .print-doc {
     width: 100% !important;
     max-width: none !important;

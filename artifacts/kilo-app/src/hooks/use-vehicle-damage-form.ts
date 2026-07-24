@@ -141,8 +141,8 @@ export function useVehicleDamageForm() {
         establishmentFullName: form.establishmentFullName,
       });
       const opened = openPrintDocument({
-        title: vehicleDamageFormDocumentHeading(contract.contractNumber),
         bodyHtml,
+        iframeTitle: vehicleDamageFormDocumentHeading(contract.contractNumber),
       });
       if (!opened) {
         setActionError("تعذر بدء الطباعة. حاول مرة أخرى.");

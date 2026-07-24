@@ -8,6 +8,9 @@ export type BuildPrintPageOptions = {
   inlineFontFaceCss?: string;
 };
 
+/** Blank document title so the browser does not print "عقد …" in the page header. */
+const BROWSER_PRINT_DOCUMENT_TITLE = " ";
+
 const PRINT_BOOT_SCRIPT = `
 (function () {
   function doPrint() {
@@ -31,15 +34,7 @@ const PRINT_BOOT_SCRIPT = `
 })();
 `.trim();
 
-function buildPrintBody(title: string, bodyHtml: string, script?: string): string {
-  const cornerLabel = `<div class="print-sheet-corner-label" dir="rtl">${escapeHtml(title)}</div>`;
-  const doc = `<div class="print-doc">${bodyHtml}</div>`;
-  const scriptBlock = script ? `\n  <script>${script}<\/script>` : "";
-  return `${cornerLabel}\n  ${doc}${scriptBlock}`;
-}
-
 export function buildPrintPageHtml(
-  title: string,
   bodyHtml: string,
   options?: BuildPrintPageOptions,
 ): string {
@@ -50,12 +45,13 @@ export function buildPrintPageHtml(
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
-  <title>${escapeHtml(title)}</title>
+  <title>${BROWSER_PRINT_DOCUMENT_TITLE}</title>
   ${fontLink}
   <style>${PRINT_BASE_STYLES}</style>
 </head>
 <body>
-  ${buildPrintBody(title, bodyHtml, PRINT_BOOT_SCRIPT)}
+  <div class="print-doc">${bodyHtml}</div>
+  <script>${PRINT_BOOT_SCRIPT}<\/script>
 </body>
 </html>`;
 }
@@ -79,7 +75,7 @@ export function buildPdfPageHtml(
   <style>${PDF_RENDER_STYLES}</style>
 </head>
 <body>
-  ${buildPrintBody(title, bodyHtml)}
+  <div class="print-doc">${bodyHtml}</div>
 </body>
 </html>`;
 }

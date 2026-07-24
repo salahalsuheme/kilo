@@ -38,7 +38,10 @@ export function useInvoicePrint() {
       });
 
       const bodyHtml = await buildInvoicePrintHtml(invoice);
-      return openPrintDocument({ title: `فاتورة ${invoice.invoiceNumber}`, bodyHtml });
+      return openPrintDocument({
+        bodyHtml,
+        iframeTitle: `طباعة فاتورة ${invoice.invoiceNumber}`,
+      });
     },
     [orgId, queryClient],
   );

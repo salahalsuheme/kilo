@@ -46,7 +46,10 @@ export function useContractPrint() {
       ]);
 
       const bodyHtml = buildContractPrintHtml(contract, settings);
-      return openPrintDocument({ title: `عقد ${contract.contractNumber}`, bodyHtml });
+      return openPrintDocument({
+        bodyHtml,
+        iframeTitle: `طباعة عقد ${contract.contractNumber}`,
+      });
     },
     [orgId, queryClient],
   );

@@ -3,8 +3,9 @@ import { buildPrintPageHtml } from "@workspace/print-domain";
 export type PrintMode = "print" | "pdf";
 
 interface OpenPrintDocumentOptions {
-  title: string;
   bodyHtml: string;
+  /** Hidden iframe label for accessibility (not shown on the printed page). */
+  iframeTitle?: string;
 }
 
 function resolveFontStylesheetHref(): string {
@@ -16,7 +17,7 @@ function resolveFontStylesheetHref(): string {
 
 export function openPrintDocument(options: OpenPrintDocumentOptions): boolean {
   const iframe = document.createElement("iframe");
-  iframe.setAttribute("title", options.title);
+  iframe.setAttribute("title", options.iframeTitle ?? "طباعة");
   iframe.setAttribute("aria-hidden", "true");
   iframe.style.cssText =
     "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden;pointer-events:none";
@@ -32,7 +33,7 @@ export function openPrintDocument(options: OpenPrintDocumentOptions): boolean {
 
   doc.open();
   doc.write(
-    buildPrintPageHtml(options.title, options.bodyHtml, {
+    buildPrintPageHtml(options.bodyHtml, {
       fontStylesheetHref: resolveFontStylesheetHref(),
     }),
   );

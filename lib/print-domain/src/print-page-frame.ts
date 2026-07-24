@@ -28,49 +28,5 @@ export const PRINT_PAGE_SHEET_CSS = `
   }
 `;
 
-/** Contract ref on every sheet — top-right (physical), not centered browser header. */
-export const PRINT_SHEET_CORNER_LABEL_CSS = `
-  .print-sheet-corner-label {
-    display: none;
-    pointer-events: none;
-  }
-  @media print {
-    .print-sheet-corner-label {
-      display: block;
-      position: fixed;
-      top: 2mm;
-      right: 2mm;
-      left: auto;
-      margin: 0;
-      font-size: 12px;
-      font-weight: 600;
-      line-height: 1.3;
-      color: #111827;
-      text-align: right;
-      white-space: nowrap;
-      z-index: 2147483646;
-    }
-  }
-`;
-
-export const PRINT_SHEET_CORNER_LABEL_ACTIVE_CSS = `
-  .print-sheet-corner-label {
-    display: block !important;
-    position: fixed;
-    top: 2mm;
-    right: 2mm;
-    left: auto;
-    margin: 0;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: #111827;
-    text-align: right;
-    white-space: nowrap;
-    z-index: 2147483646;
-    pointer-events: none;
-  }
-`;
-
 /** Playwright: use CSS @page margins only. */
 export const PLAYWRIGHT_PDF_PAGE_MARGIN = "0";
