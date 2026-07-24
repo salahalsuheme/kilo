@@ -4,6 +4,8 @@ import { escapeHtml } from "./html-utils.js";
 export type BuildPrintPageOptions = {
   /** Absolute or root-relative URL to the Arabic print font stylesheet */
   fontStylesheetHref?: string;
+  /** Server-side PDF: inlined @font-face CSS (preferred over external link) */
+  inlineFontFaceCss?: string;
 };
 
 const PRINT_BOOT_SCRIPT = `
@@ -47,6 +49,7 @@ export function buildPrintPageHtml(
 </head>
 <body>
   <div class="print-doc">${bodyHtml}</div>
+  <div class="print-page-end-cap" aria-hidden="true"></div>
   <script>${PRINT_BOOT_SCRIPT}<\/script>
 </body>
 </html>`;
@@ -58,18 +61,21 @@ export function buildPdfPageHtml(
   options?: BuildPrintPageOptions,
 ): string {
   const fontHref = options?.fontStylesheetHref ?? "/fonts/ibm-plex-sans-arabic.css";
-  const fontLink = `<link rel="stylesheet" href="${escapeHtml(fontHref)}" />`;
+  const fontBlock = options?.inlineFontFaceCss
+    ? `<style>${options.inlineFontFaceCss}</style>`
+    : `<link rel="stylesheet" href="${escapeHtml(fontHref)}" />`;
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8" />
   <title>${escapeHtml(title)}</title>
-  ${fontLink}
+  ${fontBlock}
   <style>${PDF_RENDER_STYLES}</style>
 </head>
 <body>
   <div class="print-doc">${bodyHtml}</div>
+  <div class="print-page-end-cap" aria-hidden="true"></div>
 </body>
 </html>`;
 }

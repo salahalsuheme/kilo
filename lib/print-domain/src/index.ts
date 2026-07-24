@@ -1,4 +1,9 @@
 export { PRINT_BASE_STYLES, PDF_RENDER_STYLES } from "./print-styles.js";
+export {
+  PLAYWRIGHT_PDF_BOTTOM_MARGIN,
+  PLAYWRIGHT_PDF_FOOTER_TEMPLATE,
+  PLAYWRIGHT_PDF_HEADER_TEMPLATE,
+} from "./print-pdf-footer.js";
 export { escapeHtml, absoluteAssetUrl, sanitizePdfFilename } from "./html-utils.js";
 export {
   buildOrgPrintHeaderHtml,
