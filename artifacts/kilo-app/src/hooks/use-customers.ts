@@ -93,20 +93,25 @@ export function useCustomers({
     },
   });
 
-  const toBody = (values: CustomerFormValues): CreateCustomerBody => ({
-    name: values.name,
-    clientType: values.clientType,
-    establishmentId: isNonIndividualClientType(values.clientType)
-      ? Number(values.establishmentId)
-      : null,
-    idNumber: values.idNumber,
-    birthDate: values.birthDate,
-    mobile: values.mobile,
-    licenseNumber: values.licenseNumber,
-    nationality: values.nationality,
-    hasTaxNumber: values.hasTaxNumber,
-    taxNumber: values.hasTaxNumber ? values.taxNumber?.trim() || null : null,
-  });
+  const toBody = (values: CustomerFormValues): CreateCustomerBody => {
+    const nonIndividual = isNonIndividualClientType(values.clientType);
+    return {
+      name: values.name,
+      clientType: values.clientType,
+      establishmentId: nonIndividual ? Number(values.establishmentId) : null,
+      idNumber: values.idNumber,
+      birthDate: values.birthDate,
+      mobile: values.mobile,
+      licenseNumber: values.licenseNumber,
+      nationality: values.nationality,
+      hasTaxNumber: nonIndividual ? false : values.hasTaxNumber,
+      taxNumber: nonIndividual
+        ? null
+        : values.hasTaxNumber
+          ? values.taxNumber?.trim() || null
+          : null,
+    };
+  };
 
   const submitCreate = (values: CustomerFormValues) => {
     clearBefore("create");
@@ -121,18 +126,21 @@ export function useCustomers({
     deleteMutation.mutate({ id });
   };
 
-  const buildEditDefaultValues = (customer: Customer): CustomerFormValues => ({
-    name: customer.name,
-    clientType: customer.clientType,
-    establishmentId: customer.establishmentId ? String(customer.establishmentId) : "",
-    idNumber: customer.idNumber,
-    birthDate: customer.birthDate ? String(customer.birthDate).slice(0, 10) : "",
-    mobile: customer.mobile,
-    licenseNumber: customer.licenseNumber ?? "",
-    nationality: customer.nationality,
-    hasTaxNumber: customer.hasTaxNumber,
-    taxNumber: customer.taxNumber ?? "",
-  });
+  const buildEditDefaultValues = (customer: Customer): CustomerFormValues => {
+    const nonIndividual = isNonIndividualClientType(customer.clientType);
+    return {
+      name: customer.name,
+      clientType: customer.clientType,
+      establishmentId: customer.establishmentId ? String(customer.establishmentId) : "",
+      idNumber: customer.idNumber,
+      birthDate: customer.birthDate ? String(customer.birthDate).slice(0, 10) : "",
+      mobile: customer.mobile,
+      licenseNumber: customer.licenseNumber ?? "",
+      nationality: customer.nationality,
+      hasTaxNumber: nonIndividual ? false : customer.hasTaxNumber,
+      taxNumber: nonIndividual ? "" : (customer.taxNumber ?? ""),
+    };
+  };
 
   return {
     customers: listQuery.data?.data ?? [],

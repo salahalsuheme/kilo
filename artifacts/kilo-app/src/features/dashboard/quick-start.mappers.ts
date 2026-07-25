@@ -4,19 +4,22 @@ import type { CreateCustomerBody, CreateVehicleBody } from "@/lib/api-client-rea
 import { isNonIndividualClientType } from "@workspace/customers-domain";
 
 export function toCreateCustomerBody(values: CustomerFormValues): CreateCustomerBody {
+  const nonIndividual = isNonIndividualClientType(values.clientType);
   return {
     name: values.name,
     clientType: values.clientType,
-    establishmentId: isNonIndividualClientType(values.clientType)
-      ? Number(values.establishmentId)
-      : null,
+    establishmentId: nonIndividual ? Number(values.establishmentId) : null,
     idNumber: values.idNumber,
     birthDate: values.birthDate,
     mobile: values.mobile,
     licenseNumber: values.licenseNumber,
     nationality: values.nationality,
-    hasTaxNumber: values.hasTaxNumber,
-    taxNumber: values.hasTaxNumber ? values.taxNumber?.trim() || null : null,
+    hasTaxNumber: nonIndividual ? false : values.hasTaxNumber,
+    taxNumber: nonIndividual
+      ? null
+      : values.hasTaxNumber
+        ? values.taxNumber?.trim() || null
+        : null,
   };
 }
 

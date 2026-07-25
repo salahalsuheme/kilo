@@ -139,10 +139,11 @@ export function CustomerDialog({
   }, [hasTaxNumber, form]);
 
   useEffect(() => {
-    if (!showEstablishmentPicker) {
-      form.setValue("establishmentId", "");
+    if (showEstablishmentPicker) {
       form.setValue("hasTaxNumber", false);
       form.setValue("taxNumber", "");
+    } else {
+      form.setValue("establishmentId", "");
     }
   }, [showEstablishmentPicker, form]);
 

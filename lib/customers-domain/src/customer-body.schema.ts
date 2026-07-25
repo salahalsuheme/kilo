@@ -59,13 +59,7 @@ export function refineCustomerBodyTax(
     }
     return;
   }
-  if (data.hasTaxNumber || data.taxNumber?.trim()) {
-    ctx.addIssue({
-      code: "custom",
-      message: "الرقم الضريبي يُدار من بيانات المنشأة",
-      path: ["hasTaxNumber"],
-    });
-  }
+  // الضريبة تُستمد من المنشأة عند الحفظ؛ تجاهل حقول الضريبة في الطلب (بيانات قديمة على السجل).
 }
 
 /** Mirrors OpenAPI CreateCustomerBody with Arabic validation messages. */
