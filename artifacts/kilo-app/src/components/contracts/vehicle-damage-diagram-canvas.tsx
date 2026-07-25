@@ -6,14 +6,22 @@ interface VehicleDamageDiagramCanvasProps {
   imageSrc: string;
   markers: VehicleDamageMarker[];
   onChange: (markers: VehicleDamageMarker[]) => void;
+  /** نقاط محضر الاستلام (صفراء، للعرض فقط) — محضر التسليم */
+  priorMarkers?: VehicleDamageMarker[];
   className?: string;
 }
+
+const MARKER_DOT_BASE =
+  "h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border shadow";
+
+const MARKER_DOT_CLASSES = {
+  prior: `${MARKER_DOT_BASE} border-yellow-800 bg-yellow-500`,
+  new: `${MARKER_DOT_BASE} border-red-900 bg-red-600`,
+} as const;
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 4;
 const DRAG_THRESHOLD_PX = 5;
-const MARKER_DOT_CLASS =
-  "h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-red-900 bg-red-600 shadow";
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -29,6 +37,7 @@ export function VehicleDamageDiagramCanvas({
   imageSrc,
   markers,
   onChange,
+  priorMarkers = [],
   className,
 }: VehicleDamageDiagramCanvasProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -248,18 +257,29 @@ export function VehicleDamageDiagramCanvas({
 
         {cursor ? (
           <span
-            className={cn("pointer-events-none absolute z-20", MARKER_DOT_CLASS)}
+            className={cn("pointer-events-none absolute z-20", MARKER_DOT_CLASSES.new)}
             style={{ left: `${cursor.x * 100}%`, top: `${cursor.y * 100}%` }}
           />
         ) : null}
 
+        {priorMarkers.map((marker, index) => (
+          <span
+            key={`prior-${marker.x}-${marker.y}-${index}`}
+            className={cn("pointer-events-none absolute z-[5]", MARKER_DOT_CLASSES.prior)}
+            style={{
+              left: `${marker.x * 100}%`,
+              top: `${marker.y * 100}%`,
+            }}
+          />
+        ))}
+
         {markers.map((marker, index) => (
           <button
-            key={`${marker.x}-${marker.y}-${index}`}
+            key={`new-${marker.x}-${marker.y}-${index}`}
             type="button"
             className={cn(
               "absolute z-10 hover:scale-125 focus:outline-none focus:ring-2 focus:ring-red-400",
-              MARKER_DOT_CLASS,
+              MARKER_DOT_CLASSES.new,
             )}
             style={{
               left: `${marker.x * 100}%`,

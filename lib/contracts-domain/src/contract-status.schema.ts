@@ -47,11 +47,32 @@ export function getDraftActivationError(input: {
     : CONTRACT_STATUS_ERRORS.activateDeliveryDatePassed;
 }
 
+/** إقفال أو إلغاء عقد منشّط يتطلب محضر تسليم (لا ينطبق على مسودة → ملغي). */
+export function getContractCloseOrCancelError(input: {
+  current: ContractStatus;
+  next: ContractStatus;
+  hasVehicleDeliveryHandover: boolean;
+}): string | null {
+  const needsDeliveryHandover =
+    (input.next === "cancelled" && input.current === "active") ||
+    (input.next === "closed" &&
+      (input.current === "active" || input.current === "overdue"));
+
+  if (!needsDeliveryHandover) return null;
+  if (input.hasVehicleDeliveryHandover) return null;
+
+  return input.next === "cancelled"
+    ? CONTRACT_STATUS_ERRORS.cancelDeliveryHandoverRequired
+    : CONTRACT_STATUS_ERRORS.closeDeliveryHandoverRequired;
+}
+
 export const CONTRACT_STATUS_ERRORS = {
   deleteOnlyDraft: "يمكن حذف العقود المسودة فقط",
   editOnlyDraft: "يمكن تعديل العقود المسودة فقط",
   activateDeliveryDatePassed: "لا يمكن تنشيط العقد لأن تاريخ التسليم قد مضى",
   activateReceiptHandoverRequired: "لا يمكن تنشيط العقد قبل حفظ محضر استلام المركبة",
+  cancelDeliveryHandoverRequired: "لا يمكن إلغاء العقد قبل حفظ محضر تسليم المركبة",
+  closeDeliveryHandoverRequired: "لا يمكن إقفال العقد قبل حفظ محضر تسليم المركبة",
   carInMaintenance: "المركبة في وضع الصيانة ولا يمكن تأجيرها",
   carTemporarilySuspended: "المركبة موقوفة مؤقتاً ولا يمكن تأجيرها",
   carNotAvailable: "المركبة غير متاحة للتأجير",

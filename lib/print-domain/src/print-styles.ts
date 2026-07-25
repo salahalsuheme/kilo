@@ -219,16 +219,28 @@ export const PRINT_BASE_STYLES = `
     font-size: 9px;
     line-height: 1.35;
     font-weight: 500;
-    color: #dc2626;
     text-align: right;
     box-sizing: border-box;
+  }
+  .vehicle-handover-print-diagram-legend--prior {
+    color: #a16207;
+  }
+  .vehicle-handover-print-diagram-legend--new {
+    color: #dc2626;
   }
   .vehicle-handover-print-diagram-legend-dot {
     flex: 0 0 auto;
     width: 6px;
     height: 6px;
     border-radius: 50%;
+  }
+  .vehicle-handover-print-diagram-legend-dot--prior {
+    background: #eab308;
+    border: 1px solid #a16207;
+  }
+  .vehicle-handover-print-diagram-legend-dot--new {
     background: #dc2626;
+    border: 1px solid #991b1b;
   }
   .vehicle-handover-print-spacer {
     height: var(--vehicle-handover-section-gap);

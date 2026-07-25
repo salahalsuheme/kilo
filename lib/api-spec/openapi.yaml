@@ -740,7 +740,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Contract"
         "400":
-          description: Business rule violation (e.g. delivery date passed)
+          description: |
+            Business rule violation, including:
+            - activate (draft → active): receipt handover required; rental end date must not be in the past
+            - cancel (active → cancelled) or close (active/overdue → closed): delivery handover required
           content:
             application/json:
               schema:
@@ -818,6 +821,9 @@ paths:
       operationId: getContractVehicleDamageForm
       tags: [contracts]
       summary: محضر أستلام مركبة — عرض مخطط الأضرار
+      description: |
+        يُستخدم لتحرير المحضر في حالة المسودة (PUT). بعد تنشيط العقد يبقى العرض متاحاً
+        لطباعة محضر الاستلام من الواجهة (قراءة فقط؛ التعديل يُرفض بـ 400).
       parameters:
         - $ref: "#/components/parameters/ContractId"
       responses:
@@ -882,7 +888,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/VehicleDeliveryDamageForm"
         "404":
-          description: Not found
+          description: Contract not found or delivery handover not available (e.g. missing receipt handover)
     put:
       operationId: upsertContractVehicleDeliveryDamageForm
       tags: [contracts]
@@ -2419,12 +2425,27 @@ components:
           $ref: "#/components/schemas/ContractHandoverVehicleInfo"
         markers:
           type: array
+          description: نقاط أضرار جديدة عند التسليم (تُعرض بالأحمر)
+          items:
+            $ref: "#/components/schemas/VehicleDamageMarker"
+        priorMarkers:
+          type: array
+          description: نقاط محضر الاستلام (أضرار سابقة تُعرض بالأصفر في الواجهة والطباعة)
           items:
             $ref: "#/components/schemas/VehicleDamageMarker"
         updatedAt:
           type: string
           format: date-time
-      required: [contractId, contractNumber, driverName, driverIdNumber, orgBusinessName, vehicle, markers, updatedAt]
+      required:
+        - contractId
+        - contractNumber
+        - driverName
+        - driverIdNumber
+        - orgBusinessName
+        - vehicle
+        - markers
+        - priorMarkers
+        - updatedAt
 
     CreateContractBody:
       type: object

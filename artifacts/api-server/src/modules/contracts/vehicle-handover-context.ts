@@ -29,6 +29,11 @@ export type VehicleHandoverFormResponse = {
   updatedAt: string;
 };
 
+export type VehicleDeliveryHandoverFormResponse = VehicleHandoverFormResponse & {
+  /** نقاط محضر الاستلام (أضرار سابقة) للعرض في محضر التسليم */
+  priorMarkers: VehicleDamageMarker[];
+};
+
 export async function getContractHandoverRow(orgId: number, contractId: number) {
   const [row] = await db
     .select({
@@ -109,6 +114,18 @@ export function mapHandoverFormRow(
     vehicle,
     markers,
     updatedAt: updatedAt.toISOString(),
+  };
+}
+
+export function mapDeliveryHandoverFormRow(
+  row: NonNullable<Awaited<ReturnType<typeof getContractHandoverRow>>>,
+  markers: VehicleDamageMarker[],
+  priorMarkers: VehicleDamageMarker[],
+  updatedAt: Date,
+): VehicleDeliveryHandoverFormResponse {
+  return {
+    ...mapHandoverFormRow(row, markers, updatedAt),
+    priorMarkers,
   };
 }
 

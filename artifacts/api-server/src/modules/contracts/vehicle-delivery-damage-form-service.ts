@@ -11,11 +11,13 @@ import { recordActivity } from "../bootstrap/service.js";
 import {
   deliveryMarkersFromRow,
   getContractHandoverRow,
-  mapHandoverFormRow,
+  mapDeliveryHandoverFormRow,
   receiptMarkersFromRow,
 } from "./vehicle-handover-context.js";
 
-export type VehicleDeliveryDamageFormResponse = Awaited<ReturnType<typeof mapHandoverFormRow>>;
+export type VehicleDeliveryDamageFormResponse = Awaited<
+  ReturnType<typeof mapDeliveryHandoverFormRow>
+>;
 
 function canManageDeliveryHandover(
   row: NonNullable<Awaited<ReturnType<typeof getContractHandoverRow>>>,
@@ -27,11 +29,11 @@ function canManageDeliveryHandover(
 export async function getContractVehicleDeliveryDamageForm(orgId: number, contractId: number) {
   const row = await getContractHandoverRow(orgId, contractId);
   if (!row) return null;
-  const markers = deliveryMarkersFromRow(row);
-  if (!hasVehicleDamageForm(markers)) {
-    return null;
-  }
-  return mapHandoverFormRow(row, markers ?? [], row.updatedAt);
+  if (!canManageDeliveryHandover(row)) return null;
+
+  const priorMarkers = receiptMarkersFromRow(row) ?? [];
+  const markers = deliveryMarkersFromRow(row) ?? [];
+  return mapDeliveryHandoverFormRow(row, markers, priorMarkers, row.updatedAt);
 }
 
 export async function upsertContractVehicleDeliveryDamageForm(
@@ -85,8 +87,9 @@ export async function upsertContractVehicleDeliveryDamageForm(
       ...row,
       vehicleDeliveryDamageMarkers: updated.vehicleDeliveryDamageMarkers,
     }) ?? [];
+  const priorMarkers = receiptMarkersFromRow(row) ?? [];
   return {
-    data: mapHandoverFormRow(row, markers, updated.updatedAt),
+    data: mapDeliveryHandoverFormRow(row, markers, priorMarkers, updated.updatedAt),
   };
 }
 

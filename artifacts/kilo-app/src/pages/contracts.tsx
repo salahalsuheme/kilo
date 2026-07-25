@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { Contract, ContractStatus } from "@/lib/api-client-react-tenant";
 import { useGetSettings } from "@/lib/api-client-react-tenant";
-import { getDraftActivationError } from "@workspace/contracts-domain";
+import { getContractCloseOrCancelError, getDraftActivationError } from "@workspace/contracts-domain";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { ApiErrorBanner } from "@/components/api-error-banner";
 import { PageHeader } from "@/components/page-header";
@@ -54,10 +54,12 @@ export default function ContractsPage() {
     handoverPhase,
     setDialogContract,
     initialMarkers,
+    initialPriorMarkers,
     isLoadingForm,
     formError,
     actionError: damageActionError,
     handleReceiptMenu,
+    handlePrintReceiptMenu,
     handleDeliveryMenu,
     saveForm,
     printFromDialog,
@@ -140,6 +142,15 @@ export default function ContractsPage() {
       setPendingStatus(status);
       return;
     }
+    const closeOrCancelError = getContractCloseOrCancelError({
+      current: contract.status,
+      next: status,
+      hasVehicleDeliveryHandover: contract.hasVehicleDeliveryDamageForm,
+    });
+    if (closeOrCancelError) {
+      setActivateValidationError(closeOrCancelError);
+      return;
+    }
     setStatusTarget(contract);
     setPendingStatus(status);
   };
@@ -210,6 +221,7 @@ export default function ContractsPage() {
                   }}
                   isUploadPending={uploadIsPending}
                   onReceiptHandover={handleReceiptMenu}
+                  onPrintReceiptHandover={(contract) => void handlePrintReceiptMenu(contract)}
                   onDeliveryHandover={handleDeliveryMenu}
                 />
                 <TenantPagination
@@ -312,11 +324,12 @@ export default function ContractsPage() {
         open={dialogContract != null}
         onOpenChange={(open) => !open && setDialogContract(null)}
         initialMarkers={initialMarkers}
+        initialPriorMarkers={initialPriorMarkers}
         isLoading={isLoadingForm}
         isPending={saveIsPending}
         errorMessage={formError}
         onSave={(markers) => void saveForm(markers)}
-        onPrintPreview={(markers) => void printFromDialog(markers)}
+        onPrintPreview={(markers, priorMarkers) => void printFromDialog(markers, priorMarkers)}
       />
 
       <input

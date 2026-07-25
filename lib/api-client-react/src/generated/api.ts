@@ -2835,6 +2835,8 @@ export const getGetContractVehicleDamageFormUrl = (id: number,) => {
 }
 
 /**
+ * يُستخدم لتحرير المحضر في حالة المسودة (PUT). بعد تنشيط العقد يبقى العرض متاحاً
+ * لطباعة محضر الاستلام من الواجهة (قراءة فقط؛ التعديل يُرفض بـ 400).
  * @summary محضر أستلام مركبة — عرض مخطط الأضرار
  */
 export const getContractVehicleDamageForm = async (id: number, options?: RequestInit): Promise<VehicleDamageForm> => {

@@ -1056,6 +1056,8 @@ export const UploadContractSignedAttachmentResponse = zod.object({
 
 
 /**
+ * يُستخدم لتحرير المحضر في حالة المسودة (PUT). بعد تنشيط العقد يبقى العرض متاحاً
+ * لطباعة محضر الاستلام من الواجهة (قراءة فقط؛ التعديل يُرفض بـ 400).
  * @summary محضر أستلام مركبة — عرض مخطط الأضرار
  */
 export const GetContractVehicleDamageFormParams = zod.object({
@@ -1178,6 +1180,12 @@ export const getContractVehicleDeliveryDamageFormResponseMarkersItemXMax = 1;
 export const getContractVehicleDeliveryDamageFormResponseMarkersItemYMin = 0;
 export const getContractVehicleDeliveryDamageFormResponseMarkersItemYMax = 1;
 
+export const getContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMin = 0;
+export const getContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMax = 1;
+
+export const getContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMin = 0;
+export const getContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMax = 1;
+
 
 
 export const GetContractVehicleDeliveryDamageFormResponse = zod.object({
@@ -1204,7 +1212,11 @@ export const GetContractVehicleDeliveryDamageFormResponse = zod.object({
   "markers": zod.array(zod.object({
   "x": zod.number().min(getContractVehicleDeliveryDamageFormResponseMarkersItemXMin).max(getContractVehicleDeliveryDamageFormResponseMarkersItemXMax),
   "y": zod.number().min(getContractVehicleDeliveryDamageFormResponseMarkersItemYMin).max(getContractVehicleDeliveryDamageFormResponseMarkersItemYMax)
-})),
+})).describe('نقاط أضرار جديدة عند التسليم (تُعرض بالأحمر)'),
+  "priorMarkers": zod.array(zod.object({
+  "x": zod.number().min(getContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMin).max(getContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMax),
+  "y": zod.number().min(getContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMin).max(getContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMax)
+})).describe('نقاط محضر الاستلام (أضرار سابقة تُعرض بالأصفر في الواجهة والطباعة)'),
   "updatedAt": zod.coerce.date()
 }).describe('محضر تسليم مركبة — مخطط أضرار المركبة عند التسليم')
 
@@ -1237,6 +1249,12 @@ export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMax = 1;
 export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMin = 0;
 export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMax = 1;
 
+export const upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMin = 0;
+export const upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMax = 1;
+
+export const upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMin = 0;
+export const upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMax = 1;
+
 
 
 export const UpsertContractVehicleDeliveryDamageFormResponse = zod.object({
@@ -1263,7 +1281,11 @@ export const UpsertContractVehicleDeliveryDamageFormResponse = zod.object({
   "markers": zod.array(zod.object({
   "x": zod.number().min(upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMin).max(upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMax),
   "y": zod.number().min(upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMin).max(upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMax)
-})),
+})).describe('نقاط أضرار جديدة عند التسليم (تُعرض بالأحمر)'),
+  "priorMarkers": zod.array(zod.object({
+  "x": zod.number().min(upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMin).max(upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemXMax),
+  "y": zod.number().min(upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMin).max(upsertContractVehicleDeliveryDamageFormResponsePriorMarkersItemYMax)
+})).describe('نقاط محضر الاستلام (أضرار سابقة تُعرض بالأصفر في الواجهة والطباعة)'),
   "updatedAt": zod.coerce.date()
 }).describe('محضر تسليم مركبة — مخطط أضرار المركبة عند التسليم')
 

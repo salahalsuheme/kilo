@@ -13,6 +13,8 @@ export const VEHICLE_DAMAGE_FORM_PRINT_LABELS = {
   printDateTime: "التاريخ والوقت",
   signature: "التوقيع",
   diagramMarkerLegend: "النقطة الحمراء تعني وجود خدش او صدمه",
+  diagramPriorDamageLegend: "النقاط الصفراء تعني خدش او صدمة قديمة",
+  diagramNewDamageLegend: "النقاط الحمراء تعني خدش او صدمة جديدة من المستأجر الحالي",
 } as const;
 
 export function vehicleDamageFormDocumentHeading(contractNumber: string): string {

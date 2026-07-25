@@ -1,10 +1,12 @@
 import type { Contract, ContractStatus } from "@/lib/api-client-react-tenant";
-import { CONTRACT_STATUS_LABELS } from "@workspace/contracts-domain";
+import { CONTRACT_STATUS_LABELS, getContractCloseOrCancelError } from "@workspace/contracts-domain";
 import {
   isVehicleDeliveryHandoverDisabled,
   isVehicleReceiptHandoverLocked,
+  canPrintVehicleReceiptHandover,
   VEHICLE_HANDOVER_DELIVERY_LABEL,
   VEHICLE_HANDOVER_MENU_LABEL,
+  VEHICLE_HANDOVER_PRINT_RECEIPT_LABEL,
   VEHICLE_HANDOVER_RECEIPT_LABEL,
 } from "@workspace/contracts-domain";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,7 @@ interface ContractRowActionsMenuProps {
   onUploadSigned: (contract: Contract) => void;
   onDownloadSigned: (contract: Contract) => void;
   onReceiptHandover: (contract: Contract) => void;
+  onPrintReceiptHandover: (contract: Contract) => void;
   onDeliveryHandover: (contract: Contract) => void;
   isUploadPending?: boolean;
 }
@@ -52,6 +55,7 @@ export function ContractRowActionsMenu({
   onUploadSigned,
   onDownloadSigned,
   onReceiptHandover,
+  onPrintReceiptHandover,
   onDeliveryHandover,
   isUploadPending,
 }: ContractRowActionsMenuProps) {
@@ -59,6 +63,11 @@ export function ContractRowActionsMenu({
   const canEdit = contract.status === "draft";
   const canActivate = contract.status === "draft";
   const receiptLocked = isVehicleReceiptHandoverLocked(contract);
+  const canPrintReceipt = canPrintVehicleReceiptHandover(contract);
+  const receiptMenuLabel = receiptLocked
+    ? VEHICLE_HANDOVER_PRINT_RECEIPT_LABEL
+    : VEHICLE_HANDOVER_RECEIPT_LABEL;
+  const receiptMenuDisabled = receiptLocked && !canPrintReceipt;
   const deliveryDisabled = isVehicleDeliveryHandoverDisabled(contract);
   const statusOptions = STATUS_ACTIONS.filter((action) =>
     action.allowedFrom.includes(contract.status),
@@ -103,17 +112,27 @@ export function ContractRowActionsMenu({
               تغيير الحالة
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
-              {statusOptions.map((action) => (
-                <DropdownMenuItem
-                  key={action.status}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onChangeStatus(contract, action.status);
-                  }}
-                >
-                  {CONTRACT_STATUS_LABELS[action.status]}
-                </DropdownMenuItem>
-              ))}
+              {statusOptions.map((action) => {
+                const statusBlocked =
+                  getContractCloseOrCancelError({
+                    current: contract.status,
+                    next: action.status,
+                    hasVehicleDeliveryHandover: contract.hasVehicleDeliveryDamageForm,
+                  }) !== null;
+                return (
+                  <DropdownMenuItem
+                    key={action.status}
+                    disabled={statusBlocked}
+                    className={cn(statusBlocked && "text-muted-foreground opacity-60")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!statusBlocked) onChangeStatus(contract, action.status);
+                    }}
+                  >
+                    {CONTRACT_STATUS_LABELS[action.status]}
+                  </DropdownMenuItem>
+                );
+              })}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         )}
@@ -164,14 +183,21 @@ export function ContractRowActionsMenu({
           <DropdownMenuSubTrigger>{VEHICLE_HANDOVER_MENU_LABEL}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem
-              disabled={receiptLocked}
-              className={cn(receiptLocked && "text-muted-foreground opacity-60")}
+              disabled={receiptMenuDisabled}
+              className={cn(receiptMenuDisabled && "text-muted-foreground opacity-60")}
               onClick={(e) => {
                 e.stopPropagation();
+                if (canPrintReceipt) {
+                  onPrintReceiptHandover(contract);
+                  return;
+                }
                 if (!receiptLocked) onReceiptHandover(contract);
               }}
             >
-              {VEHICLE_HANDOVER_RECEIPT_LABEL}
+              {canPrintReceipt ? (
+                <Printer className="h-4 w-4 me-2" />
+              ) : null}
+              {receiptMenuLabel}
             </DropdownMenuItem>
             <DropdownMenuItem
               disabled={deliveryDisabled}

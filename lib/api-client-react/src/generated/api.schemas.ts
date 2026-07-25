@@ -447,7 +447,10 @@ export interface VehicleDeliveryDamageForm {
   /** رابط توقيع الشركة من إعدادات النظام */
   orgSignatureUrl?: string | null;
   vehicle: ContractHandoverVehicleInfo;
+  /** نقاط أضرار جديدة عند التسليم (تُعرض بالأحمر) */
   markers: VehicleDamageMarker[];
+  /** نقاط محضر الاستلام (أضرار سابقة تُعرض بالأصفر في الواجهة والطباعة) */
+  priorMarkers: VehicleDamageMarker[];
   updatedAt: string;
 }
 

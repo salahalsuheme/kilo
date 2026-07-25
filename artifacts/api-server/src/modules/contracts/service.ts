@@ -6,6 +6,7 @@ import {
   EXPIRING_SOON_THRESHOLD_DAYS,
   formatContractNumberWithYear,
   getDraftActivationError,
+  getContractCloseOrCancelError,
   isValidContractStatusTransition,
   isContractSigned,
   hasVehicleDamageForm,
@@ -554,6 +555,13 @@ export async function updateContractStatus(
     const carError = await assertCarAvailableForActivation(orgId, existing.carId, id);
     if (carError) return { error: carError };
   }
+
+  const closeOrCancelError = getContractCloseOrCancelError({
+    current: existing.status,
+    next: nextStatus,
+    hasVehicleDeliveryHandover: existing.hasVehicleDeliveryDamageForm,
+  });
+  if (closeOrCancelError) return { error: closeOrCancelError };
 
   const closeSnapshot =
     nextStatus === "closed" && existing.status === "overdue"

@@ -31,6 +31,8 @@ export interface VehicleDamageFormPrintInput {
   establishmentName?: string | null;
   /** Defaults to current time when the print HTML is built. */
   printedAt?: string | null;
+  /** For delivery print: count of new (red) markers; controls red legend visibility. */
+  newDamageMarkerCount?: number;
 }
 
 function documentTitle(phase: VehicleHandoverPrintPhase): string {
@@ -68,6 +70,40 @@ function buildHandoverInfoBoxHtml(contractNumber: string, vehicle: ContractHando
   `;
 }
 
+function buildDiagramLegendHtml(
+  phase: VehicleHandoverPrintPhase,
+  labels: (typeof VEHICLE_DAMAGE_FORM_PRINT_LABELS),
+  newDamageMarkerCount: number,
+): string {
+  if (phase === "receipt") {
+    return `
+      <p class="vehicle-handover-print-diagram-legend vehicle-handover-print-diagram-legend--new" dir="rtl">
+        <span class="vehicle-handover-print-diagram-legend-dot vehicle-handover-print-diagram-legend-dot--new" aria-hidden="true"></span>
+        <span>${escapeHtml(labels.diagramMarkerLegend)}</span>
+      </p>
+    `;
+  }
+
+  const priorLegend = `
+    <p class="vehicle-handover-print-diagram-legend vehicle-handover-print-diagram-legend--prior" dir="rtl">
+      <span class="vehicle-handover-print-diagram-legend-dot vehicle-handover-print-diagram-legend-dot--prior" aria-hidden="true"></span>
+      <span>${escapeHtml(labels.diagramPriorDamageLegend)}</span>
+    </p>
+  `;
+
+  const newLegend =
+    newDamageMarkerCount > 0
+      ? `
+    <p class="vehicle-handover-print-diagram-legend vehicle-handover-print-diagram-legend--new" dir="rtl">
+      <span class="vehicle-handover-print-diagram-legend-dot vehicle-handover-print-diagram-legend-dot--new" aria-hidden="true"></span>
+      <span>${escapeHtml(labels.diagramNewDamageLegend)}</span>
+    </p>
+  `
+      : "";
+
+  return `${priorLegend}${newLegend}`;
+}
+
 export function buildVehicleDamageFormPrintHtml(input: VehicleDamageFormPrintInput): string {
   const phase = input.phase ?? "receipt";
   const labels = VEHICLE_DAMAGE_FORM_PRINT_LABELS;
@@ -88,6 +124,7 @@ export function buildVehicleDamageFormPrintHtml(input: VehicleDamageFormPrintInp
     input.assetOrigin ?? "",
   );
   const alt = "مخطط أضرار المركبة";
+  const newDamageMarkerCount = input.newDamageMarkerCount ?? 0;
 
   return `
     <div class="vehicle-handover-print">
@@ -95,10 +132,7 @@ export function buildVehicleDamageFormPrintHtml(input: VehicleDamageFormPrintInp
     ${buildHandoverInfoBoxHtml(input.contractNumber, input.vehicle)}
     <div class="vehicle-handover-print-diagram">
       <img src="${input.diagramDataUrl}" alt="${escapeHtml(alt)}" />
-      <p class="vehicle-handover-print-diagram-legend" dir="rtl">
-        <span class="vehicle-handover-print-diagram-legend-dot" aria-hidden="true"></span>
-        <span>${escapeHtml(labels.diagramMarkerLegend)}</span>
-      </p>
+      ${buildDiagramLegendHtml(phase, labels, newDamageMarkerCount)}
     </div>
     <div class="vehicle-handover-print-spacer" aria-hidden="true"></div>
     <div class="vehicle-handover-print-boxes">

@@ -25,11 +25,12 @@ interface VehicleDamageFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialMarkers: VehicleDamageMarker[];
+  initialPriorMarkers?: VehicleDamageMarker[];
   isLoading?: boolean;
   isPending?: boolean;
   errorMessage?: string | null;
   onSave: (markers: VehicleDamageMarker[]) => void;
-  onPrintPreview: (markers: VehicleDamageMarker[]) => void;
+  onPrintPreview: (markers: VehicleDamageMarker[], priorMarkers: VehicleDamageMarker[]) => void;
 }
 
 function dialogTitle(phase: VehicleHandoverPhase): string {
@@ -44,6 +45,7 @@ export function VehicleDamageFormDialog({
   open,
   onOpenChange,
   initialMarkers,
+  initialPriorMarkers = [],
   isLoading,
   isPending,
   errorMessage,
@@ -60,13 +62,19 @@ export function VehicleDamageFormDialog({
 
   if (!contract) return null;
 
+  const isDelivery = phase === "delivery";
+  const canPrintOrSaveDiagram =
+    markers.length > 0 || (isDelivery && initialPriorMarkers.length > 0);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{dialogTitle(phase)}</DialogTitle>
           <DialogDescription className="text-start">
-            العقد <bdi>{contract.contractNumber}</bdi> — انقر على المخطط لتحديد مواقع الأضرار والصدمات.
+            العقد <bdi>{contract.contractNumber}</bdi> — انقر على المخطط لتحديد مواقع الأضرار والصدمات
+            {isDelivery ? " الجديدة (النقاط الحمراء)" : ""}.
+            {isDelivery ? " النقاط الصفراء من محضر الاستلام (أضرار سابقة) ولا يمكن حذفها." : ""}{" "}
             كبّر بالعجلة أو باللمس (قرص)، واسحب للتحريك عند التكبير. انقر على نقطة محفوظة لحذفها.
           </DialogDescription>
         </DialogHeader>
@@ -78,6 +86,7 @@ export function VehicleDamageFormDialog({
             key={`${contract.id}-${phase}`}
             imageSrc={VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC}
             markers={markers}
+            priorMarkers={isDelivery ? initialPriorMarkers : []}
             onChange={setMarkers}
           />
         )}
@@ -96,8 +105,8 @@ export function VehicleDamageFormDialog({
           <Button
             type="button"
             variant="outline"
-            disabled={isPending || isLoading || markers.length === 0}
-            onClick={() => onPrintPreview(markers)}
+            disabled={isPending || isLoading || !canPrintOrSaveDiagram}
+            onClick={() => onPrintPreview(markers, initialPriorMarkers)}
           >
             طباعة
           </Button>

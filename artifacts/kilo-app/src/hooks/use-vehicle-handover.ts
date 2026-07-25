@@ -16,13 +16,14 @@ import { openPrintDocument } from "@/lib/print/open-print-document";
 import {
   VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC,
 } from "@/lib/vehicle-damage/vehicle-damage-assets";
-import { renderVehicleDamageFormImage } from "@/lib/vehicle-damage/render-damage-form-image";
+import { renderVehicleHandoverDiagramImage } from "@/lib/vehicle-damage/render-damage-form-image";
 import { buildVehicleDamageFormPrintHtml } from "@workspace/print-domain";
 import { withOrgKey } from "@/lib/tenant-cache";
 import { useOrgId } from "@/hooks/use-invalidate";
 import {
   isVehicleDeliveryHandoverDisabled,
   isVehicleReceiptHandoverLocked,
+  canPrintVehicleReceiptHandover,
   vehicleDamageFormDocumentHeading,
   vehicleDeliveryFormDocumentHeading,
   type VehicleDamageMarker,
@@ -36,6 +37,7 @@ import type { ContractHandoverVehicleInfo } from "@workspace/contracts-domain";
 export type VehicleHandoverPhase = "receipt" | "delivery";
 
 type HandoverFormDto = Awaited<ReturnType<typeof getContractVehicleDamageForm>>;
+type DeliveryHandoverFormDto = Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>;
 
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -52,7 +54,7 @@ function blobToDataUrl(blob: Blob): Promise<string> {
 async function loadHandoverForm(
   contract: Contract,
   phase: VehicleHandoverPhase,
-): Promise<HandoverFormDto> {
+): Promise<HandoverFormDto | DeliveryHandoverFormDto> {
   return phase === "delivery"
     ? getContractVehicleDeliveryDamageForm(contract.id)
     : getContractVehicleDamageForm(contract.id);
@@ -76,6 +78,7 @@ async function buildHandoverPrintBodyHtml(
   ctx: HandoverPrintContext,
   phase: VehicleHandoverPrintPhase,
   diagramDataUrl: string,
+  newDamageMarkerCount: number,
 ): Promise<string> {
   const media = await resolveOrgMediaUrlsForPrint(ctx.orgStampUrl, ctx.orgSignatureUrl);
   return buildVehicleDamageFormPrintHtml({
@@ -91,6 +94,7 @@ async function buildHandoverPrintBodyHtml(
     orgSignatureUrl: media.signatureUrl,
     establishmentName: ctx.establishmentName,
     establishmentFullName: ctx.establishmentFullName,
+    newDamageMarkerCount: phase === "delivery" ? newDamageMarkerCount : 0,
   });
 }
 
@@ -147,6 +151,7 @@ export function useVehicleHandover() {
   const [dialogContract, setDialogContract] = useState<Contract | null>(null);
   const [handoverPhase, setHandoverPhase] = useState<VehicleHandoverPhase>("receipt");
   const [initialMarkers, setInitialMarkers] = useState<VehicleDamageMarker[]>([]);
+  const [initialPriorMarkers, setInitialPriorMarkers] = useState<VehicleDamageMarker[]>([]);
   const [isLoadingForm, setIsLoadingForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -168,15 +173,15 @@ export function useVehicleHandover() {
     setDialogContract(contract);
     setIsLoadingForm(true);
     setInitialMarkers([]);
-
-    const hasForm =
-      phase === "delivery"
-        ? contract.hasVehicleDeliveryDamageForm
-        : contract.hasVehicleDamageForm;
+    setInitialPriorMarkers([]);
 
     try {
-      if (hasForm) {
-        const form = await loadHandoverForm(contract, phase);
+      if (phase === "delivery") {
+        const form = await getContractVehicleDeliveryDamageForm(contract.id);
+        setInitialPriorMarkers(form.priorMarkers);
+        setInitialMarkers(form.markers);
+      } else if (contract.hasVehicleDamageForm) {
+        const form = await getContractVehicleDamageForm(contract.id);
         setInitialMarkers(form.markers);
       }
     } catch {
@@ -190,13 +195,21 @@ export function useVehicleHandover() {
     setActionError(null);
     try {
       const form = await loadHandoverForm(contract, phase);
-      const blob = await renderVehicleDamageFormImage(
+      const priorMarkers = phase === "delivery" && "priorMarkers" in form ? form.priorMarkers : [];
+      const newMarkers = form.markers;
+      const blob = await renderVehicleHandoverDiagramImage(
         VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC,
-        form.markers,
+        priorMarkers,
+        newMarkers,
       );
       const diagramDataUrl = await blobToDataUrl(blob);
       const ctx = await resolveHandoverPrintContext(contract, phase, orgSettings);
-      const bodyHtml = await buildHandoverPrintBodyHtml(ctx, phase, diagramDataUrl);
+      const bodyHtml = await buildHandoverPrintBodyHtml(
+        ctx,
+        phase,
+        diagramDataUrl,
+        newMarkers.length,
+      );
       const heading =
         phase === "delivery"
           ? vehicleDeliveryFormDocumentHeading(contract.contractNumber)
@@ -222,6 +235,11 @@ export function useVehicleHandover() {
   const handleReceiptMenu = (contract: Contract) => {
     if (isVehicleReceiptHandoverLocked(contract)) return;
     void openDialog(contract, "receipt");
+  };
+
+  const handlePrintReceiptMenu = (contract: Contract) => {
+    if (!canPrintVehicleReceiptHandover(contract)) return;
+    void printHandover(contract, "receipt");
   };
 
   const handleDeliveryMenu = (contract: Contract) => {
@@ -259,14 +277,27 @@ export function useVehicleHandover() {
     }
   };
 
-  const printFromDialog = async (markers: VehicleDamageMarker[]) => {
+  const printFromDialog = async (
+    markers: VehicleDamageMarker[],
+    priorMarkers: VehicleDamageMarker[],
+  ) => {
     if (!dialogContract) return;
     setActionError(null);
     try {
-      const blob = await renderVehicleDamageFormImage(VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC, markers);
+      const prior = handoverPhase === "delivery" ? priorMarkers : [];
+      const blob = await renderVehicleHandoverDiagramImage(
+        VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC,
+        prior,
+        markers,
+      );
       const diagramDataUrl = await blobToDataUrl(blob);
       const ctx = await resolveHandoverPrintContext(dialogContract, handoverPhase, orgSettings);
-      const bodyHtml = await buildHandoverPrintBodyHtml(ctx, handoverPhase, diagramDataUrl);
+      const bodyHtml = await buildHandoverPrintBodyHtml(
+        ctx,
+        handoverPhase,
+        diagramDataUrl,
+        markers.length,
+      );
       const heading =
         handoverPhase === "delivery"
           ? vehicleDeliveryFormDocumentHeading(dialogContract.contractNumber)
@@ -288,11 +319,13 @@ export function useVehicleHandover() {
     handoverPhase,
     setDialogContract,
     initialMarkers,
+    initialPriorMarkers,
     isLoadingForm,
     formError,
     actionError,
     openDialog,
     handleReceiptMenu,
+    handlePrintReceiptMenu,
     handleDeliveryMenu,
     saveForm,
     printFromDialog,

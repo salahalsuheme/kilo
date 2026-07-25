@@ -102,6 +102,7 @@ export {
   UpdateContractStatusBodySchema,
   canActivateDraftContract,
   getDraftActivationError,
+  getContractCloseOrCancelError,
   isValidContractStatusTransition,
   type UpdateContractStatusBodyInput,
 } from "./contract-status.schema.js";
@@ -146,11 +147,18 @@ export {
 export {
   VEHICLE_HANDOVER_DELIVERY_LABEL,
   VEHICLE_HANDOVER_MENU_LABEL,
+  VEHICLE_HANDOVER_PRINT_RECEIPT_LABEL,
   VEHICLE_HANDOVER_RECEIPT_LABEL,
+  canPrintVehicleReceiptHandover,
   isVehicleDeliveryHandoverDisabled,
   isVehicleReceiptHandoverLocked,
   type VehicleHandoverContractFlags,
 } from "./vehicle-handover-access.js";
+export {
+  VEHICLE_HANDOVER_MARKER_COLORS,
+  type VehicleHandoverNewMarker,
+  type VehicleHandoverPriorMarker,
+} from "./vehicle-handover-marker-visual.js";
 export {
   VEHICLE_HANDOVER_PRINT_HEADER_LABELS,
   VEHICLE_HANDOVER_PRINT_VEHICLE_LABELS,
