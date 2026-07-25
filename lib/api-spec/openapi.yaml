@@ -867,6 +867,60 @@ paths:
         "404":
           description: Not found
 
+  /contracts/{id}/vehicle-delivery-damage-form:
+    get:
+      operationId: getContractVehicleDeliveryDamageForm
+      tags: [contracts]
+      summary: محضر تسليم مركبة — عرض مخطط الأضرار
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "200":
+          description: محضر تسليم مركبة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleDeliveryDamageForm"
+        "404":
+          description: Not found
+    put:
+      operationId: upsertContractVehicleDeliveryDamageForm
+      tags: [contracts]
+      summary: محضر تسليم مركبة — حفظ مخطط الأضرار
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleDamageFormBody"
+      responses:
+        "200":
+          description: محضر تسليم مركبة (تم الحفظ)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VehicleDeliveryDamageForm"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Contract not found
+    delete:
+      operationId: deleteContractVehicleDeliveryDamageForm
+      tags: [contracts]
+      parameters:
+        - $ref: "#/components/parameters/ContractId"
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
   /contract-templates:
     get:
       operationId: listContractTemplates
@@ -2184,7 +2238,10 @@ components:
           description: هل تم رفع العقد الموقع من العميل
         hasVehicleDamageForm:
           type: boolean
-          description: هل يوجد نموذج أضرار مركبة محفوظ
+          description: هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)
+        hasVehicleDeliveryDamageForm:
+          type: boolean
+          description: هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)
         createdAt:
           type: string
           format: date-time
@@ -2216,6 +2273,7 @@ components:
         - penaltyTotal
         - isSigned
         - hasVehicleDamageForm
+        - hasVehicleDeliveryDamageForm
         - createdAt
         - updatedAt
 
@@ -2241,6 +2299,37 @@ components:
             $ref: "#/components/schemas/VehicleDamageMarker"
       required: [markers]
 
+    ContractHandoverVehicleInfo:
+      description: لقطة بيانات مركبة العقد لمحاضر الاستلام والتسليم والطباعة
+      type: object
+      properties:
+        brand:
+          type: string
+        modelYear:
+          type: integer
+        coolingType:
+          $ref: "#/components/schemas/VehicleCoolingType"
+        coolingTypeLabel:
+          type: string
+          description: تسمية عربية لنوع التبريد
+        registrationColor:
+          type: string
+        chassisNumber:
+          type: string
+        serialNumber:
+          type: string
+          nullable: true
+        plateNumber:
+          type: string
+      required:
+        - brand
+        - modelYear
+        - coolingType
+        - coolingTypeLabel
+        - registrationColor
+        - chassisNumber
+        - plateNumber
+
     VehicleDamageForm:
       description: محضر أستلام مركبة — مخطط أضرار المركبة عند التسليم المرتبط بعقد تأجير
       type: object
@@ -2252,6 +2341,24 @@ components:
         driverName:
           type: string
           description: اسم السائق (محضر الاستلام)
+        driverIdNumber:
+          type: string
+          description: رقم هوية السائق
+        orgBusinessName:
+          type: string
+          description: اسم المنشأة من إعدادات الشركة
+        orgUnifiedNumber:
+          type: string
+          nullable: true
+          description: الرقم الموحد للمنشأة من الإعدادات
+        orgStampUrl:
+          type: string
+          nullable: true
+          description: رابط ختم الشركة من إعدادات النظام
+        orgSignatureUrl:
+          type: string
+          nullable: true
+          description: رابط توقيع الشركة من إعدادات النظام
         establishmentName:
           type: string
           nullable: true
@@ -2260,6 +2367,8 @@ components:
           type: string
           nullable: true
           description: اسم المنشأة مع النوع (للطباعة)
+        vehicle:
+          $ref: "#/components/schemas/ContractHandoverVehicleInfo"
         markers:
           type: array
           items:
@@ -2267,7 +2376,55 @@ components:
         updatedAt:
           type: string
           format: date-time
-      required: [contractId, contractNumber, driverName, markers, updatedAt]
+      required: [contractId, contractNumber, driverName, driverIdNumber, orgBusinessName, vehicle, markers, updatedAt]
+
+    VehicleDeliveryDamageForm:
+      description: محضر تسليم مركبة — مخطط أضرار المركبة عند التسليم
+      type: object
+      properties:
+        contractId:
+          type: integer
+        contractNumber:
+          type: string
+        driverName:
+          type: string
+          description: اسم السائق
+        driverIdNumber:
+          type: string
+          description: رقم هوية السائق
+        establishmentName:
+          type: string
+          nullable: true
+          description: اسم المنشأة بدون بادئة النوع
+        establishmentFullName:
+          type: string
+          nullable: true
+          description: اسم المنشأة مع النوع (للطباعة)
+        orgBusinessName:
+          type: string
+          description: اسم المنشأة من إعدادات الشركة
+        orgUnifiedNumber:
+          type: string
+          nullable: true
+          description: الرقم الموحد للمنشأة من الإعدادات
+        orgStampUrl:
+          type: string
+          nullable: true
+          description: رابط ختم الشركة من إعدادات النظام
+        orgSignatureUrl:
+          type: string
+          nullable: true
+          description: رابط توقيع الشركة من إعدادات النظام
+        vehicle:
+          $ref: "#/components/schemas/ContractHandoverVehicleInfo"
+        markers:
+          type: array
+          items:
+            $ref: "#/components/schemas/VehicleDamageMarker"
+        updatedAt:
+          type: string
+          format: date-time
+      required: [contractId, contractNumber, driverName, driverIdNumber, orgBusinessName, vehicle, markers, updatedAt]
 
     CreateContractBody:
       type: object
@@ -2363,6 +2520,7 @@ components:
             نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}.
             {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl/signatureUrl).
             {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره).
+            {{contract.pageBreak}} أو {{pageBreak}} لبدء صفحة جديدة (سطر مستقل قبل النص التالي).
             عناوين *بند* فقط.
       required: [name, body]
 

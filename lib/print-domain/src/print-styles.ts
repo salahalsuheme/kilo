@@ -149,6 +149,207 @@ export const PRINT_BASE_STYLES = `
     max-width: 100%;
     height: auto;
   }
+  .vehicle-handover-print {
+    direction: rtl;
+    text-align: right;
+    unicode-bidi: plaintext;
+    --vehicle-handover-section-gap: 18mm;
+  }
+  .vehicle-handover-print-title {
+    text-align: right;
+  }
+  .vehicle-handover-print-info-box {
+    margin: 0 auto var(--vehicle-handover-section-gap);
+    max-width: 178mm;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 1.5px solid #9ca3af;
+    border-radius: 10px;
+    text-align: right;
+    direction: rtl;
+    box-sizing: border-box;
+  }
+  .vehicle-handover-print-info-section {
+    margin: 10px 0 6px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #111827;
+  }
+  .vehicle-handover-print-info-line {
+    margin: 0 0 5px;
+    font-size: 12px;
+    line-height: 1.45;
+    color: #374151;
+  }
+  .vehicle-handover-print-info-line--contract {
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .vehicle-handover-print-info-label {
+    font-weight: 600;
+  }
+  .vehicle-handover-print-info-value {
+    font-weight: 500;
+  }
+  .vehicle-handover-print-diagram {
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 178mm;
+  }
+  .vehicle-handover-print-diagram img {
+    display: block;
+    width: 100%;
+    max-width: 178mm;
+    max-height: 195mm;
+    height: auto;
+    object-fit: contain;
+    margin: 0 auto;
+  }
+  .vehicle-handover-print-diagram-legend {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+    width: 100%;
+    max-width: 178mm;
+    margin: 4px auto 0;
+    padding: 0;
+    font-size: 9px;
+    line-height: 1.35;
+    font-weight: 500;
+    color: #dc2626;
+    text-align: right;
+    box-sizing: border-box;
+  }
+  .vehicle-handover-print-diagram-legend-dot {
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #dc2626;
+  }
+  .vehicle-handover-print-spacer {
+    height: var(--vehicle-handover-section-gap);
+    width: 100%;
+  }
+  .vehicle-handover-print-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    gap: 14px;
+    margin: 0 auto;
+    max-width: 180mm;
+    direction: rtl;
+  }
+  .vehicle-handover-print-box {
+    flex: 1 1 72mm;
+    max-width: 84mm;
+    min-height: 52mm;
+    padding: 12px 14px 10px;
+    background: #ffffff;
+    border: 1.5px solid #9ca3af;
+    border-radius: 10px;
+    text-align: right;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .vehicle-handover-print-box-content {
+    flex: 0 0 auto;
+  }
+  .vehicle-handover-print-box-secondary + .vehicle-handover-print-box-secondary {
+    margin-top: 4px;
+  }
+  .vehicle-handover-print-box-datetime {
+    margin: 6px 0 0;
+    font-size: 11px;
+    color: #4b5563;
+    line-height: 1.4;
+    text-align: right;
+  }
+  .vehicle-handover-print-box-primary {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+  .vehicle-handover-print-box-secondary {
+    margin: 0;
+    font-size: 11px;
+    color: #4b5563;
+    line-height: 1.4;
+  }
+  .vehicle-handover-print-box-line {
+    margin: 0 0 6px;
+    font-size: 12px;
+    line-height: 1.45;
+    text-align: start;
+  }
+  .vehicle-handover-print-box-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+  }
+  .vehicle-handover-print-box-value {
+    display: block;
+    margin-top: 2px;
+  }
+  .vehicle-handover-print-signature-footer {
+    margin-top: auto;
+    width: 100%;
+    flex: 0 0 auto;
+  }
+  .vehicle-handover-print-signature-space {
+    min-height: 28mm;
+    width: 100%;
+  }
+  .vehicle-handover-print-org-media {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 6mm;
+    width: 100%;
+    min-height: 32mm;
+    margin-top: 6px;
+    padding: 2mm 2mm 0;
+    direction: rtl;
+    box-sizing: border-box;
+  }
+  .vehicle-handover-print-org-media img {
+    display: block;
+    flex: 0 0 auto;
+    object-fit: contain;
+    object-position: bottom center;
+  }
+  .vehicle-handover-print-org-media .contract-org-stamp {
+    max-height: 32mm !important;
+    max-width: 58mm !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  .vehicle-handover-print-org-media .contract-org-signature {
+    max-height: 20.8mm !important;
+    max-width: 38.4mm !important;
+    width: auto !important;
+    height: auto !important;
+  }
+  .vehicle-handover-print-signature-caption {
+    margin: 0;
+    padding-top: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: right;
+    color: #6b7280;
+    white-space: nowrap;
+  }
   .print-subtitle {
     text-align: center;
     margin: 0 0 16px;
@@ -275,6 +476,10 @@ export const PRINT_BASE_STYLES = `
     min-height: ${CONTRACT_SPACER_MIN_HEIGHT_MM}mm;
     width: 100%;
   }
+  .print-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
   img.contract-org-stamp,
   .print-line--media .contract-org-stamp {
     display: inline-block;
@@ -307,6 +512,13 @@ export const PRINT_BASE_STYLES = `
   @media screen {
     body { padding: 20px; background: #f3f4f6; }
     .print-doc { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .print-page-break {
+      break-before: auto;
+      page-break-before: auto;
+      margin: 20px 0;
+      border-top: 2px dashed #d1d5db;
+      height: 0;
+    }
   }
   @media print {
     html, body { width: auto; overflow: visible; }

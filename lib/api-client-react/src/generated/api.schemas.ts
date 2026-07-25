@@ -357,8 +357,10 @@ export interface Contract {
   renderedContent?: string | null;
   /** هل تم رفع العقد الموقع من العميل */
   isSigned: boolean;
-  /** هل يوجد نموذج أضرار مركبة محفوظ */
+  /** هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام) */
   hasVehicleDamageForm: boolean;
+  /** هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم) */
+  hasVehicleDeliveryDamageForm: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -381,6 +383,21 @@ export interface VehicleDamageFormBody {
 }
 
 /**
+ * لقطة بيانات مركبة العقد لمحاضر الاستلام والتسليم والطباعة
+ */
+export interface ContractHandoverVehicleInfo {
+  brand: string;
+  modelYear: number;
+  coolingType: VehicleCoolingType;
+  /** تسمية عربية لنوع التبريد */
+  coolingTypeLabel: string;
+  registrationColor: string;
+  chassisNumber: string;
+  serialNumber?: string | null;
+  plateNumber: string;
+}
+
+/**
  * محضر أستلام مركبة — مخطط أضرار المركبة عند التسليم المرتبط بعقد تأجير
  */
 export interface VehicleDamageForm {
@@ -388,10 +405,48 @@ export interface VehicleDamageForm {
   contractNumber: string;
   /** اسم السائق (محضر الاستلام) */
   driverName: string;
+  /** رقم هوية السائق */
+  driverIdNumber: string;
+  /** اسم المنشأة من إعدادات الشركة */
+  orgBusinessName: string;
+  /** الرقم الموحد للمنشأة من الإعدادات */
+  orgUnifiedNumber?: string | null;
+  /** رابط ختم الشركة من إعدادات النظام */
+  orgStampUrl?: string | null;
+  /** رابط توقيع الشركة من إعدادات النظام */
+  orgSignatureUrl?: string | null;
   /** اسم المنشأة بدون بادئة النوع */
   establishmentName?: string | null;
   /** اسم المنشأة مع النوع (للطباعة) */
   establishmentFullName?: string | null;
+  vehicle: ContractHandoverVehicleInfo;
+  markers: VehicleDamageMarker[];
+  updatedAt: string;
+}
+
+/**
+ * محضر تسليم مركبة — مخطط أضرار المركبة عند التسليم
+ */
+export interface VehicleDeliveryDamageForm {
+  contractId: number;
+  contractNumber: string;
+  /** اسم السائق */
+  driverName: string;
+  /** رقم هوية السائق */
+  driverIdNumber: string;
+  /** اسم المنشأة بدون بادئة النوع */
+  establishmentName?: string | null;
+  /** اسم المنشأة مع النوع (للطباعة) */
+  establishmentFullName?: string | null;
+  /** اسم المنشأة من إعدادات الشركة */
+  orgBusinessName: string;
+  /** الرقم الموحد للمنشأة من الإعدادات */
+  orgUnifiedNumber?: string | null;
+  /** رابط ختم الشركة من إعدادات النظام */
+  orgStampUrl?: string | null;
+  /** رابط توقيع الشركة من إعدادات النظام */
+  orgSignatureUrl?: string | null;
+  vehicle: ContractHandoverVehicleInfo;
   markers: VehicleDamageMarker[];
   updatedAt: string;
 }
@@ -455,7 +510,7 @@ export interface CreateContractTemplateBody {
   /** @minLength 1 */
   name: string;
   /**
-     * نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). عناوين *بند* فقط.
+     * نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). {{contract.pageBreak}} أو {{pageBreak}} لبدء صفحة جديدة (سطر مستقل قبل النص التالي). عناوين *بند* فقط.
      * @minLength 1
      */
   body: string;

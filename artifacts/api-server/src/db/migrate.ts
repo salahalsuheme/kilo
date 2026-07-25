@@ -644,6 +644,10 @@ const CONTRACT_VEHICLE_DAMAGE_FORM_PATCH = `
 ALTER TABLE contracts ADD COLUMN IF NOT EXISTS vehicle_damage_markers JSONB;
 `;
 
+const CONTRACT_VEHICLE_DELIVERY_DAMAGE_FORM_PATCH = `
+ALTER TABLE contracts ADD COLUMN IF NOT EXISTS vehicle_delivery_damage_markers JSONB;
+`;
+
 const CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH = `
 DROP INDEX IF EXISTS customers_org_establishment_number_uidx;
 
@@ -806,6 +810,7 @@ export async function runMigrations(): Promise<void> {
     await pool.query(INVOICES_MULTI_PER_CONTRACT_PATCH);
     await pool.query(CONTRACT_SIGNED_ATTACHMENT_PATCH);
     await pool.query(CONTRACT_VEHICLE_DAMAGE_FORM_PATCH);
+    await pool.query(CONTRACT_VEHICLE_DELIVERY_DAMAGE_FORM_PATCH);
     await pool.query(CUSTOMERS_ESTABLISHMENT_REPEATABLE_PATCH);
     await pool.query(ESTABLISHMENTS_PATCH);
     await pool.query(ESTABLISHMENTS_DATA_MIGRATION_PATCH);

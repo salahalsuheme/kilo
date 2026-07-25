@@ -48,3 +48,14 @@ export function resolveOrgUnifiedNumberFromPutSuffix(
   }
   return resolveEstablishmentNumberFromBody(suffix.trim());
 }
+
+/** DB/API may store full 700… number or suffix only — always normalize for display. */
+export function resolveOrgUnifiedNumberFromStorage(
+  stored: string | null | undefined,
+): string | null {
+  const trimmed = stored?.trim();
+  if (!trimmed) {
+    return null;
+  }
+  return resolveEstablishmentNumberFromBody(stripEstablishmentNumberSuffix(trimmed));
+}

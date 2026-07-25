@@ -29,6 +29,12 @@
   width: 100%;
 }
 
+.contract-preview-body .print-page-break {
+  margin: 20px 0;
+  border-top: 2px dashed #d1d5db;
+  height: 0;
+}
+
 .contract-preview-body img.contract-org-stamp,
 .contract-preview-body .contract-org-stamp {
   display: inline-block;

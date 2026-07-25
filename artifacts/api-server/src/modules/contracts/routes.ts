@@ -6,11 +6,13 @@ import {
   handleDeleteContract,
   handleDeleteContractTemplate,
   handleDeleteContractVehicleDamageForm,
+  handleDeleteContractVehicleDeliveryDamageForm,
   handleDownloadContractPdf,
   handleDownloadContractSignedAttachment,
   handleGetContract,
   handleGetContractTemplate,
   handleGetContractVehicleDamageForm,
+  handleGetContractVehicleDeliveryDamageForm,
   handleListContractTemplates,
   handleListContracts,
   handleUpdateContract,
@@ -18,6 +20,7 @@ import {
   handleUpdateContractTemplate,
   handleUploadContractSignedAttachment,
   handleUpsertContractVehicleDamageForm,
+  handleUpsertContractVehicleDeliveryDamageForm,
 } from "./controller.js";
 
 const router: IRouter = Router();
@@ -35,6 +38,12 @@ router.post(
 router.get("/contracts/:id/vehicle-damage-form", handleGetContractVehicleDamageForm);
 router.put("/contracts/:id/vehicle-damage-form", handleUpsertContractVehicleDamageForm);
 router.delete("/contracts/:id/vehicle-damage-form", handleDeleteContractVehicleDamageForm);
+router.get("/contracts/:id/vehicle-delivery-damage-form", handleGetContractVehicleDeliveryDamageForm);
+router.put("/contracts/:id/vehicle-delivery-damage-form", handleUpsertContractVehicleDeliveryDamageForm);
+router.delete(
+  "/contracts/:id/vehicle-delivery-damage-form",
+  handleDeleteContractVehicleDeliveryDamageForm,
+);
 router.put("/contracts/:id", handleUpdateContract);
 router.delete("/contracts/:id", handleDeleteContract);
 router.patch("/contracts/:id/status", handleUpdateContractStatus);

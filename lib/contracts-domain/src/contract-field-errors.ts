@@ -19,8 +19,15 @@ export const SIGNED_CONTRACT_ATTACHMENT_ERRORS = {
 } as const;
 
 export const VEHICLE_DAMAGE_FORM_ERRORS = {
-  notFound: "لا يوجد نموذج أضرار مركبة",
-  emptyMarkers: "أضف نقطة واحدة على الأقل لحفظ النموذج",
+  notFound: "لا يوجد محضر استلام مركبة",
+  emptyMarkers: "أضف نقطة واحدة على الأقل لحفظ المحضر",
+  receiptLocked: "محضر الاستلام مقفل بعد تنشيط العقد",
+} as const;
+
+export const VEHICLE_DELIVERY_DAMAGE_FORM_ERRORS = {
+  notFound: "لا يوجد محضر تسليم مركبة",
+  emptyMarkers: "أضف نقطة واحدة على الأقل لحفظ المحضر",
+  notAllowed: "محضر التسليم يتاح بعد حفظ محضر الاستلام وتنشيط العقد",
 } as const;
 
 export const CONTRACT_BODY_INVALID = "بيانات العقد غير صالحة";

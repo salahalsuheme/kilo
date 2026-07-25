@@ -15,7 +15,12 @@ export function absoluteAssetUrl(
   if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:")) {
     return path;
   }
-  return `${origin}${path.startsWith("/") ? path : `/${path}`}`;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  if (!origin) {
+    return normalizedPath;
+  }
+  const base = origin.replace(/\/+$/, "");
+  return `${base}${normalizedPath}`;
 }
 
 export function sanitizePdfFilename(name: string): string {

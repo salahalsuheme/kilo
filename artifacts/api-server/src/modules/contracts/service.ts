@@ -100,6 +100,9 @@ function mapContractRow(
     renderedContent: row.renderedContent,
     isSigned: isContractSigned(row.signedAttachmentUrl),
     hasVehicleDamageForm: hasVehicleDamageForm(row.vehicleDamageMarkers ?? undefined),
+    hasVehicleDeliveryDamageForm: hasVehicleDamageForm(
+      row.vehicleDeliveryDamageMarkers ?? undefined,
+    ),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -542,7 +545,10 @@ export async function updateContractStatus(
 
   if (nextStatus === "active") {
     if (existing.status === "draft") {
-      const activationError = getDraftActivationError(new Date(existing.endAt));
+      const activationError = getDraftActivationError({
+        endAt: new Date(existing.endAt),
+        hasVehicleReceiptHandover: existing.hasVehicleDamageForm,
+      });
       if (activationError) return { error: activationError };
     }
     const carError = await assertCarAvailableForActivation(orgId, existing.carId, id);

@@ -99,6 +99,7 @@ import type {
   Vehicle,
   VehicleDamageForm,
   VehicleDamageFormBody,
+  VehicleDeliveryDamageForm,
   VehicleList
 } from './api.schemas';
 
@@ -3037,6 +3038,220 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getDeleteContractVehicleDamageFormMutationOptions(options));
+    }
+
+export const getGetContractVehicleDeliveryDamageFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/vehicle-delivery-damage-form`
+}
+
+/**
+ * @summary محضر تسليم مركبة — عرض مخطط الأضرار
+ */
+export const getContractVehicleDeliveryDamageForm = async (id: number, options?: RequestInit): Promise<VehicleDeliveryDamageForm> => {
+
+  return customFetch<VehicleDeliveryDamageForm>(getGetContractVehicleDeliveryDamageFormUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetContractVehicleDeliveryDamageFormQueryKey = (id: number,) => {
+    return [
+    `/api/contracts/${id}/vehicle-delivery-damage-form`
+    ] as const;
+    }
+
+
+export const getGetContractVehicleDeliveryDamageFormQueryOptions = <TData = Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetContractVehicleDeliveryDamageFormQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>> = ({ signal }) => getContractVehicleDeliveryDamageForm(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetContractVehicleDeliveryDamageFormQueryResult = NonNullable<Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>>
+export type GetContractVehicleDeliveryDamageFormQueryError = ErrorType<void>
+
+
+/**
+ * @summary محضر تسليم مركبة — عرض مخطط الأضرار
+ */
+
+export function useGetContractVehicleDeliveryDamageForm<TData = Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getContractVehicleDeliveryDamageForm>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetContractVehicleDeliveryDamageFormQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpsertContractVehicleDeliveryDamageFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/vehicle-delivery-damage-form`
+}
+
+/**
+ * @summary محضر تسليم مركبة — حفظ مخطط الأضرار
+ */
+export const upsertContractVehicleDeliveryDamageForm = async (id: number,
+    vehicleDamageFormBody: VehicleDamageFormBody, options?: RequestInit): Promise<VehicleDeliveryDamageForm> => {
+
+  return customFetch<VehicleDeliveryDamageForm>(getUpsertContractVehicleDeliveryDamageFormUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(vehicleDamageFormBody)
+  }
+);}
+
+
+
+
+
+export const getUpsertContractVehicleDeliveryDamageFormMutationOptions = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDeliveryDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDeliveryDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext> => {
+
+const mutationKey = ['upsertContractVehicleDeliveryDamageForm'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertContractVehicleDeliveryDamageForm>>, {id: number;data: BodyType<VehicleDamageFormBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  upsertContractVehicleDeliveryDamageForm(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertContractVehicleDeliveryDamageFormMutationResult = NonNullable<Awaited<ReturnType<typeof upsertContractVehicleDeliveryDamageForm>>>
+    export type UpsertContractVehicleDeliveryDamageFormMutationBody = BodyType<VehicleDamageFormBody>
+    export type UpsertContractVehicleDeliveryDamageFormMutationError = ErrorType<ApiErrorMessage | void>
+
+    /**
+ * @summary محضر تسليم مركبة — حفظ مخطط الأضرار
+ */
+export const useUpsertContractVehicleDeliveryDamageForm = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertContractVehicleDeliveryDamageForm>>, TError,{id: number;data: BodyType<VehicleDamageFormBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertContractVehicleDeliveryDamageForm>>,
+        TError,
+        {id: number;data: BodyType<VehicleDamageFormBody>},
+        TContext
+      > => {
+      return useMutation(getUpsertContractVehicleDeliveryDamageFormMutationOptions(options));
+    }
+
+export const getDeleteContractVehicleDeliveryDamageFormUrl = (id: number,) => {
+
+
+
+
+  return `/api/contracts/${id}/vehicle-delivery-damage-form`
+}
+
+export const deleteContractVehicleDeliveryDamageForm = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteContractVehicleDeliveryDamageFormUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteContractVehicleDeliveryDamageFormMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteContractVehicleDeliveryDamageForm>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteContractVehicleDeliveryDamageForm>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteContractVehicleDeliveryDamageForm'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteContractVehicleDeliveryDamageForm>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteContractVehicleDeliveryDamageForm(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteContractVehicleDeliveryDamageFormMutationResult = NonNullable<Awaited<ReturnType<typeof deleteContractVehicleDeliveryDamageForm>>>
+
+    export type DeleteContractVehicleDeliveryDamageFormMutationError = ErrorType<void>
+
+    export const useDeleteContractVehicleDeliveryDamageForm = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteContractVehicleDeliveryDamageForm>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteContractVehicleDeliveryDamageForm>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteContractVehicleDeliveryDamageFormMutationOptions(options));
     }
 
 export const getListContractTemplatesUrl = () => {

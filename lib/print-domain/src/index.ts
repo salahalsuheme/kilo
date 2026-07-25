@@ -12,6 +12,8 @@ export {
   PRINT_PAGE_SHEET_CSS,
 } from "./print-page-frame.js";
 export { escapeHtml, absoluteAssetUrl, sanitizePdfFilename } from "./html-utils.js";
+export { formatBrowserPrintDateTime } from "./print-datetime.js";
+export { buildHandoverOrgStampSignatureHtml } from "./handover-org-media.js";
 export {
   buildOrgPrintHeaderHtml,
   buildQrDataUrl,
@@ -28,6 +30,7 @@ export { buildInvoicePrintHtml, type InvoicePrintInput } from "./build-invoice-p
 export {
   buildVehicleDamageFormPrintHtml,
   type VehicleDamageFormPrintInput,
+  type VehicleHandoverPrintPhase,
 } from "./build-vehicle-damage-form-print-html.js";
 export type { BuildPrintPageOptions, PrintSheetHeader } from "./build-print-page.js";
 export { buildPrintPageHtml, buildPdfPageHtml } from "./build-print-page.js";

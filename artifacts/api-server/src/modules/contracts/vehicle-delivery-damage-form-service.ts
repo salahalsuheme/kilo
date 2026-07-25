@@ -1,6 +1,6 @@
 import { and, eq, isNull } from "drizzle-orm";
 import {
-  VEHICLE_DAMAGE_FORM_ERRORS,
+  VEHICLE_DELIVERY_DAMAGE_FORM_ERRORS,
   VehicleDamageFormBodySchema,
   hasVehicleDamageForm,
   type VehicleDamageFormBodyInput,
@@ -9,24 +9,32 @@ import { db } from "../../db/index.js";
 import { contracts } from "../../db/schema.js";
 import { recordActivity } from "../bootstrap/service.js";
 import {
+  deliveryMarkersFromRow,
   getContractHandoverRow,
   mapHandoverFormRow,
   receiptMarkersFromRow,
 } from "./vehicle-handover-context.js";
 
-export type VehicleDamageFormResponse = Awaited<ReturnType<typeof mapHandoverFormRow>>;
+export type VehicleDeliveryDamageFormResponse = Awaited<ReturnType<typeof mapHandoverFormRow>>;
 
-export async function getContractVehicleDamageForm(orgId: number, contractId: number) {
+function canManageDeliveryHandover(
+  row: NonNullable<Awaited<ReturnType<typeof getContractHandoverRow>>>,
+): boolean {
+  if (row.status === "draft") return false;
+  return hasVehicleDamageForm(receiptMarkersFromRow(row));
+}
+
+export async function getContractVehicleDeliveryDamageForm(orgId: number, contractId: number) {
   const row = await getContractHandoverRow(orgId, contractId);
   if (!row) return null;
-  const markers = receiptMarkersFromRow(row);
+  const markers = deliveryMarkersFromRow(row);
   if (!hasVehicleDamageForm(markers)) {
     return null;
   }
   return mapHandoverFormRow(row, markers ?? [], row.updatedAt);
 }
 
-export async function upsertContractVehicleDamageForm(
+export async function upsertContractVehicleDeliveryDamageForm(
   orgId: number,
   contractId: number,
   body: VehicleDamageFormBodyInput,
@@ -36,20 +44,20 @@ export async function upsertContractVehicleDamageForm(
     return { error: parsed.error.issues[0]?.message ?? "بيانات غير صالحة" };
   }
   if (parsed.data.markers.length === 0) {
-    return { error: VEHICLE_DAMAGE_FORM_ERRORS.emptyMarkers };
+    return { error: VEHICLE_DELIVERY_DAMAGE_FORM_ERRORS.emptyMarkers };
   }
 
   const row = await getContractHandoverRow(orgId, contractId);
   if (!row) return null;
-  if (row.status !== "draft") {
-    return { error: VEHICLE_DAMAGE_FORM_ERRORS.receiptLocked };
+  if (!canManageDeliveryHandover(row)) {
+    return { error: VEHICLE_DELIVERY_DAMAGE_FORM_ERRORS.notAllowed };
   }
 
   const now = new Date();
   const [updated] = await db
     .update(contracts)
     .set({
-      vehicleDamageMarkers: parsed.data.markers,
+      vehicleDeliveryDamageMarkers: parsed.data.markers,
       updatedAt: now,
     })
     .where(
@@ -60,7 +68,7 @@ export async function upsertContractVehicleDamageForm(
       ),
     )
     .returning({
-      vehicleDamageMarkers: contracts.vehicleDamageMarkers,
+      vehicleDeliveryDamageMarkers: contracts.vehicleDeliveryDamageMarkers,
       updatedAt: contracts.updatedAt,
     });
 
@@ -69,26 +77,30 @@ export async function upsertContractVehicleDamageForm(
   await recordActivity(
     orgId,
     "contract",
-    `حفظ محضر استلام المركبة: ${row.contractNumber}`,
+    `حفظ محضر تسليم المركبة: ${row.contractNumber}`,
   );
 
-  const markers = receiptMarkersFromRow({ ...row, vehicleDamageMarkers: updated.vehicleDamageMarkers }) ?? [];
+  const markers =
+    deliveryMarkersFromRow({
+      ...row,
+      vehicleDeliveryDamageMarkers: updated.vehicleDeliveryDamageMarkers,
+    }) ?? [];
   return {
     data: mapHandoverFormRow(row, markers, updated.updatedAt),
   };
 }
 
-export async function deleteContractVehicleDamageForm(orgId: number, contractId: number) {
+export async function deleteContractVehicleDeliveryDamageForm(orgId: number, contractId: number) {
   const row = await getContractHandoverRow(orgId, contractId);
   if (!row) return false;
-  if (row.status !== "draft") return false;
-  if (!hasVehicleDamageForm(receiptMarkersFromRow(row))) {
+  if (!canManageDeliveryHandover(row)) return false;
+  if (!hasVehicleDamageForm(deliveryMarkersFromRow(row))) {
     return false;
   }
 
   const [updated] = await db
     .update(contracts)
-    .set({ vehicleDamageMarkers: null, updatedAt: new Date() })
+    .set({ vehicleDeliveryDamageMarkers: null, updatedAt: new Date() })
     .where(
       and(
         eq(contracts.orgId, orgId),
@@ -103,13 +115,13 @@ export async function deleteContractVehicleDamageForm(orgId: number, contractId:
   await recordActivity(
     orgId,
     "contract",
-    `حذف محضر استلام المركبة: ${updated.contractNumber}`,
+    `حذف محضر تسليم المركبة: ${updated.contractNumber}`,
   );
 
   return true;
 }
 
-export function contractHasVehicleDamageForm(
+export function contractHasVehicleDeliveryDamageForm(
   markers: VehicleDamageFormBodyInput["markers"] | null | undefined,
 ): boolean {
   return hasVehicleDamageForm(markers);

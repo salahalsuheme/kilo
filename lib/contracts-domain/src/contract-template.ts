@@ -2,6 +2,7 @@ import {
   buildContractOrgSignatureTemplateLine,
   buildContractOrgStampTemplateLine,
 } from "./contract-template-org-media.js";
+import { buildContractPageBreakTemplateLine } from "./contract-template-page-break.js";
 import { buildContractSpacerTemplateLine } from "./contract-template-spacer.js";
 import { formatContractMoneyDisplay } from "./format-contract-display-money.js";
 
@@ -82,6 +83,8 @@ export function buildContractTemplateVariables(
     "org.signature": buildContractOrgSignatureTemplateLine(org.signatureUrl),
     "contract.spacer": buildContractSpacerTemplateLine(),
     spacer: buildContractSpacerTemplateLine(),
+    "contract.pageBreak": buildContractPageBreakTemplateLine(),
+    pageBreak: buildContractPageBreakTemplateLine(),
     "driver.name": driver.name.trim(),
     "driver.idNumber": driver.idNumber,
     "driver.mobile": driver.mobile,

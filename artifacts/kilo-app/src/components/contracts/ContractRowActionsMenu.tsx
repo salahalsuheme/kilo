@@ -1,5 +1,12 @@
 import type { Contract, ContractStatus } from "@/lib/api-client-react-tenant";
 import { CONTRACT_STATUS_LABELS } from "@workspace/contracts-domain";
+import {
+  isVehicleDeliveryHandoverDisabled,
+  isVehicleReceiptHandoverLocked,
+  VEHICLE_HANDOVER_DELIVERY_LABEL,
+  VEHICLE_HANDOVER_MENU_LABEL,
+  VEHICLE_HANDOVER_RECEIPT_LABEL,
+} from "@workspace/contracts-domain";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,8 +18,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FileEdit, CheckCircle2, Download, FileUp, Car, MoreHorizontal, Printer, RefreshCw, Trash2 } from "lucide-react";
+import { FileEdit, CheckCircle2, Download, FileUp, MoreHorizontal, Printer, RefreshCw, Trash2 } from "lucide-react";
 import type { PrintMode } from "@/lib/print/open-print-document";
+import { cn } from "@/lib/utils";
 
 interface ContractRowActionsMenuProps {
   contract: Contract;
@@ -22,10 +30,8 @@ interface ContractRowActionsMenuProps {
   onPrint: (contract: Contract, mode: PrintMode) => void;
   onUploadSigned: (contract: Contract) => void;
   onDownloadSigned: (contract: Contract) => void;
-  onOpenDamageForm: (contract: Contract) => void;
-  onDownloadDamageForm: (contract: Contract) => void;
-  onPrintDamageForm: (contract: Contract) => void;
-  onDeleteDamageForm: (contract: Contract) => void;
+  onReceiptHandover: (contract: Contract) => void;
+  onDeliveryHandover: (contract: Contract) => void;
   isUploadPending?: boolean;
 }
 
@@ -45,15 +51,15 @@ export function ContractRowActionsMenu({
   onPrint,
   onUploadSigned,
   onDownloadSigned,
-  onOpenDamageForm,
-  onDownloadDamageForm,
-  onPrintDamageForm,
-  onDeleteDamageForm,
+  onReceiptHandover,
+  onDeliveryHandover,
   isUploadPending,
 }: ContractRowActionsMenuProps) {
   const canDelete = contract.status === "draft";
   const canEdit = contract.status === "draft";
   const canActivate = contract.status === "draft";
+  const receiptLocked = isVehicleReceiptHandoverLocked(contract);
+  const deliveryDisabled = isVehicleDeliveryHandoverDisabled(contract);
   const statusOptions = STATUS_ACTIONS.filter((action) =>
     action.allowedFrom.includes(contract.status),
   );
@@ -155,52 +161,28 @@ export function ContractRowActionsMenu({
         ) : null}
 
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <Car className="h-4 w-4 me-2" />
-            أضرار المركبة
-          </DropdownMenuSubTrigger>
+          <DropdownMenuSubTrigger>{VEHICLE_HANDOVER_MENU_LABEL}</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             <DropdownMenuItem
+              disabled={receiptLocked}
+              className={cn(receiptLocked && "text-muted-foreground opacity-60")}
               onClick={(e) => {
                 e.stopPropagation();
-                onOpenDamageForm(contract);
+                if (!receiptLocked) onReceiptHandover(contract);
               }}
             >
-              <Car className="h-4 w-4 me-2" />
-              {contract.hasVehicleDamageForm ? "تعديل النموذج" : "نموذج أضرار مركبة"}
+              {VEHICLE_HANDOVER_RECEIPT_LABEL}
             </DropdownMenuItem>
-            {contract.hasVehicleDamageForm ? (
-              <>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onPrintDamageForm(contract);
-                  }}
-                >
-                  <Printer className="h-4 w-4 me-2" />
-                  طباعة النموذج
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDownloadDamageForm(contract);
-                  }}
-                >
-                  <Download className="h-4 w-4 me-2" />
-                  تنزيل النموذج
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteDamageForm(contract);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 me-2" />
-                  حذف النموذج
-                </DropdownMenuItem>
-              </>
-            ) : null}
+            <DropdownMenuItem
+              disabled={deliveryDisabled}
+              className={cn(deliveryDisabled && "text-muted-foreground opacity-60")}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!deliveryDisabled) onDeliveryHandover(contract);
+              }}
+            >
+              {VEHICLE_HANDOVER_DELIVERY_LABEL}
+            </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 

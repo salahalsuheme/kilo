@@ -7,6 +7,7 @@ export {
   CONTRACT_TEMPLATE_FIELD_ERRORS,
   SIGNED_CONTRACT_ATTACHMENT_ERRORS,
   VEHICLE_DAMAGE_FORM_ERRORS,
+  VEHICLE_DELIVERY_DAMAGE_FORM_ERRORS,
 } from "./contract-field-errors.js";
 export {
   contractOverdueDays,
@@ -75,6 +76,13 @@ export {
   lineContainsContractSpacerMarker,
   stripContractSpacerMarkersFromLine,
 } from "./contract-template-spacer.js";
+export {
+  buildContractPageBreakTemplateLine,
+  CONTRACT_PAGE_BREAK_LINE,
+  isContractPageBreakLine,
+  lineContainsContractPageBreakMarker,
+  stripContractPageBreakMarkersFromLine,
+} from "./contract-template-page-break.js";
 export { validateContractEstablishmentLink } from "./contract-establishment.js";
 export {
   ContractBodyObjectSchema,
@@ -129,7 +137,24 @@ export {
 } from "./vehicle-damage-form.schema.js";
 export {
   VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE,
+  VEHICLE_DELIVERY_FORM_DOCUMENT_TITLE,
   VEHICLE_DAMAGE_FORM_PRINT_LABELS,
   formatVehicleDamageFormPrintEstablishmentName,
   vehicleDamageFormDocumentHeading,
+  vehicleDeliveryFormDocumentHeading,
 } from "./vehicle-damage-form-labels.js";
+export {
+  VEHICLE_HANDOVER_DELIVERY_LABEL,
+  VEHICLE_HANDOVER_MENU_LABEL,
+  VEHICLE_HANDOVER_RECEIPT_LABEL,
+  isVehicleDeliveryHandoverDisabled,
+  isVehicleReceiptHandoverLocked,
+  type VehicleHandoverContractFlags,
+} from "./vehicle-handover-access.js";
+export {
+  VEHICLE_HANDOVER_PRINT_HEADER_LABELS,
+  VEHICLE_HANDOVER_PRINT_VEHICLE_LABELS,
+  buildContractHandoverVehiclePrintLines,
+  type ContractHandoverVehicleInfo,
+  type VehicleHandoverPrintLine,
+} from "./vehicle-handover-vehicle.js";

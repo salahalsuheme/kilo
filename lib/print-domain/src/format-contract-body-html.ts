@@ -13,6 +13,9 @@ import {
   isContractSpacerLine,
   lineContainsContractSpacerMarker,
   stripContractSpacerMarkersFromLine,
+  isContractPageBreakLine,
+  lineContainsContractPageBreakMarker,
+  stripContractPageBreakMarkersFromLine,
 } from "@workspace/contracts-domain";
 import type { ContractOrgMediaKind } from "@workspace/contracts-domain";
 import { absoluteAssetUrl, escapeHtml } from "./html-utils.js";
@@ -107,6 +110,57 @@ function formatOrgMediaMarkerBlock(
 
   const rowClass = imgs.length > 1 ? " print-line--media-row" : "";
   return `<p class="print-line print-line--media${rowClass}">${imgs.join("")}</p>`;
+}
+
+function formatContractPageBreakHtml(): string {
+  return `<div class="print-page-break" role="presentation"></div>`;
+}
+
+function collectPageBreakMarkerBlock(
+  lines: string[],
+  startIndex: number,
+): { nextIndex: number } {
+  let index = startIndex;
+
+  while (index < lines.length) {
+    const trimmed = lines[index]?.trim() ?? "";
+    if (!trimmed) {
+      index += 1;
+      continue;
+    }
+    if (isContractPageBreakLine(trimmed)) {
+      index += 1;
+      continue;
+    }
+    break;
+  }
+
+  return { nextIndex: index };
+}
+
+function formatPageBreakMarkerLine(
+  line: string,
+  lines: string[],
+  lineIndex: number,
+  options: ContractBodyFormatOptions,
+): { html: string; nextIndex: number } {
+  const trimmed = line.trim();
+  const remainder = stripContractPageBreakMarkersFromLine(line);
+  const isPageBreakOnlyLine = isContractPageBreakLine(trimmed) && !remainder;
+
+  if (isPageBreakOnlyLine) {
+    const block = collectPageBreakMarkerBlock(lines, lineIndex);
+    return {
+      html: formatContractPageBreakHtml(),
+      nextIndex: block.nextIndex,
+    };
+  }
+
+  const parts: string[] = [formatContractPageBreakHtml()];
+  if (remainder) {
+    parts.push(formatBufferedContractLine(remainder, options));
+  }
+  return { html: parts.join(""), nextIndex: lineIndex + 1 };
 }
 
 function formatContractSpacerHtml(count: number): string {
@@ -206,6 +260,11 @@ function formatOrgMediaMarkerLine(
 }
 
 function formatBufferedContractLine(line: string, options: ContractBodyFormatOptions): string {
+  if (lineContainsContractPageBreakMarker(line)) {
+    const { html } = formatPageBreakMarkerLine(line, [line], 0, options);
+    return html;
+  }
+
   if (lineContainsContractSpacerMarker(line)) {
     const { html } = formatSpacerMarkerLine(line, [line], 0, options);
     return html;
@@ -284,6 +343,21 @@ export function formatContractBodyHtml(
     if (isLegacyContractOrgMediaLine(line) || lineContainsLegacyContractOrgMedia(line)) {
       flush();
       sections.push(formatContractBodyLine(line, formatOptions));
+      continue;
+    }
+
+    if (lineContainsContractPageBreakMarker(line)) {
+      flush();
+      const { html, nextIndex } = formatPageBreakMarkerLine(
+        line,
+        lines,
+        index - 1,
+        formatOptions,
+      );
+      if (html) {
+        sections.push(html);
+      }
+      index = nextIndex;
       continue;
     }
 

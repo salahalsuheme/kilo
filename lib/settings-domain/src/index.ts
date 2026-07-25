@@ -41,6 +41,7 @@ export {
 export {
   draftToEstablishmentNumberSuffix,
   resolveOrgUnifiedNumberFromPutSuffix,
+  resolveOrgUnifiedNumberFromStorage,
   unifiedNumberDraftToPutSuffix,
   validateOrgUnifiedNumberDraft,
 } from "./org-unified-number.js";

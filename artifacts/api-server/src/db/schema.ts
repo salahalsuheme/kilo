@@ -228,6 +228,9 @@ export const contracts = pgTable("contracts", {
   renderedContent: text("rendered_content"),
   signedAttachmentUrl: text("signed_attachment_url"),
   vehicleDamageMarkers: jsonb("vehicle_damage_markers").$type<Array<{ x: number; y: number }>>(),
+  vehicleDeliveryDamageMarkers: jsonb("vehicle_delivery_damage_markers").$type<
+    Array<{ x: number; y: number }>
+  >(),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

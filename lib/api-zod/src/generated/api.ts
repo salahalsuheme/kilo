@@ -778,7 +778,8 @@ export const ListContractsResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
-  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)'),
+  "hasVehicleDeliveryDamageForm": zod.boolean().describe('هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })),
@@ -839,7 +840,8 @@ export const CreateContractResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
-  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)'),
+  "hasVehicleDeliveryDamageForm": zod.boolean().describe('هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -877,7 +879,8 @@ export const GetContractResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
-  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)'),
+  "hasVehicleDeliveryDamageForm": zod.boolean().describe('هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -938,7 +941,8 @@ export const UpdateContractResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
-  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)'),
+  "hasVehicleDeliveryDamageForm": zod.boolean().describe('هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -987,7 +991,8 @@ export const UpdateContractStatusResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
-  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)'),
+  "hasVehicleDeliveryDamageForm": zod.boolean().describe('هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -1043,7 +1048,8 @@ export const UploadContractSignedAttachmentResponse = zod.object({
   "penaltyTotal": zod.number().describe('مجموع غرامات التأخير شاملة الضريبة (محسوبة للمتأخر، أو محفوظة عند الإقفال)'),
   "renderedContent": zod.string().nullish(),
   "isSigned": zod.boolean().describe('هل تم رفع العقد الموقع من العميل'),
-  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد نموذج أضرار مركبة محفوظ'),
+  "hasVehicleDamageForm": zod.boolean().describe('هل يوجد محضر استلام مركبة (مخطط أضرار عند الاستلام)'),
+  "hasVehicleDeliveryDamageForm": zod.boolean().describe('هل يوجد محضر تسليم مركبة (مخطط أضرار عند التسليم)'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
 })
@@ -1068,8 +1074,23 @@ export const GetContractVehicleDamageFormResponse = zod.object({
   "contractId": zod.number(),
   "contractNumber": zod.string(),
   "driverName": zod.string().describe('اسم السائق (محضر الاستلام)'),
+  "driverIdNumber": zod.string().describe('رقم هوية السائق'),
+  "orgBusinessName": zod.string().describe('اسم المنشأة من إعدادات الشركة'),
+  "orgUnifiedNumber": zod.string().nullish().describe('الرقم الموحد للمنشأة من الإعدادات'),
+  "orgStampUrl": zod.string().nullish().describe('رابط ختم الشركة من إعدادات النظام'),
+  "orgSignatureUrl": zod.string().nullish().describe('رابط توقيع الشركة من إعدادات النظام'),
   "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
   "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (للطباعة)'),
+  "vehicle": zod.object({
+  "brand": zod.string(),
+  "modelYear": zod.number(),
+  "coolingType": zod.enum(['refrigerated', 'non_refrigerated']),
+  "coolingTypeLabel": zod.string().describe('تسمية عربية لنوع التبريد'),
+  "registrationColor": zod.string(),
+  "chassisNumber": zod.string(),
+  "serialNumber": zod.string().nullish(),
+  "plateNumber": zod.string()
+}).describe('لقطة بيانات مركبة العقد لمحاضر الاستلام والتسليم والطباعة'),
   "markers": zod.array(zod.object({
   "x": zod.number().min(getContractVehicleDamageFormResponseMarkersItemXMin).max(getContractVehicleDamageFormResponseMarkersItemXMax),
   "y": zod.number().min(getContractVehicleDamageFormResponseMarkersItemYMin).max(getContractVehicleDamageFormResponseMarkersItemYMax)
@@ -1112,8 +1133,23 @@ export const UpsertContractVehicleDamageFormResponse = zod.object({
   "contractId": zod.number(),
   "contractNumber": zod.string(),
   "driverName": zod.string().describe('اسم السائق (محضر الاستلام)'),
+  "driverIdNumber": zod.string().describe('رقم هوية السائق'),
+  "orgBusinessName": zod.string().describe('اسم المنشأة من إعدادات الشركة'),
+  "orgUnifiedNumber": zod.string().nullish().describe('الرقم الموحد للمنشأة من الإعدادات'),
+  "orgStampUrl": zod.string().nullish().describe('رابط ختم الشركة من إعدادات النظام'),
+  "orgSignatureUrl": zod.string().nullish().describe('رابط توقيع الشركة من إعدادات النظام'),
   "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
   "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (للطباعة)'),
+  "vehicle": zod.object({
+  "brand": zod.string(),
+  "modelYear": zod.number(),
+  "coolingType": zod.enum(['refrigerated', 'non_refrigerated']),
+  "coolingTypeLabel": zod.string().describe('تسمية عربية لنوع التبريد'),
+  "registrationColor": zod.string(),
+  "chassisNumber": zod.string(),
+  "serialNumber": zod.string().nullish(),
+  "plateNumber": zod.string()
+}).describe('لقطة بيانات مركبة العقد لمحاضر الاستلام والتسليم والطباعة'),
   "markers": zod.array(zod.object({
   "x": zod.number().min(upsertContractVehicleDamageFormResponseMarkersItemXMin).max(upsertContractVehicleDamageFormResponseMarkersItemXMax),
   "y": zod.number().min(upsertContractVehicleDamageFormResponseMarkersItemYMin).max(upsertContractVehicleDamageFormResponseMarkersItemYMax)
@@ -1127,6 +1163,116 @@ export const DeleteContractVehicleDamageFormParams = zod.object({
 })
 
 export const DeleteContractVehicleDamageFormResponse = zod.void()
+
+
+/**
+ * @summary محضر تسليم مركبة — عرض مخطط الأضرار
+ */
+export const GetContractVehicleDeliveryDamageFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const getContractVehicleDeliveryDamageFormResponseMarkersItemXMin = 0;
+export const getContractVehicleDeliveryDamageFormResponseMarkersItemXMax = 1;
+
+export const getContractVehicleDeliveryDamageFormResponseMarkersItemYMin = 0;
+export const getContractVehicleDeliveryDamageFormResponseMarkersItemYMax = 1;
+
+
+
+export const GetContractVehicleDeliveryDamageFormResponse = zod.object({
+  "contractId": zod.number(),
+  "contractNumber": zod.string(),
+  "driverName": zod.string().describe('اسم السائق'),
+  "driverIdNumber": zod.string().describe('رقم هوية السائق'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (للطباعة)'),
+  "orgBusinessName": zod.string().describe('اسم المنشأة من إعدادات الشركة'),
+  "orgUnifiedNumber": zod.string().nullish().describe('الرقم الموحد للمنشأة من الإعدادات'),
+  "orgStampUrl": zod.string().nullish().describe('رابط ختم الشركة من إعدادات النظام'),
+  "orgSignatureUrl": zod.string().nullish().describe('رابط توقيع الشركة من إعدادات النظام'),
+  "vehicle": zod.object({
+  "brand": zod.string(),
+  "modelYear": zod.number(),
+  "coolingType": zod.enum(['refrigerated', 'non_refrigerated']),
+  "coolingTypeLabel": zod.string().describe('تسمية عربية لنوع التبريد'),
+  "registrationColor": zod.string(),
+  "chassisNumber": zod.string(),
+  "serialNumber": zod.string().nullish(),
+  "plateNumber": zod.string()
+}).describe('لقطة بيانات مركبة العقد لمحاضر الاستلام والتسليم والطباعة'),
+  "markers": zod.array(zod.object({
+  "x": zod.number().min(getContractVehicleDeliveryDamageFormResponseMarkersItemXMin).max(getContractVehicleDeliveryDamageFormResponseMarkersItemXMax),
+  "y": zod.number().min(getContractVehicleDeliveryDamageFormResponseMarkersItemYMin).max(getContractVehicleDeliveryDamageFormResponseMarkersItemYMax)
+})),
+  "updatedAt": zod.coerce.date()
+}).describe('محضر تسليم مركبة — مخطط أضرار المركبة عند التسليم')
+
+
+/**
+ * @summary محضر تسليم مركبة — حفظ مخطط الأضرار
+ */
+export const UpsertContractVehicleDeliveryDamageFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const upsertContractVehicleDeliveryDamageFormBodyMarkersItemXMin = 0;
+export const upsertContractVehicleDeliveryDamageFormBodyMarkersItemXMax = 1;
+
+export const upsertContractVehicleDeliveryDamageFormBodyMarkersItemYMin = 0;
+export const upsertContractVehicleDeliveryDamageFormBodyMarkersItemYMax = 1;
+
+
+
+export const UpsertContractVehicleDeliveryDamageFormBody = zod.object({
+  "markers": zod.array(zod.object({
+  "x": zod.number().min(upsertContractVehicleDeliveryDamageFormBodyMarkersItemXMin).max(upsertContractVehicleDeliveryDamageFormBodyMarkersItemXMax),
+  "y": zod.number().min(upsertContractVehicleDeliveryDamageFormBodyMarkersItemYMin).max(upsertContractVehicleDeliveryDamageFormBodyMarkersItemYMax)
+}))
+})
+
+export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMin = 0;
+export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMax = 1;
+
+export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMin = 0;
+export const upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMax = 1;
+
+
+
+export const UpsertContractVehicleDeliveryDamageFormResponse = zod.object({
+  "contractId": zod.number(),
+  "contractNumber": zod.string(),
+  "driverName": zod.string().describe('اسم السائق'),
+  "driverIdNumber": zod.string().describe('رقم هوية السائق'),
+  "establishmentName": zod.string().nullish().describe('اسم المنشأة بدون بادئة النوع'),
+  "establishmentFullName": zod.string().nullish().describe('اسم المنشأة مع النوع (للطباعة)'),
+  "orgBusinessName": zod.string().describe('اسم المنشأة من إعدادات الشركة'),
+  "orgUnifiedNumber": zod.string().nullish().describe('الرقم الموحد للمنشأة من الإعدادات'),
+  "orgStampUrl": zod.string().nullish().describe('رابط ختم الشركة من إعدادات النظام'),
+  "orgSignatureUrl": zod.string().nullish().describe('رابط توقيع الشركة من إعدادات النظام'),
+  "vehicle": zod.object({
+  "brand": zod.string(),
+  "modelYear": zod.number(),
+  "coolingType": zod.enum(['refrigerated', 'non_refrigerated']),
+  "coolingTypeLabel": zod.string().describe('تسمية عربية لنوع التبريد'),
+  "registrationColor": zod.string(),
+  "chassisNumber": zod.string(),
+  "serialNumber": zod.string().nullish(),
+  "plateNumber": zod.string()
+}).describe('لقطة بيانات مركبة العقد لمحاضر الاستلام والتسليم والطباعة'),
+  "markers": zod.array(zod.object({
+  "x": zod.number().min(upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMin).max(upsertContractVehicleDeliveryDamageFormResponseMarkersItemXMax),
+  "y": zod.number().min(upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMin).max(upsertContractVehicleDeliveryDamageFormResponseMarkersItemYMax)
+})),
+  "updatedAt": zod.coerce.date()
+}).describe('محضر تسليم مركبة — مخطط أضرار المركبة عند التسليم')
+
+
+export const DeleteContractVehicleDeliveryDamageFormParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteContractVehicleDeliveryDamageFormResponse = zod.void()
 
 
 export const ListContractTemplatesResponse = zod.object({
@@ -1146,7 +1292,7 @@ export const ListContractTemplatesResponse = zod.object({
 
 export const CreateContractTemplateBody = zod.object({
   "name": zod.string().min(1),
-  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl\/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). عناوين \*بند\* فقط.\n')
+  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl\/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). {{contract.pageBreak}} أو {{pageBreak}} لبدء صفحة جديدة (سطر مستقل قبل النص التالي). عناوين \*بند\* فقط.\n')
 })
 
 export const CreateContractTemplateResponse = zod.object({
@@ -1181,7 +1327,7 @@ export const UpdateContractTemplateParams = zod.object({
 
 export const UpdateContractTemplateBody = zod.object({
   "name": zod.string().min(1),
-  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl\/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). عناوين \*بند\* فقط.\n')
+  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{driver.name}} و {{contract.number}}. {{org.stamp}} و {{org.signature}} يعرضان ختم وتوقيع الشركة من إعدادات المنظمة (stampUrl\/signatureUrl). {{org.stampUrl}} و {{org.signatureUrl}} للرابط فقط. {{contract.spacer}} أو {{spacer}} لفراغ عمودي للتوقيع (سطر مستقل، ويمكن تكراره). {{contract.pageBreak}} أو {{pageBreak}} لبدء صفحة جديدة (سطر مستقل قبل النص التالي). عناوين \*بند\* فقط.\n')
 })
 
 export const UpdateContractTemplateResponse = zod.object({

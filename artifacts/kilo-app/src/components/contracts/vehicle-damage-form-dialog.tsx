@@ -14,11 +14,14 @@ import {
 import { VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC } from "@/lib/vehicle-damage/vehicle-damage-assets";
 import {
   VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE,
+  VEHICLE_DELIVERY_FORM_DOCUMENT_TITLE,
   type VehicleDamageMarker,
 } from "@workspace/contracts-domain";
+import type { VehicleHandoverPhase } from "@/hooks/use-vehicle-handover";
 
 interface VehicleDamageFormDialogProps {
   contract: Contract | null;
+  phase: VehicleHandoverPhase;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialMarkers: VehicleDamageMarker[];
@@ -26,10 +29,18 @@ interface VehicleDamageFormDialogProps {
   isPending?: boolean;
   errorMessage?: string | null;
   onSave: (markers: VehicleDamageMarker[]) => void;
+  onPrintPreview: (markers: VehicleDamageMarker[]) => void;
+}
+
+function dialogTitle(phase: VehicleHandoverPhase): string {
+  return phase === "delivery"
+    ? VEHICLE_DELIVERY_FORM_DOCUMENT_TITLE
+    : VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE;
 }
 
 export function VehicleDamageFormDialog({
   contract,
+  phase,
   open,
   onOpenChange,
   initialMarkers,
@@ -37,6 +48,7 @@ export function VehicleDamageFormDialog({
   isPending,
   errorMessage,
   onSave,
+  onPrintPreview,
 }: VehicleDamageFormDialogProps) {
   const [markers, setMarkers] = useState<VehicleDamageMarker[]>([]);
 
@@ -52,7 +64,7 @@ export function VehicleDamageFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE}</DialogTitle>
+          <DialogTitle>{dialogTitle(phase)}</DialogTitle>
           <DialogDescription className="text-start">
             العقد <bdi>{contract.contractNumber}</bdi> — انقر على المخطط لتحديد مواقع الأضرار والصدمات.
             كبّر بالعجلة أو باللمس (قرص)، واسحب للتحريك عند التكبير. انقر على نقطة محفوظة لحذفها.
@@ -60,10 +72,10 @@ export function VehicleDamageFormDialog({
         </DialogHeader>
 
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">جاري تحميل النموذج...</p>
+          <p className="text-sm text-muted-foreground">جاري تحميل المحضر...</p>
         ) : (
           <VehicleDamageDiagramCanvas
-            key={contract.id}
+            key={`${contract.id}-${phase}`}
             imageSrc={VEHICLE_DAMAGE_DIAGRAM_IMAGE_SRC}
             markers={markers}
             onChange={setMarkers}
@@ -80,6 +92,14 @@ export function VehicleDamageFormDialog({
             onClick={() => setMarkers((current) => current.slice(0, -1))}
           >
             تراجع عن آخر نقطة
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isPending || isLoading || markers.length === 0}
+            onClick={() => onPrintPreview(markers)}
+          >
+            طباعة
           </Button>
           <Button
             type="button"

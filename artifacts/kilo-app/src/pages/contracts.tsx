@@ -17,7 +17,7 @@ import { ActivateContractDialog } from "@/components/contracts/activate-contract
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { TenantPagination } from "@/components/tenant-pagination";
 import { useSignedContractAttachment } from "@/hooks/use-signed-contract-attachment";
-import { useVehicleDamageForm } from "@/hooks/use-vehicle-damage-form";
+import { useVehicleHandover } from "@/hooks/use-vehicle-handover";
 import { VehicleDamageFormDialog } from "@/components/contracts/vehicle-damage-form-dialog";
 
 type TabId = "contracts" | "templates";
@@ -51,22 +51,18 @@ export default function ContractsPage() {
   } = useSignedContractAttachment();
   const {
     dialogContract,
+    handoverPhase,
     setDialogContract,
-    deleteTarget: damageDeleteTarget,
-    setDeleteTarget: setDamageDeleteTarget,
     initialMarkers,
     isLoadingForm,
     formError,
     actionError: damageActionError,
-    openForm,
+    handleReceiptMenu,
+    handleDeliveryMenu,
     saveForm,
-    requestDelete: requestDeleteDamageForm,
-    confirmDelete: confirmDeleteDamageForm,
-    downloadForm,
-    printForm,
+    printFromDialog,
     saveIsPending,
-    deleteIsPending: damageDeleteIsPending,
-  } = useVehicleDamageForm();
+  } = useVehicleHandover();
 
   const handlePrintContract = async (contract: Contract, mode: PrintMode) => {
     const opened = await printContract(contract.id, mode, contract.contractNumber);
@@ -132,7 +128,10 @@ export default function ContractsPage() {
   const handleChangeStatus = (contract: Contract, status: ContractStatus) => {
     setActivateValidationError(null);
     if (status === "active") {
-      const activationError = getDraftActivationError(new Date(contract.endAt));
+      const activationError = getDraftActivationError({
+        endAt: new Date(contract.endAt),
+        hasVehicleReceiptHandover: contract.hasVehicleDamageForm,
+      });
       if (activationError) {
         setActivateValidationError(activationError);
         return;
@@ -210,14 +209,8 @@ export default function ContractsPage() {
                     });
                   }}
                   isUploadPending={uploadIsPending}
-                  onOpenDamageForm={(contract) => void openForm(contract)}
-                  onDownloadDamageForm={(contract) => {
-                    void downloadForm(contract);
-                  }}
-                  onPrintDamageForm={(contract) => {
-                    void printForm(contract);
-                  }}
-                  onDeleteDamageForm={requestDeleteDamageForm}
+                  onReceiptHandover={handleReceiptMenu}
+                  onDeliveryHandover={handleDeliveryMenu}
                 />
                 <TenantPagination
                   page={page}
@@ -315,6 +308,7 @@ export default function ContractsPage() {
 
       <VehicleDamageFormDialog
         contract={dialogContract}
+        phase={handoverPhase}
         open={dialogContract != null}
         onOpenChange={(open) => !open && setDialogContract(null)}
         initialMarkers={initialMarkers}
@@ -322,15 +316,7 @@ export default function ContractsPage() {
         isPending={saveIsPending}
         errorMessage={formError}
         onSave={(markers) => void saveForm(markers)}
-      />
-
-      <DeleteConfirmDialog
-        open={damageDeleteTarget != null}
-        onOpenChange={(open) => !open && setDamageDeleteTarget(null)}
-        title="حذف نموذج أضرار المركبة"
-        description={`هل تريد حذف نموذج أضرار المركبة للعقد ${damageDeleteTarget?.contractNumber ?? ""}؟`}
-        isPending={damageDeleteIsPending}
-        onConfirm={() => void confirmDeleteDamageForm()}
+        onPrintPreview={(markers) => void printFromDialog(markers)}
       />
 
       <input

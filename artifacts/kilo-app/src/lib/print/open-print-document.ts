@@ -1,4 +1,4 @@
-import { buildPrintPageHtml } from "@workspace/print-domain";
+import { buildPrintPageHtml, formatBrowserPrintDateTime } from "@workspace/print-domain";
 
 export type PrintMode = "print" | "pdf";
 
@@ -18,14 +18,7 @@ function resolveFontStylesheetHref(): string {
 }
 
 function formatBrowserPrintHeaderDateTime(): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(new Date());
+  return formatBrowserPrintDateTime(new Date());
 }
 
 export function openPrintDocument(options: OpenPrintDocumentOptions): boolean {

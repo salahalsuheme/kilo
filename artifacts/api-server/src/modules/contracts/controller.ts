@@ -40,6 +40,11 @@ import {
   getContractVehicleDamageForm,
   upsertContractVehicleDamageForm,
 } from "./vehicle-damage-form-service.js";
+import {
+  deleteContractVehicleDeliveryDamageForm,
+  getContractVehicleDeliveryDamageForm,
+  upsertContractVehicleDeliveryDamageForm,
+} from "./vehicle-delivery-damage-form-service.js";
 
 function requireSession(req: Request, res: Response): number | null {
   const orgId = getOrgId(req);
@@ -196,6 +201,61 @@ export async function handleDeleteContractVehicleDamageForm(
 
   const id = Number(req.params.id);
   const ok = await deleteContractVehicleDamageForm(orgId, id);
+  if (!ok) {
+    sendNotFound(res);
+    return;
+  }
+  res.status(204).end();
+}
+
+export async function handleGetContractVehicleDeliveryDamageForm(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const id = Number(req.params.id);
+  const form = await getContractVehicleDeliveryDamageForm(orgId, id);
+  if (!form) {
+    sendNotFound(res);
+    return;
+  }
+  res.json(form);
+}
+
+export async function handleUpsertContractVehicleDeliveryDamageForm(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const parsed = VehicleDamageFormBodySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ message: firstZodErrorMessage(parsed.error, CONTRACT_BODY_INVALID) });
+    return;
+  }
+
+  const id = Number(req.params.id);
+  const result = await upsertContractVehicleDeliveryDamageForm(orgId, id, parsed.data);
+  if (!result) {
+    sendNotFound(res);
+    return;
+  }
+  if (sendServiceError(res, result)) return;
+  res.json(result.data);
+}
+
+export async function handleDeleteContractVehicleDeliveryDamageForm(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const orgId = requireSession(req, res);
+  if (!orgId) return;
+
+  const id = Number(req.params.id);
+  const ok = await deleteContractVehicleDeliveryDamageForm(orgId, id);
   if (!ok) {
     sendNotFound(res);
     return;

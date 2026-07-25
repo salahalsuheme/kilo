@@ -1,14 +1,26 @@
-/** Arabic document title for the vehicle handover / damage diagram (UI and print). */
+/** Arabic document title for the vehicle receipt handover (UI and print). */
 export const VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE = "محضر أستلام مركبة";
 
+/** Arabic document title for the vehicle delivery handover (UI and print). */
+export const VEHICLE_DELIVERY_FORM_DOCUMENT_TITLE = "محضر تسليم مركبة";
+
 export const VEHICLE_DAMAGE_FORM_PRINT_LABELS = {
-  establishmentName: "اسم المنشأة",
+  orgEstablishment: "اسم المنشأة",
+  unifiedNumber: "الرقم الموحد",
+  renterEstablishment: "اسم المنشأة التي استأجرت",
   driverName: "اسم السائق",
+  driverIdNumber: "رقم هوية السائق",
+  printDateTime: "التاريخ والوقت",
   signature: "التوقيع",
+  diagramMarkerLegend: "النقطة الحمراء تعني وجود خدش او صدمه",
 } as const;
 
 export function vehicleDamageFormDocumentHeading(contractNumber: string): string {
   return `${VEHICLE_DAMAGE_FORM_DOCUMENT_TITLE} — ${contractNumber}`;
+}
+
+export function vehicleDeliveryFormDocumentHeading(contractNumber: string): string {
+  return `${VEHICLE_DELIVERY_FORM_DOCUMENT_TITLE} — ${contractNumber}`;
 }
 
 export function formatVehicleDamageFormPrintEstablishmentName(
