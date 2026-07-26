@@ -125,6 +125,12 @@ export function resolveNotificationSmtpTransport(
   return { secure: settings.smtpSecure, requireTLS: false };
 }
 
+/** Nodemailer transport timeouts (avoid hanging HTTP requests in production). */
+export const NOTIFICATION_SMTP_CONNECTION_TIMEOUT_MS = 20_000;
+export const NOTIFICATION_SMTP_GREETING_TIMEOUT_MS = 20_000;
+export const NOTIFICATION_SMTP_SOCKET_TIMEOUT_MS = 120_000;
+export const NOTIFICATION_SMTP_SEND_TIMEOUT_MS = 120_000;
+
 function trimToNull(value: string | null | undefined): string | null {
   const trimmed = value?.trim() ?? "";
   return trimmed.length > 0 ? trimmed : null;

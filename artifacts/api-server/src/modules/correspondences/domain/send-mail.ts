@@ -1,11 +1,30 @@
 import nodemailer from "nodemailer";
 import {
   buildNotificationMailHeaders,
+  NOTIFICATION_SMTP_CONNECTION_TIMEOUT_MS,
+  NOTIFICATION_SMTP_GREETING_TIMEOUT_MS,
+  NOTIFICATION_SMTP_SEND_TIMEOUT_MS,
+  NOTIFICATION_SMTP_SOCKET_TIMEOUT_MS,
   resolveNotificationMailIdentity,
   resolveNotificationSmtpTransport,
   validateSettingsNotificationEmail,
 } from "@workspace/settings-domain";
 import type { NotificationEmailSettings } from "@workspace/settings-domain";
+
+function withAsyncTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
 
 export interface CorrespondenceMailAttachment {
   fileName: string;
@@ -67,6 +86,9 @@ export async function sendCorrespondenceMail(
     secure: transport.secure,
     requireTLS: transport.requireTLS,
     auth: { user, pass },
+    connectionTimeout: NOTIFICATION_SMTP_CONNECTION_TIMEOUT_MS,
+    greetingTimeout: NOTIFICATION_SMTP_GREETING_TIMEOUT_MS,
+    socketTimeout: NOTIFICATION_SMTP_SOCKET_TIMEOUT_MS,
   });
 
   const inlineAttachments =
@@ -78,23 +100,27 @@ export async function sendCorrespondenceMail(
     })) ?? [];
 
   try {
-    await transporter.sendMail({
-      from: mailIdentity.from,
-      replyTo: mailIdentity.replyTo,
-      to,
-      subject: input.subject,
-      text: input.text,
-      html: input.html,
-      headers: buildNotificationMailHeaders(mailIdentity.replyTo),
-      attachments: [
-        ...inlineAttachments,
-        ...input.attachments.map((file) => ({
-          filename: file.fileName,
-          content: file.content,
-          contentType: file.contentType,
-        })),
-      ],
-    });
+    await withAsyncTimeout(
+      transporter.sendMail({
+        from: mailIdentity.from,
+        replyTo: mailIdentity.replyTo,
+        to,
+        subject: input.subject,
+        text: input.text,
+        html: input.html,
+        headers: buildNotificationMailHeaders(mailIdentity.replyTo),
+        attachments: [
+          ...inlineAttachments,
+          ...input.attachments.map((file) => ({
+            filename: file.fileName,
+            content: file.content,
+            contentType: file.contentType,
+          })),
+        ],
+      }),
+      NOTIFICATION_SMTP_SEND_TIMEOUT_MS,
+      "انتهت مهلة إرسال البريد. تحقق من إعدادات SMTP ومن أن الاستضافة تسمح بالاتصال الصادر على المنفذ المحدد.",
+    );
     return { ok: true };
   } catch (error) {
     const message =

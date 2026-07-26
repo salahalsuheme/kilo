@@ -26,6 +26,7 @@ import { persistUploadedFile, readUploadedFileByPublicPath } from "../../storage
 import { getApiPublicUrl } from "../../env.js";
 import { loadCorrespondenceOrgContext } from "./domain/org-context.js";
 import { embedCorrespondenceEmailInlineAssets } from "./domain/embed-correspondence-email-inline-assets.js";
+import type { CorrespondenceInlineImage } from "./domain/embed-correspondence-email-inline-assets.js";
 import { sendCorrespondenceMail } from "./domain/send-mail.js";
 
 type ListParams = z.infer<typeof ListCorrespondencesQueryParams>;
@@ -181,7 +182,12 @@ async function attemptSendMessage(
     return { status: "failed" as const, failureReason: "إعدادات المؤسسة غير متوفرة" };
   }
 
-  const embedded = await embedCorrespondenceEmailInlineAssets(outbound.html);
+  const embedded = await embedCorrespondenceEmailInlineAssets(outbound.html).catch(
+    (): { html: string; inlineImages: CorrespondenceInlineImage[] } => ({
+      html: outbound.html,
+      inlineImages: [],
+    }),
+  );
 
   const sendResult = await sendCorrespondenceMail({
     enabled: orgContext.notificationEmailEnabled,

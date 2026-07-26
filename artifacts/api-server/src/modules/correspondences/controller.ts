@@ -71,23 +71,33 @@ export async function handleCreateCorrespondence(req: Request, res: Response): P
   const orgId = requireSession(req, res);
   if (!orgId) return;
 
-  const parsed = parseCorrespondenceMultipartFields(req.body as Record<string, unknown>);
-  if (!parsed.success) {
-    sendServiceError(res, parsed.message);
-    return;
-  }
+  try {
+    const parsed = parseCorrespondenceMultipartFields(req.body as Record<string, unknown>);
+    if (!parsed.success) {
+      sendServiceError(res, parsed.message);
+      return;
+    }
 
-  const files = getCorrespondenceUploadedFiles(req);
-  const result = await createCorrespondence(orgId, parsed.data, files);
-  if ("error" in result && result.error) {
-    sendServiceError(res, result.error);
-    return;
+    const files = getCorrespondenceUploadedFiles(req);
+    const result = await createCorrespondence(orgId, parsed.data, files);
+    if ("error" in result && result.error) {
+      sendServiceError(res, result.error);
+      return;
+    }
+    if (!("data" in result) || !result.data) {
+      sendServiceError(res, "تعذر إنشاء الرسالة");
+      return;
+    }
+    res.status(201).json(result.data);
+  } catch (error) {
+    console.error("[correspondences] create failed", error);
+    res.status(500).json({
+      message:
+        error instanceof Error && error.message.trim()
+          ? error.message.trim()
+          : "تعذر إرسال الرسالة",
+    });
   }
-  if (!("data" in result) || !result.data) {
-    sendServiceError(res, "تعذر إنشاء الرسالة");
-    return;
-  }
-  res.status(201).json(result.data);
 }
 
 export async function handleUpdateCorrespondence(req: Request, res: Response): Promise<void> {

@@ -22,6 +22,7 @@ function resolveKiloPublicAssetPath(fileName: string): string | null {
     path.resolve(process.cwd(), "../kilo-app/dist", fileName),
     path.resolve(moduleDir, "../../../../kilo-app/public", fileName),
     path.resolve(moduleDir, "../../../../kilo-app/dist", fileName),
+    path.resolve(moduleDir, "../../assets", fileName),
   ];
 
   for (const candidate of candidates) {
