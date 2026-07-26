@@ -1029,6 +1029,9 @@ paths:
     post:
       operationId: createCorrespondence
       tags: [correspondences]
+      description: |
+        Creates and sends a correspondence email. Branded HTML logos are embedded inline (CID)
+        in the outbound message; user-uploaded files in `attachments` are sent as regular attachments.
       requestBody:
         required: true
         content:

@@ -3689,6 +3689,10 @@ export const getCreateCorrespondenceUrl = () => {
   return `/api/correspondences`
 }
 
+/**
+ * Creates and sends a correspondence email. Branded HTML logos are embedded inline (CID)
+ * in the outbound message; user-uploaded files in `attachments` are sent as regular attachments.
+ */
 export const createCorrespondence = async (createCorrespondenceMultipartBody: CreateCorrespondenceMultipartBody, options?: RequestInit): Promise<CorrespondenceMessage> => {
     const formData = new FormData();
 formData.append(`establishmentId`, createCorrespondenceMultipartBody.establishmentId.toString())

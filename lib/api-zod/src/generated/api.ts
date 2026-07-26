@@ -1417,6 +1417,10 @@ export const ListCorrespondencesResponse = zod.object({
 })
 
 
+/**
+ * Creates and sends a correspondence email. Branded HTML logos are embedded inline (CID)
+ * in the outbound message; user-uploaded files in `attachments` are sent as regular attachments.
+ */
 export const CreateCorrespondenceBody = zod.object({
   "establishmentId": zod.number(),
   "templateId": zod.number().optional(),

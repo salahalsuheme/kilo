@@ -1,14 +1,20 @@
 import { CORRESPONDENCE_EMAIL_HEADER_LOGO_PATH } from "./correspondence-brand-assets.js";
 import {
+  buildCorrespondenceEmailLogoImgTag,
+  CORRESPONDENCE_EMAIL_FOOTER_LOGO_CID,
+  CORRESPONDENCE_EMAIL_HEADER_LOGO_CID,
+  type CorrespondenceEmailLogoDisplay,
+} from "./correspondence-email-inline-images.js";
+import {
   CORRESPONDENCE_EMAIL_FOOTER_ADDRESS_AR,
   CORRESPONDENCE_EMAIL_FOOTER_TAGLINE_AR,
   CORRESPONDENCE_EMAIL_INTRO_AR,
 } from "./correspondence-branded-email-shell.js";
 import { renderCorrespondenceTemplate } from "./correspondence-template.js";
 import {
-  buildCorrespondenceEmailLogoHtml,
   renderCorrespondenceBrandedEmailHtml,
   renderCorrespondencePlainTextEmail,
+  resolveEmailPublicAssetUrl,
 } from "./render-correspondence-branded-email.js";
 
 export interface BuildCorrespondenceBrandedEmailInput {
@@ -21,6 +27,8 @@ export interface BuildCorrespondenceBrandedEmailInput {
   publicBaseUrl: string;
   footerTagline?: string;
   footerAddress?: string;
+  /** Outbound send uses CID-embedded logos; preview uses remote URLs. */
+  logoImageDisplay?: CorrespondenceEmailLogoDisplay;
 }
 
 export function buildCorrespondenceBrandedEmail(input: BuildCorrespondenceBrandedEmailInput): {
@@ -36,6 +44,16 @@ export function buildCorrespondenceBrandedEmail(input: BuildCorrespondenceBrande
   );
   const contentRendered = renderCorrespondenceTemplate(contentTemplate, input.templateVariables);
   const businessName = input.businessName.trim() || "كيلو";
+  const logoDisplay = input.logoImageDisplay ?? "remote-url";
+
+  const headerRemoteSrc =
+    logoDisplay === "remote-url"
+      ? resolveEmailPublicAssetUrl(CORRESPONDENCE_EMAIL_HEADER_LOGO_PATH, input.publicBaseUrl)
+      : null;
+  const footerRemoteSrc =
+    logoDisplay === "remote-url" && input.logoUrl?.trim()
+      ? resolveEmailPublicAssetUrl(input.logoUrl, input.publicBaseUrl)
+      : null;
 
   const html = renderCorrespondenceBrandedEmailHtml({
     heading,
@@ -43,14 +61,20 @@ export function buildCorrespondenceBrandedEmail(input: BuildCorrespondenceBrande
     contentTemplate,
     templateVariables: input.templateVariables,
     establishmentName: input.establishmentName,
-    logoHeaderHtml: buildCorrespondenceEmailLogoHtml(
-      CORRESPONDENCE_EMAIL_HEADER_LOGO_PATH,
-      businessName,
-      input.publicBaseUrl,
-    ),
-    logoFooterHtml: buildCorrespondenceEmailLogoHtml(input.logoUrl, businessName, input.publicBaseUrl, {
+    logoHeaderHtml: buildCorrespondenceEmailLogoImgTag({
+      display: logoDisplay,
+      remoteSrc: headerRemoteSrc,
+      inlineCid: CORRESPONDENCE_EMAIL_HEADER_LOGO_CID,
+      height: 28,
+      businessNameFallback: businessName,
+    }),
+    logoFooterHtml: buildCorrespondenceEmailLogoImgTag({
+      display: logoDisplay,
+      remoteSrc: footerRemoteSrc,
+      inlineCid: CORRESPONDENCE_EMAIL_FOOTER_LOGO_CID,
       height: 24,
       footer: true,
+      businessNameFallback: businessName,
     }),
     footerTagline: input.footerTagline?.trim() || CORRESPONDENCE_EMAIL_FOOTER_TAGLINE_AR,
     footerAddress: input.footerAddress?.trim() || CORRESPONDENCE_EMAIL_FOOTER_ADDRESS_AR,

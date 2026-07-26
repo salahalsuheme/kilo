@@ -5,6 +5,7 @@ import type { CorrespondenceMessageFieldsInput } from "@workspace/correspondence
 import {
   buildCorrespondenceBrandedEmail,
   buildCorrespondenceTemplateVariables,
+  resolveCorrespondenceEmailInlineImageSlots,
 } from "@workspace/correspondence-domain";
 import {
   ESTABLISHMENT_TYPE_LABELS,
@@ -25,8 +26,8 @@ import {
 import { persistUploadedFile, readUploadedFileByPublicPath } from "../../storage/uploads-runtime.js";
 import { getApiPublicUrl } from "../../env.js";
 import { loadCorrespondenceOrgContext } from "./domain/org-context.js";
-import { embedCorrespondenceEmailInlineAssets } from "./domain/embed-correspondence-email-inline-assets.js";
-import type { CorrespondenceInlineImage } from "./domain/embed-correspondence-email-inline-assets.js";
+import { loadCorrespondenceEmailInlineImages } from "./domain/load-correspondence-email-inline-images.js";
+import type { CorrespondenceInlineImage } from "./domain/load-correspondence-email-inline-images.js";
 import { sendCorrespondenceMail } from "./domain/send-mail.js";
 
 type ListParams = z.infer<typeof ListCorrespondencesQueryParams>;
@@ -128,6 +129,7 @@ async function resolveOutboundCorrespondenceEmail(
     businessName: orgContext.businessName,
     logoUrl: orgContext.logoUrl,
     publicBaseUrl: getApiPublicUrl(),
+    logoImageDisplay: "inline-cid",
   });
 
   return {
@@ -182,11 +184,12 @@ async function attemptSendMessage(
     return { status: "failed" as const, failureReason: "إعدادات المؤسسة غير متوفرة" };
   }
 
-  const embedded = await embedCorrespondenceEmailInlineAssets(outbound.html).catch(
-    (): { html: string; inlineImages: CorrespondenceInlineImage[] } => ({
-      html: outbound.html,
-      inlineImages: [],
-    }),
+  const inlineSlots = resolveCorrespondenceEmailInlineImageSlots({
+    logoImageDisplay: "inline-cid",
+    orgLogoUrl: orgContext.logoUrl,
+  });
+  const inlineImages = await loadCorrespondenceEmailInlineImages(inlineSlots).catch(
+    (): CorrespondenceInlineImage[] => [],
   );
 
   const sendResult = await sendCorrespondenceMail({
@@ -196,8 +199,8 @@ async function attemptSendMessage(
     toEmail: outbound.toEmail,
     subject: outbound.subject,
     text: outbound.text,
-    html: embedded.html,
-    inlineImages: embedded.inlineImages,
+    html: outbound.html,
+    inlineImages,
     attachments: mailAttachments,
   });
 

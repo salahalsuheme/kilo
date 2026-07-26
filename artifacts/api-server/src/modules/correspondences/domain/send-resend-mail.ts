@@ -12,27 +12,43 @@ interface ResendErrorBody {
   name?: string;
 }
 
-function buildResendAttachments(
+type ResendAttachmentPayload = {
+  filename: string;
+  content: string;
+  content_type?: string;
+  content_id?: string;
+  contentId?: string;
+};
+
+function buildResendInlineAttachments(
   inlineImages: CorrespondenceInlineImage[],
-  files: CorrespondenceMailAttachment[],
-): { filename: string; content: string; content_id?: string }[] {
-  const inline = inlineImages.map((image) => ({
-    filename: `${image.cid}.img`,
+): ResendAttachmentPayload[] {
+  return inlineImages.map((image) => ({
+    filename: image.filename,
     content: image.content.toString("base64"),
+    content_type: image.contentType,
     content_id: image.cid,
+    contentId: image.cid,
   }));
-  const regular = files.map((file) => ({
+}
+
+function buildResendFileAttachments(
+  files: CorrespondenceMailAttachment[],
+): ResendAttachmentPayload[] {
+  return files.map((file) => ({
     filename: file.fileName,
     content: file.content.toString("base64"),
+    content_type: file.contentType,
   }));
-  return [...inline, ...regular];
 }
 
 export async function sendCorrespondenceViaResend(
   input: SendCorrespondenceMailInput & { apiKey: string },
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
   const mailIdentity = resolveNotificationMailIdentity(input.settings);
-  const attachments = buildResendAttachments(input.inlineImages ?? [], input.attachments);
+  const inline = buildResendInlineAttachments(input.inlineImages ?? []);
+  const files = buildResendFileAttachments(input.attachments);
+  const attachments = [...inline, ...files];
 
   const payload = {
     from: mailIdentity.from,

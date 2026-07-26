@@ -15,6 +15,7 @@ export interface CorrespondenceInlineImage {
   cid: string;
   content: Buffer;
   contentType: string;
+  filename: string;
 }
 
 export interface SendCorrespondenceMailInput {

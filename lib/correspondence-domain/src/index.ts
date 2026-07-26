@@ -40,6 +40,17 @@ export {
 } from "./build-correspondence-branded-email.js";
 export { CORRESPONDENCE_EMAIL_HEADER_LOGO_PATH } from "./correspondence-brand-assets.js";
 export {
+  CORRESPONDENCE_EMAIL_FOOTER_LOGO_CID,
+  CORRESPONDENCE_EMAIL_HEADER_LOGO_CID,
+  CORRESPONDENCE_EMAIL_HEADER_LOGO_FILENAME,
+  buildCorrespondenceEmailLogoImgTag,
+  extractUploadPublicPathFromAssetUrl,
+  resolveCorrespondenceEmailInlineImageSlots,
+  type CorrespondenceEmailLogoDisplay,
+  type CorrespondenceInlineImageSlot,
+  type CorrespondenceInlineImageSlotKind,
+} from "./correspondence-email-inline-images.js";
+export {
   CORRESPONDENCE_EMAIL_FOOTER_ADDRESS_AR,
   CORRESPONDENCE_EMAIL_FOOTER_TAGLINE_AR,
   CORRESPONDENCE_EMAIL_INTRO_AR,

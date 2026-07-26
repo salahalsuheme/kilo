@@ -49,10 +49,11 @@ export async function sendCorrespondenceViaSmtp(
 
   const inlineAttachments =
     input.inlineImages?.map((image) => ({
-      filename: image.cid,
+      filename: image.filename,
       content: image.content,
       contentType: image.contentType,
       cid: image.cid,
+      contentDisposition: "inline" as const,
     })) ?? [];
 
   try {
