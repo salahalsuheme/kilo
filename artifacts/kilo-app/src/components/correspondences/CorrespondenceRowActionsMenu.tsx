@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FileEdit, MoreHorizontal, RefreshCw, Trash2 } from "lucide-react";
+import { correspondenceResendPendingLabel } from "@/features/correspondences/correspondence-display";
 
 interface CorrespondenceRowActionsMenuProps {
   message: CorrespondenceMessage;
@@ -39,8 +40,10 @@ export function CorrespondenceRowActionsMenu({
           onClick={() => onResend(message)}
           disabled={isResendPending}
         >
-          <RefreshCw className="h-4 w-4 me-2" />
-          إعادة الإرسال
+          <RefreshCw
+            className={`h-4 w-4 me-2 ${isResendPending ? "animate-spin" : ""}`}
+          />
+          {isResendPending ? correspondenceResendPendingLabel() : "إعادة الإرسال"}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="text-destructive focus:text-destructive"

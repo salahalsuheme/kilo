@@ -5,7 +5,6 @@ import { renderEmailContentBox } from "./render-email-content-box.js";
 
 export interface RenderCorrespondenceBrandedEmailInput {
   heading: string;
-  introLineTemplate: string;
   contentTemplate: string;
   templateVariables: Record<string, string>;
   establishmentName: string;
@@ -51,13 +50,11 @@ export function buildCorrespondenceEmailLogoHtml(
 export function renderCorrespondenceBrandedEmailHtml(
   input: RenderCorrespondenceBrandedEmailInput,
 ): string {
-  const introLine = substituteEmailTemplateVars(input.introLineTemplate, input.templateVariables);
   const contentText = substituteEmailTemplateVars(input.contentTemplate, input.templateVariables);
 
   const vars: Record<string, string> = {
     heading: escEmailHtml(input.heading),
     establishment_name: escEmailHtml(input.establishmentName || "عميلنا الكريم"),
-    intro_line: escEmailHtml(introLine),
     content_box: renderEmailContentBox(contentText, "rtl"),
     logo_header: input.logoHeaderHtml,
     logo_footer: input.logoFooterHtml,
@@ -70,7 +67,6 @@ export function renderCorrespondenceBrandedEmailHtml(
 
 export function renderCorrespondencePlainTextEmail(input: {
   heading: string;
-  introLine: string;
   contentText: string;
   establishmentName: string;
   footerTagline?: string;
@@ -80,8 +76,6 @@ export function renderCorrespondencePlainTextEmail(input: {
     input.heading,
     "",
     `مرحباً ${input.establishmentName}،`,
-    "",
-    input.introLine,
     "",
     input.contentText,
   ];

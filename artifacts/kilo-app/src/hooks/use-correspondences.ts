@@ -146,6 +146,10 @@ export function useCorrespondences({
     updateIsPending: updateMutation.isPending,
     deleteIsPending: deleteMutation.isPending,
     resendIsPending: resendMutation.isPending,
+    resendingMessageId:
+      resendMutation.isPending && resendMutation.variables != null
+        ? resendMutation.variables.id
+        : null,
     createError: errors.create,
     updateError: errors.update,
     deleteError: errors.delete,

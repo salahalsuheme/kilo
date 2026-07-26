@@ -33,7 +33,7 @@ export default function CorrespondencesPage() {
     createIsPending,
     updateIsPending,
     deleteIsPending,
-    resendIsPending,
+    resendingMessageId,
     createError,
     updateError,
     deleteError,
@@ -96,7 +96,7 @@ export default function CorrespondencesPage() {
                 onEdit={setEditMessage}
                 onDelete={setDeleteMessageId}
                 onResend={(message) => submitResend(message.id)}
-                isResendPending={resendIsPending}
+                resendingMessageId={resendingMessageId}
               />
 
               <TenantPagination

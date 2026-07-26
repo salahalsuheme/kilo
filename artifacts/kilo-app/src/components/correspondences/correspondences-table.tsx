@@ -1,6 +1,9 @@
 import type { CorrespondenceMessage } from "@/lib/api-client-react-tenant";
 import { formatCorrespondenceDateTime } from "@workspace/correspondence-domain";
+import { Loader2 } from "lucide-react";
 import {
+  correspondenceResendPendingBadgeClass,
+  correspondenceResendPendingLabel,
   correspondenceStatusBadgeClass,
   correspondenceStatusLabel,
 } from "@/features/correspondences/correspondence-display";
@@ -29,7 +32,7 @@ interface CorrespondencesTableProps {
   onEdit: (message: CorrespondenceMessage) => void;
   onDelete: (id: number) => void;
   onResend: (message: CorrespondenceMessage) => void;
-  isResendPending?: boolean;
+  resendingMessageId?: number | null;
 }
 
 export function CorrespondencesTable({
@@ -38,7 +41,7 @@ export function CorrespondencesTable({
   onEdit,
   onDelete,
   onResend,
-  isResendPending,
+  resendingMessageId,
 }: CorrespondencesTableProps) {
   return (
     <Card>
@@ -81,7 +84,12 @@ export function CorrespondencesTable({
                       : formatCorrespondenceDateTime(message.createdAt)}
                   </TableCell>
                   <TableCell className="align-top">
-                    {message.status === "failed" && message.failureReason ? (
+                    {resendingMessageId === message.id ? (
+                      <span className={correspondenceResendPendingBadgeClass()}>
+                        <Loader2 className="me-1 inline h-3 w-3 animate-spin" aria-hidden />
+                        {correspondenceResendPendingLabel()}
+                      </span>
+                    ) : message.status === "failed" && message.failureReason ? (
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -111,7 +119,7 @@ export function CorrespondencesTable({
                       onEdit={onEdit}
                       onDelete={onDelete}
                       onResend={onResend}
-                      isResendPending={isResendPending}
+                      isResendPending={resendingMessageId === message.id}
                     />
                   </TableCell>
                 </TableRow>

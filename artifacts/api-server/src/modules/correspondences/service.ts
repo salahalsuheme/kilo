@@ -23,7 +23,7 @@ import { recordActivity } from "../bootstrap/service.js";
 import {
   correspondenceAttachmentStorageKey,
 } from "../../storage/correspondence-attachment-upload.js";
-import { persistUploadedFile, readUploadedFileByPublicPath } from "../../storage/uploads-runtime.js";
+import { persistUploadedFile, readUploadedFileByPublicPath, deleteUploadedFileByPublicPath } from "../../storage/uploads-runtime.js";
 import { getApiPublicUrl } from "../../env.js";
 import { loadCorrespondenceOrgContext } from "./domain/org-context.js";
 import { loadCorrespondenceEmailInlineImages } from "./domain/load-correspondence-email-inline-images.js";
@@ -469,9 +469,9 @@ export async function resendCorrespondence(orgId: number, id: number) {
 }
 
 export async function deleteCorrespondence(orgId: number, id: number) {
-  const [row] = await db
-    .update(correspondenceMessages)
-    .set({ deletedAt: new Date(), updatedAt: new Date() })
+  const [message] = await db
+    .select()
+    .from(correspondenceMessages)
     .where(
       and(
         eq(correspondenceMessages.orgId, orgId),
@@ -479,13 +479,36 @@ export async function deleteCorrespondence(orgId: number, id: number) {
         isNull(correspondenceMessages.deletedAt),
       ),
     )
-    .returning();
+    .limit(1);
 
-  if (row) {
-    await recordActivity(orgId, "correspondence", `حذف مراسلة: ${row.subject}`);
-    return true;
+  if (!message) {
+    return false;
   }
-  return false;
+
+  const attachmentRows = await db
+    .select()
+    .from(correspondenceMessageAttachments)
+    .where(eq(correspondenceMessageAttachments.messageId, id));
+
+  for (const attachment of attachmentRows) {
+    try {
+      await deleteUploadedFileByPublicPath(attachment.storagePath);
+    } catch (error) {
+      console.error(
+        "[correspondences] failed to delete attachment file",
+        attachment.id,
+        attachment.storagePath,
+        error,
+      );
+    }
+  }
+
+  await db
+    .delete(correspondenceMessages)
+    .where(and(eq(correspondenceMessages.orgId, orgId), eq(correspondenceMessages.id, id)));
+
+  await recordActivity(orgId, "correspondence", `حذف مراسلة نهائياً: ${message.subject}`);
+  return true;
 }
 
 export async function downloadCorrespondenceAttachment(

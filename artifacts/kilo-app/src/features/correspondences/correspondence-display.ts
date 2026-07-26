@@ -1,4 +1,7 @@
-import { CORRESPONDENCE_SEND_STATUS_LABELS } from "@workspace/correspondence-domain";
+import {
+  CORRESPONDENCE_RESEND_IN_PROGRESS_LABEL_AR,
+  CORRESPONDENCE_SEND_STATUS_LABELS,
+} from "@workspace/correspondence-domain";
 import type { CorrespondenceSendStatus } from "@workspace/correspondence-domain";
 import { cn } from "@/lib/utils";
 
@@ -15,4 +18,12 @@ export function correspondenceStatusBadgeClass(status: CorrespondenceSendStatus)
 
 export function correspondenceStatusLabel(status: CorrespondenceSendStatus): string {
   return CORRESPONDENCE_SEND_STATUS_LABELS[status];
+}
+
+export function correspondenceResendPendingBadgeClass(): string {
+  return cn(STATUS_BADGE_BASE, "bg-sky-100 text-sky-900");
+}
+
+export function correspondenceResendPendingLabel(): string {
+  return CORRESPONDENCE_RESEND_IN_PROGRESS_LABEL_AR;
 }

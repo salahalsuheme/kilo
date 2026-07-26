@@ -1096,6 +1096,9 @@ paths:
     delete:
       operationId: deleteCorrespondence
       tags: [correspondences]
+      description: |
+        Permanently deletes the message, its attachment metadata, and stored attachment files
+        (local disk or S3). This cannot be undone.
       parameters:
         - $ref: "#/components/parameters/CorrespondenceId"
       responses:

@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import type { S3UploadsConfig } from "@workspace/storage-domain";
 
 let cachedClient: S3Client | null = null;
@@ -65,4 +65,14 @@ export async function getS3Object(
   } catch {
     return null;
   }
+}
+
+export async function deleteS3Object(config: S3UploadsConfig, key: string): Promise<void> {
+  const client = getS3Client(config);
+  await client.send(
+    new DeleteObjectCommand({
+      Bucket: config.bucketName,
+      Key: key,
+    }),
+  );
 }

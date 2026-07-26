@@ -8,7 +8,6 @@ import {
 import {
   CORRESPONDENCE_EMAIL_FOOTER_ADDRESS_AR,
   CORRESPONDENCE_EMAIL_FOOTER_TAGLINE_AR,
-  CORRESPONDENCE_EMAIL_INTRO_AR,
 } from "./correspondence-branded-email-shell.js";
 import { renderCorrespondenceTemplate } from "./correspondence-template.js";
 import {
@@ -38,10 +37,6 @@ export function buildCorrespondenceBrandedEmail(input: BuildCorrespondenceBrande
 } {
   const heading = renderCorrespondenceTemplate(input.subjectTemplate, input.templateVariables);
   const contentTemplate = input.bodyTemplate;
-  const introRendered = renderCorrespondenceTemplate(
-    CORRESPONDENCE_EMAIL_INTRO_AR,
-    input.templateVariables,
-  );
   const contentRendered = renderCorrespondenceTemplate(contentTemplate, input.templateVariables);
   const businessName = input.businessName.trim() || "كيلو";
   const logoDisplay = input.logoImageDisplay ?? "remote-url";
@@ -57,7 +52,6 @@ export function buildCorrespondenceBrandedEmail(input: BuildCorrespondenceBrande
 
   const html = renderCorrespondenceBrandedEmailHtml({
     heading,
-    introLineTemplate: CORRESPONDENCE_EMAIL_INTRO_AR,
     contentTemplate,
     templateVariables: input.templateVariables,
     establishmentName: input.establishmentName,
@@ -82,7 +76,6 @@ export function buildCorrespondenceBrandedEmail(input: BuildCorrespondenceBrande
 
   const text = renderCorrespondencePlainTextEmail({
     heading,
-    introLine: introRendered,
     contentText: contentRendered,
     establishmentName: input.establishmentName,
     footerTagline: input.footerTagline?.trim() || CORRESPONDENCE_EMAIL_FOOTER_TAGLINE_AR,

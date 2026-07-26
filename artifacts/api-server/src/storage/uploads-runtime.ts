@@ -11,7 +11,7 @@ import {
   validateProductionUploadsStorage,
   type UploadsStorageEnv,
 } from "@workspace/storage-domain";
-import { getS3Object, putS3Object } from "./s3-client.js";
+import { getS3Object, putS3Object, deleteS3Object } from "./s3-client.js";
 
 function uploadsEnv(): UploadsStorageEnv {
   return {
@@ -184,6 +184,26 @@ export async function readUploadedFileByPublicPath(
     body: fs.readFileSync(filePath),
     contentType: mimeTypeFromFilename(filename),
   };
+}
+
+export async function deleteUploadedFileByPublicPath(publicPath: string): Promise<boolean> {
+  const filename = uploadFilenameFromPublicPath(publicPath);
+  if (!filename) return false;
+
+  const env = uploadsEnv();
+  const mode = resolveUploadsStorageMode(env);
+
+  if (mode === "s3") {
+    const config = resolveS3UploadsConfig(env);
+    if (!config) return false;
+    await deleteS3Object(config, filename);
+    return true;
+  }
+
+  const filePath = path.join(resolveUploadsDir(env), filename);
+  if (!fs.existsSync(filePath)) return false;
+  fs.unlinkSync(filePath);
+  return true;
 }
 
 function mimeTypeFromFilename(filename: string): string {

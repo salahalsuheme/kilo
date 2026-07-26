@@ -1,9 +1,6 @@
 export const CORRESPONDENCE_EMAIL_FOOTER_TAGLINE_AR = "وجهتك لإسطول مميز لشركتك";
 export const CORRESPONDENCE_EMAIL_FOOTER_ADDRESS_AR = "Saudi Arabia - Riyadh";
 
-export const CORRESPONDENCE_EMAIL_INTRO_AR =
-  "نتواصل معكم من {{org.businessName}} بخصوص :";
-
 const FOOTER_ROW_CELLS = `                  <td style="vertical-align:middle;padding-inline-end:12px;width:44px;">
                     {{logo_footer}}
                   </td>
@@ -46,8 +43,7 @@ export const CORRESPONDENCE_BRANDED_EMAIL_HTML_SHELL = `<!DOCTYPE html>
           <tr>
             <td class="email-body" style="padding:40px 32px 24px;" dir="rtl">
               <h1 style="margin:0 0 24px;font-size:28px;font-weight:700;color:#111827;text-align:center;line-height:1.3;">{{heading}}</h1>
-              <p style="margin:0 0 16px;font-size:15px;color:#374151;line-height:1.6;">مرحباً {{establishment_name}}،</p>
-              <p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6;">{{intro_line}}</p>
+              <p style="margin:0 0 24px;font-size:15px;color:#374151;line-height:1.6;">مرحباً {{establishment_name}}،</p>
               {{content_box}}
             </td>
           </tr>
