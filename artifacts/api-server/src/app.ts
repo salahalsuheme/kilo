@@ -15,6 +15,7 @@ import vehiclesRouter from "./modules/vehicles/routes.js";
 import dashboardRouter from "./modules/dashboard/routes.js";
 import settingsRouter from "./modules/settings/routes.js";
 import contractsRouter from "./modules/contracts/routes.js";
+import correspondencesRouter from "./modules/correspondences/routes.js";
 import invoicesRouter from "./modules/invoices/routes.js";
 import financeRouter from "./modules/finance/routes.js";
 import notificationsRouter from "./modules/notifications/routes.js";
@@ -95,6 +96,7 @@ export function createApp() {
   api.use(usersRouter);
   api.use(vehiclesRouter);
   api.use(contractsRouter);
+  api.use(correspondencesRouter);
   api.use(invoicesRouter);
   api.use(financeRouter);
   api.use(notificationsRouter);

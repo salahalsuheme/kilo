@@ -38,6 +38,8 @@ export {
   UpdateEstablishmentBodySchema,
   refineEstablishmentBodyNumber,
   refineEstablishmentBodyTax,
+  refineEstablishmentBodyEmail,
+  normalizeEstablishmentEmail,
   resolveEstablishmentNumberFromBody,
   type CreateEstablishmentBodyInput,
   type UpdateEstablishmentBodyInput,

@@ -5,6 +5,9 @@ function publicAsset(path: string): string {
 
 export const KILO_LOGO_SRC = publicAsset("/kilo-logo.png");
 
+/** Black-header email shell (correspondence branded template). */
+export const KILO_EMAIL_HEADER_LOGO_SRC = publicAsset("/logo_kilo_white.png");
+
 /** Compact slot — sidebar & login header (matches Targa letter logo scale). */
 export const KILO_SIDEBAR_LOGO_CLASS = "h-[1.35rem] w-auto max-w-[4.5rem] object-contain";
 

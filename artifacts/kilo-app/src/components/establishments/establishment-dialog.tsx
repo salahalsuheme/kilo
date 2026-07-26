@@ -62,6 +62,7 @@ const EMPTY_VALUES: EstablishmentFormValues = {
   name: "",
   clientType: "company",
   establishmentNumber: "",
+  email: "",
   hasTaxNumber: false,
   taxNumber: "",
 };
@@ -171,36 +172,58 @@ export function EstablishmentDialog({
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="establishmentNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <RequiredFormLabel>
-                    {ESTABLISHMENT_FIELD_LABELS.establishmentNumber}
-                  </RequiredFormLabel>
-                  <FormControl>
-                    <InputGroup dir="ltr" className="text-end">
-                      <InputGroupAddon align="inline-start">
-                        <InputGroupText className="text-muted-foreground/60">
-                          {ESTABLISHMENT_NUMBER_PREFIX}
-                        </InputGroupText>
-                      </InputGroupAddon>
-                      <InputGroupInput
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="establishmentNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <RequiredFormLabel>
+                      {ESTABLISHMENT_FIELD_LABELS.establishmentNumber}
+                    </RequiredFormLabel>
+                    <FormControl>
+                      <InputGroup dir="ltr" className="text-end">
+                        <InputGroupAddon align="inline-start">
+                          <InputGroupText className="text-muted-foreground/60">
+                            {ESTABLISHMENT_NUMBER_PREFIX}
+                          </InputGroupText>
+                        </InputGroupAddon>
+                        <InputGroupInput
+                          {...field}
+                          inputMode="numeric"
+                          maxLength={ESTABLISHMENT_NUMBER_SUFFIX_LENGTH}
+                          placeholder={"X".repeat(ESTABLISHMENT_NUMBER_SUFFIX_LENGTH)}
+                          onChange={(event) => {
+                            field.onChange(event.target.value.replace(/\D/g, ""));
+                          }}
+                        />
+                      </InputGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{ESTABLISHMENT_FIELD_LABELS.email}</FormLabel>
+                    <FormControl>
+                      <Input
                         {...field}
-                        inputMode="numeric"
-                        maxLength={ESTABLISHMENT_NUMBER_SUFFIX_LENGTH}
-                        placeholder={"X".repeat(ESTABLISHMENT_NUMBER_SUFFIX_LENGTH)}
-                        onChange={(event) => {
-                          field.onChange(event.target.value.replace(/\D/g, ""));
-                        }}
+                        type="email"
+                        dir="ltr"
+                        className="text-end"
+                        placeholder="example@company.com"
+                        autoComplete="email"
                       />
-                    </InputGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
               <FormField

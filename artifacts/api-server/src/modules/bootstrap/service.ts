@@ -38,7 +38,6 @@ export async function ensureSeedData(): Promise<void> {
       taxEnabled: true,
       taxRate: "15",
       notificationEmailEnabled: true,
-      notificationSmsEnabled: false,
     });
   }
 
@@ -174,6 +173,10 @@ export async function ensureSeedData(): Promise<void> {
   if (orgId) {
     const { ensureDefaultContractTemplate } = await import("../contracts/template-service.js");
     await ensureDefaultContractTemplate(orgId);
+    const { ensureDefaultCorrespondenceTemplate } = await import(
+      "../correspondences/template-service.js"
+    );
+    await ensureDefaultCorrespondenceTemplate(orgId);
   }
 }
 

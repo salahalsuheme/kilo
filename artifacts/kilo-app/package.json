@@ -30,6 +30,7 @@
     "@tanstack/react-query": "catalog:",
     "@workspace/api-client-react": "workspace:*",
     "@workspace/contracts-domain": "workspace:*",
+    "@workspace/correspondence-domain": "workspace:*",
     "@workspace/customers-domain": "workspace:*",
     "@workspace/establishments-domain": "workspace:*",
     "@workspace/finance-domain": "workspace:*",

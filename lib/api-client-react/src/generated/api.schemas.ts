@@ -133,6 +133,7 @@ export interface Customer {
   nationality: string;
   hasTaxNumber: boolean;
   taxNumber?: string | null;
+  email?: string | null;
   invoiceType: InvoiceType;
   createdAt: string;
   updatedAt: string;
@@ -183,6 +184,7 @@ export interface Establishment {
   establishmentNumber: string;
   hasTaxNumber: boolean;
   taxNumber?: string | null;
+  email?: string | null;
   invoiceType: InvoiceType;
   createdAt: string;
   updatedAt: string;
@@ -202,6 +204,7 @@ export interface CreateEstablishmentBody {
   establishmentNumber: string;
   hasTaxNumber: boolean;
   taxNumber?: string | null;
+  email?: string | null;
 }
 
 export type UpdateEstablishmentBody = CreateEstablishmentBody;
@@ -523,6 +526,81 @@ export type UpdateContractTemplateBody = CreateContractTemplateBody;
 
 export interface ContractTemplateList {
   data: ContractTemplate[];
+}
+
+export type CorrespondenceSendStatus = typeof CorrespondenceSendStatus[keyof typeof CorrespondenceSendStatus];
+
+
+export const CorrespondenceSendStatus = {
+  sent: 'sent',
+  failed: 'failed',
+} as const;
+
+export interface CorrespondenceAttachment {
+  id: number;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+}
+
+export interface CorrespondenceMessage {
+  id: number;
+  establishmentId: number;
+  establishmentName: string;
+  subject: string;
+  body: string;
+  templateId?: number | null;
+  status: CorrespondenceSendStatus;
+  failureReason?: string | null;
+  sentAt?: string | null;
+  attachments: CorrespondenceAttachment[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CorrespondenceList {
+  data: CorrespondenceMessage[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CreateCorrespondenceMultipartBody {
+  establishmentId: number;
+  templateId?: number;
+  subject: string;
+  body: string;
+  attachments?: Blob[];
+}
+
+export type UpdateCorrespondenceMultipartBody = CreateCorrespondenceMultipartBody;
+
+export interface CorrespondenceTemplate {
+  id: number;
+  name: string;
+  subject: string;
+  body: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCorrespondenceTemplateBody {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  subject: string;
+  /**
+     * نص القالب مع متغيرات مثل {{establishment.name}} و {{org.businessName}}.
+     * @minLength 1
+     */
+  body: string;
+}
+
+export type UpdateCorrespondenceTemplateBody = CreateCorrespondenceTemplateBody;
+
+export interface CorrespondenceTemplateList {
+  data: CorrespondenceTemplate[];
 }
 
 /**
@@ -922,6 +1000,31 @@ export interface UploadSettingsSignature200 {
   signatureUrl: string;
 }
 
+export interface NotificationEmailSettings {
+  /** مثال Gmail — smtp.gmail.com */
+  smtpHost: string | null;
+  /** مثال 587 لـ STARTTLS أو 465 لـ SSL */
+  smtpPort: number | null;
+  /** true للمنفذ 465 (SSL)، false مع STARTTLS على 587 */
+  smtpSecure: boolean;
+  smtpUser: string | null;
+  /** يشير إلى وجود كلمة مرور محفوظة دون إرجاعها */
+  smtpPasswordConfigured: boolean;
+  fromEmail: string | null;
+  fromName: string | null;
+}
+
+export interface PutNotificationEmailSettingsBody {
+  smtpHost?: string | null;
+  smtpPort?: number | null;
+  smtpSecure?: boolean;
+  smtpUser?: string | null;
+  /** عند الإرسال يحدّث كلمة المرور؛ عند الحذف يرسل سلسلة فارغة */
+  smtpPassword?: string | null;
+  fromEmail?: string | null;
+  fromName?: string | null;
+}
+
 export interface OrgSettings {
   businessName: string;
   logoUrl?: string | null;
@@ -937,7 +1040,7 @@ export interface OrgSettings {
   signatureUrl?: string | null;
   nationalAddress: NationalAddress;
   notificationEmailEnabled: boolean;
-  notificationSmsEnabled: boolean;
+  notificationEmail: NotificationEmailSettings;
 }
 
 export interface PutNationalAddressBody {
@@ -961,7 +1064,7 @@ export interface PutSettingsBody {
   unifiedNumber?: string | null;
   nationalAddress?: PutNationalAddressBody;
   notificationEmailEnabled?: boolean;
-  notificationSmsEnabled?: boolean;
+  notificationEmail?: PutNotificationEmailSettingsBody;
 }
 
 export type HealthCheck200 = {
@@ -1078,6 +1181,19 @@ pageSize?: number;
 
 export type UploadContractSignedAttachmentBody = {
   file: Blob;
+};
+
+export type ListCorrespondencesParams = {
+search?: string;
+/**
+ * @minimum 1
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+pageSize?: number;
 };
 
 export type ListInvoicesParams = {

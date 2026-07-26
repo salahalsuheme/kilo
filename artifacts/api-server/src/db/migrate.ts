@@ -95,7 +95,6 @@ CREATE TABLE IF NOT EXISTS org_settings (
   tax_rate NUMERIC(5,2) NOT NULL DEFAULT 15,
   tax_number TEXT,
   notification_email_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-  notification_sms_enabled BOOLEAN NOT NULL DEFAULT FALSE,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -666,6 +665,7 @@ CREATE TABLE IF NOT EXISTS establishments (
   has_tax_number BOOLEAN NOT NULL DEFAULT false,
   tax_number TEXT,
   invoice_type invoice_type NOT NULL DEFAULT 'simplified',
+  email TEXT,
   deleted_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -753,6 +753,80 @@ CREATE UNIQUE INDEX IF NOT EXISTS cars_org_serial_number_uidx
   WHERE deleted_at IS NULL AND serial_number IS NOT NULL AND serial_number <> '';
 `;
 
+const ESTABLISHMENTS_EMAIL_PATCH = `
+ALTER TABLE establishments ADD COLUMN IF NOT EXISTS email TEXT;
+`;
+
+const ORG_SETTINGS_NOTIFICATION_EMAIL_PATCH = `
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_smtp_host TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_smtp_port INTEGER;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_smtp_secure BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_smtp_user TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_smtp_password TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_from_email TEXT;
+ALTER TABLE org_settings ADD COLUMN IF NOT EXISTS notification_from_name TEXT;
+ALTER TABLE org_settings DROP COLUMN IF EXISTS notification_sms_enabled;
+`;
+
+const CORRESPONDENCE_PATCH = `
+DO $$ BEGIN
+  CREATE TYPE correspondence_send_status AS ENUM ('sent', 'failed');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE TABLE IF NOT EXISTS correspondence_templates (
+  id SERIAL PRIMARY KEY,
+  org_id INTEGER NOT NULL REFERENCES organizations(id),
+  name TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  is_default BOOLEAN NOT NULL DEFAULT FALSE,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS correspondence_messages (
+  id SERIAL PRIMARY KEY,
+  org_id INTEGER NOT NULL REFERENCES organizations(id),
+  establishment_id INTEGER NOT NULL REFERENCES establishments(id),
+  template_id INTEGER REFERENCES correspondence_templates(id),
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  status correspondence_send_status NOT NULL DEFAULT 'failed',
+  failure_reason TEXT,
+  sent_at TIMESTAMPTZ,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS correspondence_message_attachments (
+  id SERIAL PRIMARY KEY,
+  message_id INTEGER NOT NULL REFERENCES correspondence_messages(id) ON DELETE CASCADE,
+  file_name TEXT NOT NULL,
+  storage_path TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS correspondence_messages_org_id_idx
+  ON correspondence_messages (org_id) WHERE deleted_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS correspondence_templates_org_id_idx
+  ON correspondence_templates (org_id) WHERE deleted_at IS NULL;
+
+UPDATE correspondence_templates
+SET
+  subject = 'مراسلة من {{org.businessName}}',
+  body = E'نرجو الاطلاع على التفاصيل التالية والتواصل معنا عند الحاجة.\n\nالمنشأة: {{establishment.fullName}}\nرقم المنشأة: {{establishment.number}}\n\nمع خالص التحية،\nفريق {{org.businessName}}',
+  updated_at = NOW()
+WHERE is_default = TRUE
+  AND deleted_at IS NULL
+  AND name = 'مراسلة عملاء — قياسي';
+`;
+
 async function assertSchemaReady(): Promise<void> {
   const required = ["users", "session", "organizations"];
   const result = await pool.query<{ tablename: string }>(
@@ -815,6 +889,9 @@ export async function runMigrations(): Promise<void> {
     await pool.query(ESTABLISHMENTS_PATCH);
     await pool.query(ESTABLISHMENTS_DATA_MIGRATION_PATCH);
     await pool.query(CARS_SERIAL_NUMBER_OPTIONAL_PATCH);
+    await pool.query(ESTABLISHMENTS_EMAIL_PATCH);
+    await pool.query(ORG_SETTINGS_NOTIFICATION_EMAIL_PATCH);
+    await pool.query(CORRESPONDENCE_PATCH);
     await pool.query(SESSION_PATCH);
     await assertSchemaReady();
     console.log("[migrate] schema ready");

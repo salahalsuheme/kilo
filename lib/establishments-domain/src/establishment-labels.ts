@@ -9,4 +9,5 @@ export const ESTABLISHMENT_TYPE_LABELS: Record<EstablishmentType, string> = {
 export const ESTABLISHMENT_FIELD_LABELS = {
   name: "اسم المنشأة",
   establishmentNumber: "رقم المنشأة في وزارة الداخلية",
+  email: "البريد الإلكتروني",
 } as const;

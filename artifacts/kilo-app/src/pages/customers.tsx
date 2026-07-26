@@ -13,13 +13,14 @@ import { EstablishmentsToolbar } from "@/components/establishments/establishment
 import { EstablishmentsTable } from "@/components/establishments/establishments-table";
 import { DeleteConfirmDialog } from "@/components/delete-confirm-dialog";
 import { TenantPagination } from "@/components/tenant-pagination";
-import { mobileListPanelClass } from "@/components/mobile";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MobileScrollTabs, mobileTabPanelClass } from "@/components/mobile";
+
+type TabId = "drivers" | "establishments";
 
 export default function CustomersPage() {
   usePageTitle("العملاء");
 
-  const [activeTab, setActiveTab] = useState("drivers");
+  const [activeTab, setActiveTab] = useState<TabId>("drivers");
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
@@ -75,80 +76,91 @@ export default function CustomersPage() {
     if (establishmentPage > maxPage) setEstablishmentPage(maxPage);
   }, [establishmentsHook.total, establishmentPage, establishmentsHook.ESTABLISHMENTS_PAGE_SIZE]);
 
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "drivers", label: "السائقون" },
+    { id: "establishments", label: "المنشآت" },
+  ];
+
   return (
     <div className="space-y-6">
       <PageHeader title="العملاء" description="إدارة المنشآت والسائقين" />
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} dir="rtl">
-        <TabsList>
-          <TabsTrigger value="drivers">السائقون</TabsTrigger>
-          <TabsTrigger value="establishments">المنشآت</TabsTrigger>
-        </TabsList>
+      {activeTab === "drivers" ? <ApiErrorBanner message={customersHook.listError} /> : null}
+      {activeTab === "establishments" ? (
+        <ApiErrorBanner message={establishmentsHook.listError} />
+      ) : null}
 
-        <TabsContent value="drivers" className="space-y-4">
-          <ApiErrorBanner message={customersHook.listError} />
-          <div className={mobileListPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
-            <CustomersToolbar
-              search={search}
-              onSearchChange={setSearch}
-              typeFilter={typeFilter}
-              onTypeFilterChange={setTypeFilter}
-              rowCount={customersHook.customers.length}
-              total={customersHook.total}
-              isLoading={customersHook.isLoading}
-              onNewCustomer={() => setIsCreateOpen(true)}
-            />
-            <div className="mt-4 space-y-4">
-              <CustomersTable
-                customers={customersHook.customers}
-                isLoading={customersHook.isLoading}
+      <div className="flex flex-col">
+        <MobileScrollTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(id) => setActiveTab(id as TabId)}
+        />
+
+        <div className={mobileTabPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
+          {activeTab === "drivers" && (
+            <>
+              <CustomersToolbar
                 search={search}
+                onSearchChange={setSearch}
                 typeFilter={typeFilter}
-                onEdit={setEditCustomer}
-                onDelete={setDeleteCustomerId}
-              />
-              <TenantPagination
-                page={page}
-                pageSize={customersHook.PAGE_SIZE}
+                onTypeFilterChange={setTypeFilter}
+                rowCount={customersHook.customers.length}
                 total={customersHook.total}
-                onPageChange={setPage}
+                isLoading={customersHook.isLoading}
+                onNewCustomer={() => setIsCreateOpen(true)}
               />
-            </div>
-          </div>
-        </TabsContent>
+              <div className="mt-4 space-y-4">
+                <CustomersTable
+                  customers={customersHook.customers}
+                  isLoading={customersHook.isLoading}
+                  search={search}
+                  typeFilter={typeFilter}
+                  onEdit={setEditCustomer}
+                  onDelete={setDeleteCustomerId}
+                />
+                <TenantPagination
+                  page={page}
+                  pageSize={customersHook.PAGE_SIZE}
+                  total={customersHook.total}
+                  onPageChange={setPage}
+                />
+              </div>
+            </>
+          )}
 
-        <TabsContent value="establishments" className="space-y-4">
-          <ApiErrorBanner message={establishmentsHook.listError} />
-          <div className={mobileListPanelClass} style={{ backgroundColor: "#f3f4f6" }}>
-            <EstablishmentsToolbar
-              search={establishmentSearch}
-              onSearchChange={setEstablishmentSearch}
-              typeFilter={establishmentTypeFilter}
-              onTypeFilterChange={setEstablishmentTypeFilter}
-              rowCount={establishmentsHook.establishments.length}
-              total={establishmentsHook.total}
-              isLoading={establishmentsHook.isLoading}
-              onNewEstablishment={() => setIsCreateEstablishmentOpen(true)}
-            />
-            <div className="mt-4 space-y-4">
-              <EstablishmentsTable
-                establishments={establishmentsHook.establishments}
-                isLoading={establishmentsHook.isLoading}
+          {activeTab === "establishments" && (
+            <>
+              <EstablishmentsToolbar
                 search={establishmentSearch}
+                onSearchChange={setEstablishmentSearch}
                 typeFilter={establishmentTypeFilter}
-                onEdit={setEditEstablishment}
-                onDelete={setDeleteEstablishmentId}
-              />
-              <TenantPagination
-                page={establishmentPage}
-                pageSize={establishmentsHook.ESTABLISHMENTS_PAGE_SIZE}
+                onTypeFilterChange={setEstablishmentTypeFilter}
+                rowCount={establishmentsHook.establishments.length}
                 total={establishmentsHook.total}
-                onPageChange={setEstablishmentPage}
+                isLoading={establishmentsHook.isLoading}
+                onNewEstablishment={() => setIsCreateEstablishmentOpen(true)}
               />
-            </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+              <div className="mt-4 space-y-4">
+                <EstablishmentsTable
+                  establishments={establishmentsHook.establishments}
+                  isLoading={establishmentsHook.isLoading}
+                  search={establishmentSearch}
+                  typeFilter={establishmentTypeFilter}
+                  onEdit={setEditEstablishment}
+                  onDelete={setDeleteEstablishmentId}
+                />
+                <TenantPagination
+                  page={establishmentPage}
+                  pageSize={establishmentsHook.ESTABLISHMENTS_PAGE_SIZE}
+                  total={establishmentsHook.total}
+                  onPageChange={setEstablishmentPage}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
 
       <CustomerDialog
         open={isCreateOpen}

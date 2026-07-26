@@ -26,6 +26,14 @@ export default defineConfig({
         workspaceRoot,
         "lib/contracts-domain/src/index.ts",
       ),
+      "@workspace/correspondence-domain": path.resolve(
+        workspaceRoot,
+        "lib/correspondence-domain/src/index.ts",
+      ),
+      "@workspace/storage-domain": path.resolve(
+        workspaceRoot,
+        "lib/storage-domain/src/index.ts",
+      ),
       "@workspace/notifications-domain": path.resolve(
         workspaceRoot,
         "lib/notifications-domain/src/index.ts",

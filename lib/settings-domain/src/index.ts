@@ -7,6 +7,7 @@ export {
   buildCompanySettingsPatch,
   buildNationalAddressSettingsPatch,
   buildNotificationSettingsPatch,
+  buildNotificationSettingsDraftFromSaved,
   buildTaxSettingsPatch,
   isCompanySettingsDirty,
   isNationalAddressSettingsDirty,
@@ -14,6 +15,7 @@ export {
   isTaxSettingsDirty,
   validateCompanySettingsDraft,
   validateNationalAddressSettingsDraft,
+  validateNotificationSettingsDraft,
   validateTaxSettingsDraft,
   type CompanySettingsDraft,
   type CompanySettingsPatch,
@@ -56,3 +58,20 @@ export {
   validateNationalAddress,
   type NationalAddress,
 } from "./national-address.js";
+export {
+  EMPTY_NOTIFICATION_EMAIL_SETTINGS,
+  NOTIFICATION_EMAIL_FIELD_LABELS,
+  mergeNotificationEmailSettings,
+  normalizeNotificationEmailSettings,
+  resolveNotificationSmtpPassword,
+  resolveNotificationSmtpTransport,
+  validateSettingsNotificationEmail,
+  type NotificationEmailRow,
+  type NotificationEmailSettings,
+  type NotificationEmailSettingsDraft,
+} from "./notification-email-settings.js";
+export {
+  buildNotificationMailHeaders,
+  describeNotificationEmailDeliverability,
+  resolveNotificationMailIdentity,
+} from "./notification-email-deliverability.js";

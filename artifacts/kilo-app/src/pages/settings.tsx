@@ -87,7 +87,7 @@ export default function SettingsPage() {
 
       <ApiErrorBanner message={error} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:items-stretch">
         <CompanySettingsCard
           settings={settings}
           isSaving={isSaving}
@@ -95,6 +95,13 @@ export default function SettingsPage() {
           onSave={save}
           onValidationError={handleValidationError}
           onLogoUpload={handleLogoUpload}
+        />
+        <StampSignatureSettingsCard
+          settings={settings}
+          isStampUploading={uploadStampMutation.isPending}
+          isSignatureUploading={uploadSignatureMutation.isPending}
+          onStampUpload={handleStampUpload}
+          onSignatureUpload={handleSignatureUpload}
         />
         <TaxSettingsCard
           settings={settings}
@@ -104,14 +111,6 @@ export default function SettingsPage() {
         />
       </div>
 
-      <StampSignatureSettingsCard
-        settings={settings}
-        isStampUploading={uploadStampMutation.isPending}
-        isSignatureUploading={uploadSignatureMutation.isPending}
-        onStampUpload={handleStampUpload}
-        onSignatureUpload={handleSignatureUpload}
-      />
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
         <NationalAddressSettingsCard
           settings={settings}
@@ -119,7 +118,12 @@ export default function SettingsPage() {
           onSave={save}
           onValidationError={handleValidationError}
         />
-        <NotificationSettingsCard settings={settings} isSaving={isSaving} onSave={save} />
+        <NotificationSettingsCard
+          settings={settings}
+          isSaving={isSaving}
+          onSave={save}
+          onValidationError={handleValidationError}
+        />
       </div>
     </div>
   );

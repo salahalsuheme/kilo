@@ -11,6 +11,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ContractsIcon } from "@/components/icons/contracts-icon";
+import { CorrespondencesIcon } from "@/components/icons/correspondences-icon";
 import { useAuth } from "@/hooks/use-auth";
 import { canAccessPath } from "@workspace/users-domain";
 
@@ -23,6 +24,7 @@ export interface NavItem {
 const ALL_NAV_ITEMS: NavItem[] = [
   { href: "/", label: "لوحة التحكم", icon: LayoutDashboard },
   { href: "/customers", label: "العملاء", icon: Users },
+  { href: "/correspondences", label: "المراسلات", icon: CorrespondencesIcon },
   { href: "/vehicles", label: "المركبات", icon: Car },
   { href: "/contracts", label: "العقود", icon: ContractsIcon },
   { href: "/invoices", label: "الفواتير", icon: Receipt },

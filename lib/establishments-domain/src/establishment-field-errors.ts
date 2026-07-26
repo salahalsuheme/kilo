@@ -5,6 +5,7 @@ export const ESTABLISHMENT_FIELD_ERRORS = {
   clientType: "نوع المنشأة مطلوب",
   establishmentNumber: "رقم المنشأة في وزارة الداخلية مطلوب",
   establishmentNumberInvalid: "رقم المنشأة غير صالح (700 متبوعاً بـ 7 أرقام)",
+  emailInvalid: "البريد الإلكتروني غير صالح",
 } as const;
 
 export const ESTABLISHMENT_DUPLICATE_ERRORS = {

@@ -4,7 +4,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@workspace/correspondence-domain": ["../../lib/correspondence-domain/src/index.ts"]
     },
     "noEmit": true
   },

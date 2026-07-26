@@ -14,6 +14,7 @@
     "@aws-sdk/client-s3": "^3.888.0",
     "@workspace/api-zod": "workspace:*",
     "@workspace/contracts-domain": "workspace:*",
+    "@workspace/correspondence-domain": "workspace:*",
     "@workspace/invoices-domain": "workspace:*",
     "@workspace/finance-domain": "workspace:*",
     "@workspace/customers-domain": "workspace:*",
@@ -33,6 +34,7 @@
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.6",
     "pg": "catalog:",
     "playwright": "^1.61.1",
     "zod": "catalog:"
@@ -44,6 +46,7 @@
     "@types/express": "^5.0.3",
     "@types/express-session": "^1.18.2",
     "@types/multer": "^2.1.0",
+    "@types/nodemailer": "^6.4.17",
     "@types/node": "catalog:",
     "@types/pg": "^8.11.14",
     "tsx": "catalog:"

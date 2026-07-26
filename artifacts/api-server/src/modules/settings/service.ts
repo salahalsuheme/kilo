@@ -1,7 +1,7 @@
 import { resolveOrgBusinessNameDisplay } from "@workspace/settings-domain";
 import { eq } from "drizzle-orm";
 import { PutSettingsBody } from "@workspace/api-zod";
-import { EMPTY_NATIONAL_ADDRESS } from "@workspace/settings-domain";
+import { EMPTY_NATIONAL_ADDRESS, EMPTY_NOTIFICATION_EMAIL_SETTINGS } from "@workspace/settings-domain";
 import type { z } from "zod";
 import { db } from "../../db/index.js";
 import { orgSettings, organizations } from "../../db/schema.js";
@@ -10,6 +10,11 @@ import {
   mapNationalAddressRow,
   mergeSettingsNationalAddress,
 } from "./domain/national-address.js";
+import {
+  mapNotificationEmailRow,
+  mergeSettingsNotificationEmail,
+  notificationEmailToColumns,
+} from "./domain/notification-email.js";
 import { resolveSettingsTaxNumber } from "./domain/org-tax.js";
 import { resolveSettingsUnifiedNumber } from "./domain/org-unified-number.js";
 
@@ -28,7 +33,7 @@ function mapSettings(
     unifiedNumber: row.unifiedNumber,
     nationalAddress: mapNationalAddressRow(row),
     notificationEmailEnabled: row.notificationEmailEnabled,
-    notificationSmsEnabled: row.notificationSmsEnabled,
+    notificationEmail: mapNotificationEmailRow(row),
   };
 }
 
@@ -71,12 +76,37 @@ export async function getOrCreateSettings(orgId: number) {
   return mapSettings(settings, org?.name);
 }
 
+export async function getOrgSettingsSmtpPassword(orgId: number): Promise<string | null> {
+  const [row] = await db
+    .select({ notificationSmtpPassword: orgSettings.notificationSmtpPassword })
+    .from(orgSettings)
+    .where(eq(orgSettings.orgId, orgId))
+    .limit(1);
+  return row?.notificationSmtpPassword ?? null;
+}
+
 export async function updateSettings(orgId: number, body: z.infer<typeof PutSettingsBody>) {
   const current = await getOrCreateSettings(orgId);
   const nextNationalAddress = mergeSettingsNationalAddress(
     current.nationalAddress ?? EMPTY_NATIONAL_ADDRESS,
     body.nationalAddress ?? undefined,
   );
+
+  const [currentRow] = await db
+    .select()
+    .from(orgSettings)
+    .where(eq(orgSettings.orgId, orgId))
+    .limit(1);
+
+  const currentEmailSettings =
+    current.notificationEmail ?? EMPTY_NOTIFICATION_EMAIL_SETTINGS;
+  const storedPassword = currentRow?.notificationSmtpPassword ?? null;
+  const { settings: nextEmailSettings, password: nextSmtpPassword } =
+    mergeSettingsNotificationEmail(
+      currentEmailSettings,
+      body.notificationEmail ?? undefined,
+      storedPassword,
+    );
 
   const [row] = await db
     .update(orgSettings)
@@ -94,7 +124,9 @@ export async function updateSettings(orgId: number, body: z.infer<typeof PutSett
         ? nationalAddressToColumns(nextNationalAddress)
         : {}),
       notificationEmailEnabled: body.notificationEmailEnabled ?? undefined,
-      notificationSmsEnabled: body.notificationSmsEnabled ?? undefined,
+      ...(body.notificationEmail || body.notificationEmailEnabled !== undefined
+        ? notificationEmailToColumns(nextEmailSettings, nextSmtpPassword)
+        : {}),
       updatedAt: new Date(),
     })
     .where(eq(orgSettings.orgId, orgId))

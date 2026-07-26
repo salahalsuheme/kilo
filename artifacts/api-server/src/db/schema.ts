@@ -48,6 +48,11 @@ export const contractStatusEnum = pgEnum("contract_status", [
 
 export const invoiceStatusEnum = pgEnum("invoice_status", ["draft", "paid"]);
 
+export const correspondenceSendStatusEnum = pgEnum("correspondence_send_status", [
+  "sent",
+  "failed",
+]);
+
 export const billingCycleEnum = pgEnum("billing_cycle", ["monthly", "yearly"]);
 
 export const organizations = pgTable("organizations", {
@@ -83,6 +88,7 @@ export const establishments = pgTable("establishments", {
   hasTaxNumber: boolean("has_tax_number").notNull().default(false),
   taxNumber: text("tax_number"),
   invoiceType: invoiceTypeEnum("invoice_type").notNull().default("simplified"),
+  email: text("email"),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
@@ -162,7 +168,13 @@ export const orgSettings = pgTable("org_settings", {
   nationalAddressPostalCode: text("national_address_postal_code"),
   nationalAddressShortAddress: text("national_address_short_address"),
   notificationEmailEnabled: boolean("notification_email_enabled").notNull().default(true),
-  notificationSmsEnabled: boolean("notification_sms_enabled").notNull().default(false),
+  notificationSmtpHost: text("notification_smtp_host"),
+  notificationSmtpPort: integer("notification_smtp_port"),
+  notificationSmtpSecure: boolean("notification_smtp_secure").notNull().default(false),
+  notificationSmtpUser: text("notification_smtp_user"),
+  notificationSmtpPassword: text("notification_smtp_password"),
+  notificationFromEmail: text("notification_from_email"),
+  notificationFromName: text("notification_from_name"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -338,4 +350,49 @@ export const companyAssets = pgTable("company_assets", {
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const correspondenceTemplates = pgTable("correspondence_templates", {
+  id: serial("id").primaryKey(),
+  orgId: integer("org_id")
+    .notNull()
+    .references(() => organizations.id),
+  name: text("name").notNull(),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  isDefault: boolean("is_default").notNull().default(false),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const correspondenceMessages = pgTable("correspondence_messages", {
+  id: serial("id").primaryKey(),
+  orgId: integer("org_id")
+    .notNull()
+    .references(() => organizations.id),
+  establishmentId: integer("establishment_id")
+    .notNull()
+    .references(() => establishments.id),
+  templateId: integer("template_id").references(() => correspondenceTemplates.id),
+  subject: text("subject").notNull(),
+  body: text("body").notNull(),
+  status: correspondenceSendStatusEnum("status").notNull().default("failed"),
+  failureReason: text("failure_reason"),
+  sentAt: timestamp("sent_at", { withTimezone: true }),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const correspondenceMessageAttachments = pgTable("correspondence_message_attachments", {
+  id: serial("id").primaryKey(),
+  messageId: integer("message_id")
+    .notNull()
+    .references(() => correspondenceMessages.id, { onDelete: "cascade" }),
+  fileName: text("file_name").notNull(),
+  storagePath: text("storage_path").notNull(),
+  mimeType: text("mime_type").notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

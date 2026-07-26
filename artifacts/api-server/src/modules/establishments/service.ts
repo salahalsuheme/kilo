@@ -7,6 +7,7 @@ import type {
 } from "@workspace/establishments-domain";
 import {
   formatEstablishmentFullName,
+  normalizeEstablishmentEmail,
   resolveEstablishmentNumberFromBody,
   resolveEstablishmentTaxFields,
   type EstablishmentType,
@@ -24,6 +25,7 @@ function mapEstablishment(row: typeof establishments.$inferSelect) {
     hasTaxNumber: row.hasTaxNumber,
     taxNumber: row.taxNumber,
     invoiceType: row.invoiceType,
+    email: row.email,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -103,6 +105,7 @@ export async function createEstablishment(orgId: number, body: CreateBody) {
       hasTaxNumber: tax.hasTaxNumber,
       taxNumber: tax.taxNumber,
       invoiceType: tax.invoiceType,
+      email: normalizeEstablishmentEmail(body.email),
     })
     .returning();
 
@@ -130,6 +133,7 @@ export async function updateEstablishment(orgId: number, id: number, body: Updat
       hasTaxNumber: tax.hasTaxNumber,
       taxNumber: tax.taxNumber,
       invoiceType: tax.invoiceType,
+      email: normalizeEstablishmentEmail(body.email),
       updatedAt: new Date(),
     })
     .where(

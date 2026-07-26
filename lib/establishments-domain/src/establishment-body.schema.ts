@@ -18,7 +18,27 @@ export const EstablishmentBodyObjectSchema = z.object({
   establishmentNumber: EstablishmentNumberSuffixSchema,
   hasTaxNumber: z.boolean(),
   taxNumber: z.string().nullable().optional(),
+  email: z.string().nullable().optional(),
 });
+
+export function normalizeEstablishmentEmail(email: string | null | undefined): string | null {
+  const trimmed = email?.trim() ?? "";
+  return trimmed === "" ? null : trimmed;
+}
+
+export function refineEstablishmentBodyEmail(
+  data: { email?: string | null },
+  ctx: z.RefinementCtx,
+): void {
+  const normalized = normalizeEstablishmentEmail(data.email);
+  if (normalized && !z.string().email().safeParse(normalized).success) {
+    ctx.addIssue({
+      code: "custom",
+      message: ESTABLISHMENT_FIELD_ERRORS.emailInvalid,
+      path: ["email"],
+    });
+  }
+}
 
 export function refineEstablishmentBodyNumber(
   data: { establishmentNumber: string },
@@ -49,7 +69,10 @@ export function refineEstablishmentBodyTax(
 }
 
 export const CreateEstablishmentBodySchema = EstablishmentBodyObjectSchema.superRefine(
-  refineEstablishmentBodyTax,
+  (data, ctx) => {
+    refineEstablishmentBodyTax(data, ctx);
+    refineEstablishmentBodyEmail(data, ctx);
+  },
 );
 
 export const UpdateEstablishmentBodySchema = CreateEstablishmentBodySchema;

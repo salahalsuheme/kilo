@@ -180,6 +180,7 @@ export const ListCustomersResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -226,6 +227,7 @@ export const CreateCustomerResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -251,6 +253,7 @@ export const GetCustomerResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -297,6 +300,7 @@ export const UpdateCustomerResponse = zod.object({
   "nationality": zod.string(),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -332,6 +336,7 @@ export const ListEstablishmentsResponse = zod.object({
   "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -351,7 +356,8 @@ export const CreateEstablishmentBody = zod.object({
   "clientType": zod.enum(['institution', 'company', 'government']),
   "establishmentNumber": zod.string().min(1).describe('الأرقام بعد بادئة 700'),
   "hasTaxNumber": zod.boolean().default(createEstablishmentBodyHasTaxNumberDefault),
-  "taxNumber": zod.string().nullish()
+  "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish()
 })
 
 export const CreateEstablishmentResponse = zod.object({
@@ -361,6 +367,7 @@ export const CreateEstablishmentResponse = zod.object({
   "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -378,6 +385,7 @@ export const GetEstablishmentResponse = zod.object({
   "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -397,7 +405,8 @@ export const UpdateEstablishmentBody = zod.object({
   "clientType": zod.enum(['institution', 'company', 'government']),
   "establishmentNumber": zod.string().min(1).describe('الأرقام بعد بادئة 700'),
   "hasTaxNumber": zod.boolean().default(updateEstablishmentBodyOneHasTaxNumberDefault),
-  "taxNumber": zod.string().nullish()
+  "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish()
 })
 
 export const UpdateEstablishmentResponse = zod.object({
@@ -407,6 +416,7 @@ export const UpdateEstablishmentResponse = zod.object({
   "establishmentNumber": zod.string().describe('رقم المنشأة في وزارة الداخلية (يبدأ بـ 700)'),
   "hasTaxNumber": zod.boolean(),
   "taxNumber": zod.string().nullish(),
+  "email": zod.email().nullish(),
   "invoiceType": zod.enum(['simplified', 'standard']).describe('simplified — فاتورة مبسطة (فرد أو بدون رقم ضريبي). standard — فاتورة قياسية (مؤسسة\/شركة\/حكومي مع رقم ضريبي).\n'),
   "createdAt": zod.coerce.date(),
   "updatedAt": zod.coerce.date()
@@ -1368,6 +1378,255 @@ export const DeleteContractTemplateParams = zod.object({
 export const DeleteContractTemplateResponse = zod.void()
 
 
+export const listCorrespondencesQueryPageDefault = 1;
+
+export const listCorrespondencesQueryPageSizeDefault = 10;
+export const listCorrespondencesQueryPageSizeMax = 100;
+
+
+
+export const ListCorrespondencesQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "page": zod.coerce.number().min(1).default(listCorrespondencesQueryPageDefault),
+  "pageSize": zod.coerce.number().min(1).max(listCorrespondencesQueryPageSizeMax).default(listCorrespondencesQueryPageSizeDefault)
+})
+
+export const ListCorrespondencesResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.number(),
+  "establishmentId": zod.number(),
+  "establishmentName": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "templateId": zod.number().nullish(),
+  "status": zod.enum(['sent', 'failed']),
+  "failureReason": zod.string().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "attachments": zod.array(zod.object({
+  "id": zod.number(),
+  "fileName": zod.string(),
+  "mimeType": zod.string(),
+  "sizeBytes": zod.number()
+})),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})),
+  "total": zod.number(),
+  "page": zod.number(),
+  "pageSize": zod.number()
+})
+
+
+export const CreateCorrespondenceBody = zod.object({
+  "establishmentId": zod.number(),
+  "templateId": zod.number().optional(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "attachments": zod.array(zod.instanceof(File)).optional()
+})
+
+export const CreateCorrespondenceResponse = zod.object({
+  "id": zod.number(),
+  "establishmentId": zod.number(),
+  "establishmentName": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "templateId": zod.number().nullish(),
+  "status": zod.enum(['sent', 'failed']),
+  "failureReason": zod.string().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "attachments": zod.array(zod.object({
+  "id": zod.number(),
+  "fileName": zod.string(),
+  "mimeType": zod.string(),
+  "sizeBytes": zod.number()
+})),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const GetCorrespondenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCorrespondenceResponse = zod.object({
+  "id": zod.number(),
+  "establishmentId": zod.number(),
+  "establishmentName": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "templateId": zod.number().nullish(),
+  "status": zod.enum(['sent', 'failed']),
+  "failureReason": zod.string().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "attachments": zod.array(zod.object({
+  "id": zod.number(),
+  "fileName": zod.string(),
+  "mimeType": zod.string(),
+  "sizeBytes": zod.number()
+})),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UpdateCorrespondenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateCorrespondenceBody = zod.object({
+  "establishmentId": zod.number(),
+  "templateId": zod.number().optional(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "attachments": zod.array(zod.instanceof(File)).optional()
+})
+
+export const UpdateCorrespondenceResponse = zod.object({
+  "id": zod.number(),
+  "establishmentId": zod.number(),
+  "establishmentName": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "templateId": zod.number().nullish(),
+  "status": zod.enum(['sent', 'failed']),
+  "failureReason": zod.string().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "attachments": zod.array(zod.object({
+  "id": zod.number(),
+  "fileName": zod.string(),
+  "mimeType": zod.string(),
+  "sizeBytes": zod.number()
+})),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DeleteCorrespondenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCorrespondenceResponse = zod.void()
+
+
+export const ResendCorrespondenceParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ResendCorrespondenceResponse = zod.object({
+  "id": zod.number(),
+  "establishmentId": zod.number(),
+  "establishmentName": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "templateId": zod.number().nullish(),
+  "status": zod.enum(['sent', 'failed']),
+  "failureReason": zod.string().nullish(),
+  "sentAt": zod.coerce.date().nullish(),
+  "attachments": zod.array(zod.object({
+  "id": zod.number(),
+  "fileName": zod.string(),
+  "mimeType": zod.string(),
+  "sizeBytes": zod.number()
+})),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DownloadCorrespondenceAttachmentParams = zod.object({
+  "id": zod.coerce.number(),
+  "attachmentId": zod.coerce.number()
+})
+
+export const DownloadCorrespondenceAttachmentResponse = zod.unknown()
+
+
+export const ListCorrespondenceTemplatesResponse = zod.object({
+  "data": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+}))
+})
+
+
+
+
+
+
+
+export const CreateCorrespondenceTemplateBody = zod.object({
+  "name": zod.string().min(1),
+  "subject": zod.string().min(1),
+  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{establishment.name}} و {{org.businessName}}.\n')
+})
+
+export const CreateCorrespondenceTemplateResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const GetCorrespondenceTemplateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCorrespondenceTemplateResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const UpdateCorrespondenceTemplateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+
+
+export const UpdateCorrespondenceTemplateBody = zod.object({
+  "name": zod.string().min(1),
+  "subject": zod.string().min(1),
+  "body": zod.string().min(1).describe('نص القالب مع متغيرات مثل {{establishment.name}} و {{org.businessName}}.\n')
+})
+
+export const UpdateCorrespondenceTemplateResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "subject": zod.string(),
+  "body": zod.string(),
+  "isDefault": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+export const DeleteCorrespondenceTemplateParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCorrespondenceTemplateResponse = zod.void()
+
+
 export const listInvoicesQueryPageDefault = 1;
 
 export const listInvoicesQueryPageSizeDefault = 10;
@@ -2095,7 +2354,15 @@ export const GetSettingsResponse = zod.object({
   "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
 }),
   "notificationEmailEnabled": zod.boolean(),
-  "notificationSmsEnabled": zod.boolean()
+  "notificationEmail": zod.object({
+  "smtpHost": zod.string().nullable().describe('مثال Gmail — smtp.gmail.com'),
+  "smtpPort": zod.number().nullable().describe('مثال 587 لـ STARTTLS أو 465 لـ SSL'),
+  "smtpSecure": zod.boolean().describe('true للمنفذ 465 (SSL)، false مع STARTTLS على 587'),
+  "smtpUser": zod.string().nullable(),
+  "smtpPasswordConfigured": zod.boolean().describe('يشير إلى وجود كلمة مرور محفوظة دون إرجاعها'),
+  "fromEmail": zod.email().nullable(),
+  "fromName": zod.string().nullable()
+})
 })
 
 
@@ -2116,7 +2383,15 @@ export const PutSettingsBody = zod.object({
   "shortAddress": zod.string().nullish()
 }).optional(),
   "notificationEmailEnabled": zod.boolean().optional(),
-  "notificationSmsEnabled": zod.boolean().optional()
+  "notificationEmail": zod.object({
+  "smtpHost": zod.string().nullish(),
+  "smtpPort": zod.number().nullish(),
+  "smtpSecure": zod.boolean().optional(),
+  "smtpUser": zod.string().nullish(),
+  "smtpPassword": zod.string().nullish().describe('عند الإرسال يحدّث كلمة المرور؛ عند الحذف يرسل سلسلة فارغة'),
+  "fromEmail": zod.email().nullish(),
+  "fromName": zod.string().nullish()
+}).optional()
 })
 
 export const PutSettingsResponse = zod.object({
@@ -2139,7 +2414,15 @@ export const PutSettingsResponse = zod.object({
   "shortAddress": zod.string().nullable().describe('العنوان المختصر (4 حروف + 4 أرقام)')
 }),
   "notificationEmailEnabled": zod.boolean(),
-  "notificationSmsEnabled": zod.boolean()
+  "notificationEmail": zod.object({
+  "smtpHost": zod.string().nullable().describe('مثال Gmail — smtp.gmail.com'),
+  "smtpPort": zod.number().nullable().describe('مثال 587 لـ STARTTLS أو 465 لـ SSL'),
+  "smtpSecure": zod.boolean().describe('true للمنفذ 465 (SSL)، false مع STARTTLS على 587'),
+  "smtpUser": zod.string().nullable(),
+  "smtpPasswordConfigured": zod.boolean().describe('يشير إلى وجود كلمة مرور محفوظة دون إرجاعها'),
+  "fromEmail": zod.email().nullable(),
+  "fromName": zod.string().nullable()
+})
 })
 
 

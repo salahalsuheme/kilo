@@ -8,7 +8,18 @@ import {
   mergeSettingsNationalAddress,
   validateSettingsNationalAddress,
 } from "./domain/national-address.js";
-import { getOrCreateSettings, updateLogo, updateSettings, updateSignature, updateStamp } from "./service.js";
+import {
+  mergeSettingsNotificationEmail,
+  validateSettingsNotificationEmailPatch,
+} from "./domain/notification-email.js";
+import {
+  getOrCreateSettings,
+  getOrgSettingsSmtpPassword,
+  updateLogo,
+  updateSettings,
+  updateSignature,
+  updateStamp,
+} from "./service.js";
 import { EMPTY_NATIONAL_ADDRESS } from "@workspace/settings-domain";
 
 function requireSession(req: Request, res: Response): number | null {
@@ -75,6 +86,29 @@ export async function handlePutSettings(req: Request, res: Response): Promise<vo
     const nationalAddressError = validateSettingsNationalAddress(nextNationalAddress);
     if (nationalAddressError) {
       res.status(400).json({ message: nationalAddressError });
+      return;
+    }
+  }
+
+  if (body.notificationEmail !== undefined || body.notificationEmailEnabled !== undefined) {
+    const current = await getOrCreateSettings(orgId);
+    const emailEnabled =
+      body.notificationEmailEnabled ?? current.notificationEmailEnabled;
+    const storedPassword = await getOrgSettingsSmtpPassword(orgId);
+    const { settings: nextEmailSettings, password: nextSmtpPassword } =
+      mergeSettingsNotificationEmail(
+        current.notificationEmail,
+        body.notificationEmail ?? undefined,
+        storedPassword,
+      );
+    const notificationEmailError = validateSettingsNotificationEmailPatch(
+      emailEnabled,
+      nextEmailSettings,
+      nextSmtpPassword,
+      body.notificationEmail?.smtpPassword,
+    );
+    if (notificationEmailError) {
+      res.status(400).json({ message: notificationEmailError });
       return;
     }
   }

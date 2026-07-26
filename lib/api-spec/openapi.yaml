@@ -997,6 +997,230 @@ paths:
         "204":
           description: Deleted
 
+  /correspondences:
+    get:
+      operationId: listCorrespondences
+      tags: [correspondences]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        "200":
+          description: Paginated correspondence messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceList"
+    post:
+      operationId: createCorrespondence
+      tags: [correspondences]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/CreateCorrespondenceMultipartBody"
+      responses:
+        "201":
+          description: Message created and send attempted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceMessage"
+        "400":
+          description: Validation or send error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+
+  /correspondences/{id}:
+    get:
+      operationId: getCorrespondence
+      tags: [correspondences]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceId"
+      responses:
+        "200":
+          description: Correspondence message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceMessage"
+        "404":
+          description: Not found
+    put:
+      operationId: updateCorrespondence
+      tags: [correspondences]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceId"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UpdateCorrespondenceMultipartBody"
+      responses:
+        "200":
+          description: Updated and send attempted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceMessage"
+        "400":
+          description: Validation or send error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCorrespondence
+      tags: [correspondences]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceId"
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /correspondences/{id}/resend:
+    post:
+      operationId: resendCorrespondence
+      tags: [correspondences]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceId"
+      responses:
+        "200":
+          description: Resend attempted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceMessage"
+        "400":
+          description: Send error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+
+  /correspondences/{id}/attachments/{attachmentId}:
+    get:
+      operationId: downloadCorrespondenceAttachment
+      tags: [correspondences]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceId"
+        - $ref: "#/components/parameters/CorrespondenceAttachmentId"
+      responses:
+        "200":
+          description: Attachment file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+
+  /correspondence-templates:
+    get:
+      operationId: listCorrespondenceTemplates
+      tags: [correspondence-templates]
+      responses:
+        "200":
+          description: Correspondence templates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceTemplateList"
+    post:
+      operationId: createCorrespondenceTemplate
+      tags: [correspondence-templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCorrespondenceTemplateBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceTemplate"
+
+  /correspondence-templates/{id}:
+    get:
+      operationId: getCorrespondenceTemplate
+      tags: [correspondence-templates]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceTemplateId"
+      responses:
+        "200":
+          description: Template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceTemplate"
+        "404":
+          description: Not found
+    put:
+      operationId: updateCorrespondenceTemplate
+      tags: [correspondence-templates]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceTemplateId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCorrespondenceTemplateBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CorrespondenceTemplate"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteCorrespondenceTemplate
+      tags: [correspondence-templates]
+      parameters:
+        - $ref: "#/components/parameters/CorrespondenceTemplateId"
+      responses:
+        "204":
+          description: Deleted
+        "400":
+          description: Cannot delete default template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiErrorMessage"
+        "404":
+          description: Not found
+
   /invoices:
     get:
       operationId: listInvoices
@@ -1637,6 +1861,24 @@ components:
       required: true
       schema:
         type: integer
+    CorrespondenceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    CorrespondenceAttachmentId:
+      name: attachmentId
+      in: path
+      required: true
+      schema:
+        type: integer
+    CorrespondenceTemplateId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
     PurchaseId:
       name: id
       in: path
@@ -1865,6 +2107,10 @@ components:
         taxNumber:
           type: string
           nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
         invoiceType:
           $ref: "#/components/schemas/InvoiceType"
         createdAt:
@@ -1961,6 +2207,10 @@ components:
         taxNumber:
           type: string
           nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
         invoiceType:
           $ref: "#/components/schemas/InvoiceType"
         createdAt:
@@ -1997,6 +2247,10 @@ components:
           default: false
         taxNumber:
           type: string
+          nullable: true
+        email:
+          type: string
+          format: email
           nullable: true
       required: [name, clientType, establishmentNumber, hasTaxNumber]
 
@@ -2556,6 +2810,156 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ContractTemplate"
+      required: [data]
+
+    CorrespondenceSendStatus:
+      type: string
+      enum: [sent, failed]
+
+    CorrespondenceAttachment:
+      type: object
+      properties:
+        id:
+          type: integer
+        fileName:
+          type: string
+        mimeType:
+          type: string
+        sizeBytes:
+          type: integer
+      required: [id, fileName, mimeType, sizeBytes]
+
+    CorrespondenceMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        establishmentId:
+          type: integer
+        establishmentName:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        templateId:
+          type: integer
+          nullable: true
+        status:
+          $ref: "#/components/schemas/CorrespondenceSendStatus"
+        failureReason:
+          type: string
+          nullable: true
+        sentAt:
+          type: string
+          format: date-time
+          nullable: true
+        attachments:
+          type: array
+          items:
+            $ref: "#/components/schemas/CorrespondenceAttachment"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - establishmentId
+        - establishmentName
+        - subject
+        - body
+        - status
+        - attachments
+        - createdAt
+        - updatedAt
+
+    CorrespondenceList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CorrespondenceMessage"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [data, total, page, pageSize]
+
+    CreateCorrespondenceMultipartBody:
+      type: object
+      properties:
+        establishmentId:
+          type: integer
+        templateId:
+          type: integer
+        subject:
+          type: string
+        body:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+            format: binary
+      required: [establishmentId, subject, body]
+
+    UpdateCorrespondenceMultipartBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateCorrespondenceMultipartBody"
+
+    CorrespondenceTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        subject:
+          type: string
+        body:
+          type: string
+        isDefault:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, name, subject, body, isDefault, createdAt, updatedAt]
+
+    CreateCorrespondenceTemplateBody:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        subject:
+          type: string
+          minLength: 1
+        body:
+          type: string
+          minLength: 1
+          description: >
+            نص القالب مع متغيرات مثل {{establishment.name}} و {{org.businessName}}.
+      required: [name, subject, body]
+
+    UpdateCorrespondenceTemplateBody:
+      allOf:
+        - $ref: "#/components/schemas/CreateCorrespondenceTemplateBody"
+
+    CorrespondenceTemplateList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CorrespondenceTemplate"
       required: [data]
 
     InvoiceStatus:
@@ -3298,6 +3702,68 @@ components:
           type: string
       required: [signatureUrl]
 
+    NotificationEmailSettings:
+      type: object
+      properties:
+        smtpHost:
+          type: string
+          nullable: true
+          description: مثال Gmail — smtp.gmail.com
+        smtpPort:
+          type: integer
+          nullable: true
+          description: مثال 587 لـ STARTTLS أو 465 لـ SSL
+        smtpSecure:
+          type: boolean
+          description: true للمنفذ 465 (SSL)، false مع STARTTLS على 587
+        smtpUser:
+          type: string
+          nullable: true
+        smtpPasswordConfigured:
+          type: boolean
+          description: يشير إلى وجود كلمة مرور محفوظة دون إرجاعها
+        fromEmail:
+          type: string
+          nullable: true
+          format: email
+        fromName:
+          type: string
+          nullable: true
+      required:
+        - smtpHost
+        - smtpPort
+        - smtpSecure
+        - smtpUser
+        - smtpPasswordConfigured
+        - fromEmail
+        - fromName
+
+    PutNotificationEmailSettingsBody:
+      type: object
+      properties:
+        smtpHost:
+          type: string
+          nullable: true
+        smtpPort:
+          type: integer
+          nullable: true
+        smtpSecure:
+          type: boolean
+        smtpUser:
+          type: string
+          nullable: true
+        smtpPassword:
+          type: string
+          nullable: true
+          description: عند الإرسال يحدّث كلمة المرور؛ عند الحذف يرسل سلسلة فارغة
+        fromEmail:
+          type: string
+          nullable: true
+          format: email
+        fromName:
+          type: string
+          nullable: true
+
     OrgSettings:
       type: object
       properties:
@@ -3330,15 +3796,15 @@ components:
           $ref: "#/components/schemas/NationalAddress"
         notificationEmailEnabled:
           type: boolean
-        notificationSmsEnabled:
-          type: boolean
+        notificationEmail:
+          $ref: "#/components/schemas/NotificationEmailSettings"
       required:
         - businessName
         - taxEnabled
         - taxRate
         - nationalAddress
         - notificationEmailEnabled
-        - notificationSmsEnabled
+        - notificationEmail
 
     NationalAddress:
       type: object
@@ -3434,5 +3900,5 @@ components:
           $ref: "#/components/schemas/PutNationalAddressBody"
         notificationEmailEnabled:
           type: boolean
-        notificationSmsEnabled:
-          type: boolean
+        notificationEmail:
+          $ref: "#/components/schemas/PutNotificationEmailSettingsBody"

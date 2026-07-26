@@ -53,6 +53,7 @@ async function loadEstablishmentForCustomer(
         hasTaxNumber: establishment.hasTaxNumber,
         taxNumber: establishment.taxNumber,
         invoiceType: establishment.invoiceType,
+        email: establishment.email ?? null,
         deletedAt: null,
         createdAt: establishment.createdAt,
         updatedAt: establishment.updatedAt,

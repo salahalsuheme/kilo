@@ -18,6 +18,11 @@ export type {
   ContractStatus,
   ContractTemplate,
   CreateContractTemplateBody,
+  CorrespondenceMessage,
+  CorrespondenceSendStatus,
+  CorrespondenceTemplate,
+  CreateCorrespondenceTemplateBody,
+  CreateCorrespondenceMultipartBody,
   Invoice,
   InvoiceDetail,
   InvoiceList,
@@ -212,3 +217,28 @@ export const useListNotifications = /*#__PURE__*/ wrapTenantQueryHook(
   gen.useListNotifications as unknown as AnyQueryHook,
   gen.getListNotificationsQueryKey as unknown as AnyKeyGetter,
 ) as typeof gen.useListNotifications;
+
+export const useListCorrespondences = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useListCorrespondences as unknown as AnyQueryHook,
+  gen.getListCorrespondencesQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useListCorrespondences;
+
+export const useGetCorrespondence = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useGetCorrespondence as unknown as AnyQueryHook,
+  gen.getGetCorrespondenceQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useGetCorrespondence;
+
+export const useListCorrespondenceTemplates = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useListCorrespondenceTemplates as unknown as AnyQueryHook,
+  gen.getListCorrespondenceTemplatesQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useListCorrespondenceTemplates;
+
+export const useGetCorrespondenceTemplate = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useGetCorrespondenceTemplate as unknown as AnyQueryHook,
+  gen.getGetCorrespondenceTemplateQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useGetCorrespondenceTemplate;
+
+export const useDownloadCorrespondenceAttachment = /*#__PURE__*/ wrapTenantQueryHook(
+  gen.useDownloadCorrespondenceAttachment as unknown as AnyQueryHook,
+  gen.getDownloadCorrespondenceAttachmentQueryKey as unknown as AnyKeyGetter,
+) as typeof gen.useDownloadCorrespondenceAttachment;

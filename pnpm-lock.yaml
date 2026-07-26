@@ -80,6 +80,9 @@ importers:
       '@workspace/contracts-domain':
         specifier: workspace:*
         version: link:../../lib/contracts-domain
+      '@workspace/correspondence-domain':
+        specifier: workspace:*
+        version: link:../../lib/correspondence-domain
       '@workspace/customers-domain':
         specifier: workspace:*
         version: link:../../lib/customers-domain
@@ -137,6 +140,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.2.0
+      nodemailer:
+        specifier: ^7.0.6
+        version: 7.0.13
       pg:
         specifier: 'catalog:'
         version: 8.22.0
@@ -168,6 +174,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.5
+      '@types/nodemailer':
+        specifier: ^6.4.17
+        version: 6.4.24
       '@types/pg':
         specifier: ^8.11.14
         version: 8.20.0
@@ -240,6 +249,9 @@ importers:
       '@workspace/contracts-domain':
         specifier: workspace:*
         version: link:../../lib/contracts-domain
+      '@workspace/correspondence-domain':
+        specifier: workspace:*
+        version: link:../../lib/correspondence-domain
       '@workspace/customers-domain':
         specifier: workspace:*
         version: link:../../lib/customers-domain
@@ -380,6 +392,18 @@ importers:
       '@workspace/customers-domain':
         specifier: workspace:*
         version: link:../customers-domain
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
+
+  lib/correspondence-domain:
+    dependencies:
+      '@workspace/establishments-domain':
+        specifier: workspace:*
+        version: link:../establishments-domain
+      '@workspace/storage-domain':
+        specifier: workspace:*
+        version: link:../storage-domain
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -1896,6 +1920,9 @@ packages:
   '@types/node@25.9.5':
     resolution: {integrity: sha512-OScDchr2fwuUmWdf4kZ9h7PcJiYDVInhJizG/biAq3cAvqwYktuy/TYGGdZNMtNTFUP7rnb0NU4TUdm82kt4Rg==}
 
+  '@types/nodemailer@6.4.24':
+    resolution: {integrity: sha512-Ww4u0rT9wQNXh4JiQaIwx3QWdcOFXzOjQA2zc+jtFYNmQiT4mIUqcDin51bDFdkzKubFnQCZNK7FIHlPKQ/q9w==}
+
   '@types/pg@8.20.0':
     resolution: {integrity: sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow==}
 
@@ -2656,6 +2683,10 @@ packages:
   node-releases@2.0.51:
     resolution: {integrity: sha512-wRNIrw4DmVLKQlbgOMdkMx27Wrpzes2hh5Jtbi2bjPd+4wJstWIqP5A+lscnqbm0xxmT5Bpg8Lec5ItEBwx6BQ==}
     engines: {node: '>=18'}
+
+  nodemailer@7.0.13:
+    resolution: {integrity: sha512-PNDFSJdP+KFgdsG3ZzMXCgquO7I6McjY2vlqILjtJd0hy8wEvtugS9xKRF2NWlPNGxvLCXlTNIae4serI7dinw==}
+    engines: {node: '>=6.0.0'}
 
   npm-run-path@6.0.0:
     resolution: {integrity: sha512-9qny7Z9DsQU8Ou39ERsPU4OZQlSTP47ShQzuKZ6PRXpYLtIFgl/DEBYEXKlvcEa+9tHVcK8CF81Y2V72qaZhWA==}
@@ -4732,6 +4763,10 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
+  '@types/nodemailer@6.4.24':
+    dependencies:
+      '@types/node': 25.9.5
+
   '@types/pg@8.20.0':
     dependencies:
       '@types/node': 25.9.5
@@ -5379,6 +5414,8 @@ snapshots:
   negotiator@1.0.0: {}
 
   node-releases@2.0.51: {}
+
+  nodemailer@7.0.13: {}
 
   npm-run-path@6.0.0:
     dependencies:

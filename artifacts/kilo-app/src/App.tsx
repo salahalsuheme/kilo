@@ -8,6 +8,7 @@ import CustomersPage from "@/pages/customers";
 import UsersPage from "@/pages/users";
 import VehiclesPage from "@/pages/vehicles";
 import ContractsPage from "@/pages/contracts";
+import CorrespondencesPage from "@/pages/correspondences";
 import InvoicesPage from "@/pages/invoices";
 import FinancePage from "@/pages/finance";
 import NotificationsPage from "@/pages/notifications";
@@ -87,6 +88,11 @@ export default function App() {
       <Route path="/contracts">
         <RequireAuth>
           <ContractsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/correspondences">
+        <RequireAuth>
+          <CorrespondencesPage />
         </RequireAuth>
       </Route>
       <Route path="/invoices">

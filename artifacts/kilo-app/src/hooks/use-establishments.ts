@@ -101,6 +101,7 @@ export function useEstablishments({
     establishmentNumber: values.establishmentNumber.trim(),
     hasTaxNumber: values.hasTaxNumber,
     taxNumber: values.hasTaxNumber ? values.taxNumber?.trim() || null : null,
+    email: values.email.trim() || null,
   });
 
   const submitCreate = (values: EstablishmentFormValues) => {
@@ -120,6 +121,7 @@ export function useEstablishments({
     name: establishment.name,
     clientType: establishment.clientType,
     establishmentNumber: stripEstablishmentNumberSuffix(establishment.establishmentNumber),
+    email: establishment.email ?? "",
     hasTaxNumber: establishment.hasTaxNumber,
     taxNumber: establishment.taxNumber ?? "",
   });

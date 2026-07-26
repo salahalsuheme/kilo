@@ -29,9 +29,15 @@ import type {
   ContractList,
   ContractTemplate,
   ContractTemplateList,
+  CorrespondenceList,
+  CorrespondenceMessage,
+  CorrespondenceTemplate,
+  CorrespondenceTemplateList,
   CreateCompanyAssetBody,
   CreateContractBody,
   CreateContractTemplateBody,
+  CreateCorrespondenceMultipartBody,
+  CreateCorrespondenceTemplateBody,
   CreateCustomerBody,
   CreateEstablishmentBody,
   CreateFixedSubscriptionBody,
@@ -52,6 +58,7 @@ import type {
   InvoiceList,
   ListActivityEventsParams,
   ListContractsParams,
+  ListCorrespondencesParams,
   ListCustomersParams,
   ListEstablishmentsParams,
   ListInvoicesParams,
@@ -74,6 +81,8 @@ import type {
   UpdateContractBody,
   UpdateContractStatusBody,
   UpdateContractTemplateBody,
+  UpdateCorrespondenceMultipartBody,
+  UpdateCorrespondenceTemplateBody,
   UpdateCustomerBody,
   UpdateEstablishmentBody,
   UpdateFinanceInvoiceStatusBody,
@@ -3592,6 +3601,850 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getDeleteContractTemplateMutationOptions(options));
+    }
+
+export const getListCorrespondencesUrl = (params?: ListCorrespondencesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/correspondences?${stringifiedParams}` : `/api/correspondences`
+}
+
+export const listCorrespondences = async (params?: ListCorrespondencesParams, options?: RequestInit): Promise<CorrespondenceList> => {
+
+  return customFetch<CorrespondenceList>(getListCorrespondencesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCorrespondencesQueryKey = (params?: ListCorrespondencesParams,) => {
+    return [
+    `/api/correspondences`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListCorrespondencesQueryOptions = <TData = Awaited<ReturnType<typeof listCorrespondences>>, TError = ErrorType<unknown>>(params?: ListCorrespondencesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCorrespondences>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCorrespondencesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCorrespondences>>> = ({ signal }) => listCorrespondences(params, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCorrespondences>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCorrespondencesQueryResult = NonNullable<Awaited<ReturnType<typeof listCorrespondences>>>
+export type ListCorrespondencesQueryError = ErrorType<unknown>
+
+
+
+export function useListCorrespondences<TData = Awaited<ReturnType<typeof listCorrespondences>>, TError = ErrorType<unknown>>(
+ params?: ListCorrespondencesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCorrespondences>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCorrespondencesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCorrespondenceUrl = () => {
+
+
+
+
+  return `/api/correspondences`
+}
+
+export const createCorrespondence = async (createCorrespondenceMultipartBody: CreateCorrespondenceMultipartBody, options?: RequestInit): Promise<CorrespondenceMessage> => {
+    const formData = new FormData();
+formData.append(`establishmentId`, createCorrespondenceMultipartBody.establishmentId.toString())
+if(createCorrespondenceMultipartBody.templateId !== undefined) {
+ formData.append(`templateId`, createCorrespondenceMultipartBody.templateId.toString())
+ }
+formData.append(`subject`, createCorrespondenceMultipartBody.subject);
+formData.append(`body`, createCorrespondenceMultipartBody.body);
+if(createCorrespondenceMultipartBody.attachments !== undefined) {
+ createCorrespondenceMultipartBody.attachments.forEach(value => formData.append(`attachments`, value));
+ }
+
+  return customFetch<CorrespondenceMessage>(getCreateCorrespondenceUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getCreateCorrespondenceMutationOptions = <TError = ErrorType<ApiErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCorrespondence>>, TError,{data: BodyType<CreateCorrespondenceMultipartBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createCorrespondence>>, TError,{data: BodyType<CreateCorrespondenceMultipartBody>}, TContext> => {
+
+const mutationKey = ['createCorrespondence'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCorrespondence>>, {data: BodyType<CreateCorrespondenceMultipartBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCorrespondence(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCorrespondenceMutationResult = NonNullable<Awaited<ReturnType<typeof createCorrespondence>>>
+    export type CreateCorrespondenceMutationBody = BodyType<CreateCorrespondenceMultipartBody>
+    export type CreateCorrespondenceMutationError = ErrorType<ApiErrorMessage>
+
+    export const useCreateCorrespondence = <TError = ErrorType<ApiErrorMessage>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCorrespondence>>, TError,{data: BodyType<CreateCorrespondenceMultipartBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCorrespondence>>,
+        TError,
+        {data: BodyType<CreateCorrespondenceMultipartBody>},
+        TContext
+      > => {
+      return useMutation(getCreateCorrespondenceMutationOptions(options));
+    }
+
+export const getGetCorrespondenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondences/${id}`
+}
+
+export const getCorrespondence = async (id: number, options?: RequestInit): Promise<CorrespondenceMessage> => {
+
+  return customFetch<CorrespondenceMessage>(getGetCorrespondenceUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCorrespondenceQueryKey = (id: number,) => {
+    return [
+    `/api/correspondences/${id}`
+    ] as const;
+    }
+
+
+export const getGetCorrespondenceQueryOptions = <TData = Awaited<ReturnType<typeof getCorrespondence>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCorrespondence>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCorrespondenceQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCorrespondence>>> = ({ signal }) => getCorrespondence(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCorrespondence>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCorrespondenceQueryResult = NonNullable<Awaited<ReturnType<typeof getCorrespondence>>>
+export type GetCorrespondenceQueryError = ErrorType<void>
+
+
+
+export function useGetCorrespondence<TData = Awaited<ReturnType<typeof getCorrespondence>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCorrespondence>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCorrespondenceQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateCorrespondenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondences/${id}`
+}
+
+export const updateCorrespondence = async (id: number,
+    updateCorrespondenceMultipartBody: UpdateCorrespondenceMultipartBody, options?: RequestInit): Promise<CorrespondenceMessage> => {
+    const formData = new FormData();
+formData.append(`establishmentId`, updateCorrespondenceMultipartBody.establishmentId.toString())
+if(updateCorrespondenceMultipartBody.templateId !== undefined) {
+ formData.append(`templateId`, updateCorrespondenceMultipartBody.templateId.toString())
+ }
+formData.append(`subject`, updateCorrespondenceMultipartBody.subject);
+formData.append(`body`, updateCorrespondenceMultipartBody.body);
+if(updateCorrespondenceMultipartBody.attachments !== undefined) {
+ updateCorrespondenceMultipartBody.attachments.forEach(value => formData.append(`attachments`, value));
+ }
+
+  return customFetch<CorrespondenceMessage>(getUpdateCorrespondenceUrl(id),
+  {
+    ...options,
+    method: 'PUT'
+    ,
+    body: formData
+  }
+);}
+
+
+
+
+
+export const getUpdateCorrespondenceMutationOptions = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCorrespondence>>, TError,{id: number;data: BodyType<UpdateCorrespondenceMultipartBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateCorrespondence>>, TError,{id: number;data: BodyType<UpdateCorrespondenceMultipartBody>}, TContext> => {
+
+const mutationKey = ['updateCorrespondence'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCorrespondence>>, {id: number;data: BodyType<UpdateCorrespondenceMultipartBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCorrespondence(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCorrespondenceMutationResult = NonNullable<Awaited<ReturnType<typeof updateCorrespondence>>>
+    export type UpdateCorrespondenceMutationBody = BodyType<UpdateCorrespondenceMultipartBody>
+    export type UpdateCorrespondenceMutationError = ErrorType<ApiErrorMessage | void>
+
+    export const useUpdateCorrespondence = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCorrespondence>>, TError,{id: number;data: BodyType<UpdateCorrespondenceMultipartBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCorrespondence>>,
+        TError,
+        {id: number;data: BodyType<UpdateCorrespondenceMultipartBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateCorrespondenceMutationOptions(options));
+    }
+
+export const getDeleteCorrespondenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondences/${id}`
+}
+
+export const deleteCorrespondence = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteCorrespondenceUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteCorrespondenceMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCorrespondence>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCorrespondence>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteCorrespondence'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCorrespondence>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteCorrespondence(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCorrespondenceMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCorrespondence>>>
+
+    export type DeleteCorrespondenceMutationError = ErrorType<void>
+
+    export const useDeleteCorrespondence = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCorrespondence>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCorrespondence>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteCorrespondenceMutationOptions(options));
+    }
+
+export const getResendCorrespondenceUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondences/${id}/resend`
+}
+
+export const resendCorrespondence = async (id: number, options?: RequestInit): Promise<CorrespondenceMessage> => {
+
+  return customFetch<CorrespondenceMessage>(getResendCorrespondenceUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getResendCorrespondenceMutationOptions = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resendCorrespondence>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof resendCorrespondence>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['resendCorrespondence'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof resendCorrespondence>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  resendCorrespondence(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResendCorrespondenceMutationResult = NonNullable<Awaited<ReturnType<typeof resendCorrespondence>>>
+
+    export type ResendCorrespondenceMutationError = ErrorType<ApiErrorMessage | void>
+
+    export const useResendCorrespondence = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof resendCorrespondence>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof resendCorrespondence>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getResendCorrespondenceMutationOptions(options));
+    }
+
+export const getDownloadCorrespondenceAttachmentUrl = (id: number,
+    attachmentId: number,) => {
+
+
+
+
+  return `/api/correspondences/${id}/attachments/${attachmentId}`
+}
+
+export const downloadCorrespondenceAttachment = async (id: number,
+    attachmentId: number, options?: RequestInit): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadCorrespondenceAttachmentUrl(id,attachmentId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadCorrespondenceAttachmentQueryKey = (id: number,
+    attachmentId: number,) => {
+    return [
+    `/api/correspondences/${id}/attachments/${attachmentId}`
+    ] as const;
+    }
+
+
+export const getDownloadCorrespondenceAttachmentQueryOptions = <TData = Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>, TError = ErrorType<void>>(id: number,
+    attachmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadCorrespondenceAttachmentQueryKey(id,attachmentId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>> = ({ signal }) => downloadCorrespondenceAttachment(id,attachmentId, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined && attachmentId !== null && attachmentId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadCorrespondenceAttachmentQueryResult = NonNullable<Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>>
+export type DownloadCorrespondenceAttachmentQueryError = ErrorType<void>
+
+
+
+export function useDownloadCorrespondenceAttachment<TData = Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>, TError = ErrorType<void>>(
+ id: number,
+    attachmentId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadCorrespondenceAttachment>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadCorrespondenceAttachmentQueryOptions(id,attachmentId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListCorrespondenceTemplatesUrl = () => {
+
+
+
+
+  return `/api/correspondence-templates`
+}
+
+export const listCorrespondenceTemplates = async ( options?: RequestInit): Promise<CorrespondenceTemplateList> => {
+
+  return customFetch<CorrespondenceTemplateList>(getListCorrespondenceTemplatesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListCorrespondenceTemplatesQueryKey = () => {
+    return [
+    `/api/correspondence-templates`
+    ] as const;
+    }
+
+
+export const getListCorrespondenceTemplatesQueryOptions = <TData = Awaited<ReturnType<typeof listCorrespondenceTemplates>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCorrespondenceTemplates>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListCorrespondenceTemplatesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listCorrespondenceTemplates>>> = ({ signal }) => listCorrespondenceTemplates({ signal });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listCorrespondenceTemplates>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListCorrespondenceTemplatesQueryResult = NonNullable<Awaited<ReturnType<typeof listCorrespondenceTemplates>>>
+export type ListCorrespondenceTemplatesQueryError = ErrorType<unknown>
+
+
+
+export function useListCorrespondenceTemplates<TData = Awaited<ReturnType<typeof listCorrespondenceTemplates>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listCorrespondenceTemplates>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListCorrespondenceTemplatesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateCorrespondenceTemplateUrl = () => {
+
+
+
+
+  return `/api/correspondence-templates`
+}
+
+export const createCorrespondenceTemplate = async (createCorrespondenceTemplateBody: CreateCorrespondenceTemplateBody, options?: RequestInit): Promise<CorrespondenceTemplate> => {
+
+  return customFetch<CorrespondenceTemplate>(getCreateCorrespondenceTemplateUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createCorrespondenceTemplateBody)
+  }
+);}
+
+
+
+
+
+export const getCreateCorrespondenceTemplateMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCorrespondenceTemplate>>, TError,{data: BodyType<CreateCorrespondenceTemplateBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createCorrespondenceTemplate>>, TError,{data: BodyType<CreateCorrespondenceTemplateBody>}, TContext> => {
+
+const mutationKey = ['createCorrespondenceTemplate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createCorrespondenceTemplate>>, {data: BodyType<CreateCorrespondenceTemplateBody>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createCorrespondenceTemplate(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateCorrespondenceTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof createCorrespondenceTemplate>>>
+    export type CreateCorrespondenceTemplateMutationBody = BodyType<CreateCorrespondenceTemplateBody>
+    export type CreateCorrespondenceTemplateMutationError = ErrorType<unknown>
+
+    export const useCreateCorrespondenceTemplate = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createCorrespondenceTemplate>>, TError,{data: BodyType<CreateCorrespondenceTemplateBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createCorrespondenceTemplate>>,
+        TError,
+        {data: BodyType<CreateCorrespondenceTemplateBody>},
+        TContext
+      > => {
+      return useMutation(getCreateCorrespondenceTemplateMutationOptions(options));
+    }
+
+export const getGetCorrespondenceTemplateUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondence-templates/${id}`
+}
+
+export const getCorrespondenceTemplate = async (id: number, options?: RequestInit): Promise<CorrespondenceTemplate> => {
+
+  return customFetch<CorrespondenceTemplate>(getGetCorrespondenceTemplateUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetCorrespondenceTemplateQueryKey = (id: number,) => {
+    return [
+    `/api/correspondence-templates/${id}`
+    ] as const;
+    }
+
+
+export const getGetCorrespondenceTemplateQueryOptions = <TData = Awaited<ReturnType<typeof getCorrespondenceTemplate>>, TError = ErrorType<void>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCorrespondenceTemplate>>, TError, TData>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetCorrespondenceTemplateQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getCorrespondenceTemplate>>> = ({ signal }) => getCorrespondenceTemplate(id, { signal });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getCorrespondenceTemplate>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetCorrespondenceTemplateQueryResult = NonNullable<Awaited<ReturnType<typeof getCorrespondenceTemplate>>>
+export type GetCorrespondenceTemplateQueryError = ErrorType<void>
+
+
+
+export function useGetCorrespondenceTemplate<TData = Awaited<ReturnType<typeof getCorrespondenceTemplate>>, TError = ErrorType<void>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getCorrespondenceTemplate>>, TError, TData>, }
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetCorrespondenceTemplateQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateCorrespondenceTemplateUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondence-templates/${id}`
+}
+
+export const updateCorrespondenceTemplate = async (id: number,
+    updateCorrespondenceTemplateBody: UpdateCorrespondenceTemplateBody, options?: RequestInit): Promise<CorrespondenceTemplate> => {
+
+  return customFetch<CorrespondenceTemplate>(getUpdateCorrespondenceTemplateUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateCorrespondenceTemplateBody)
+  }
+);}
+
+
+
+
+
+export const getUpdateCorrespondenceTemplateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCorrespondenceTemplate>>, TError,{id: number;data: BodyType<UpdateCorrespondenceTemplateBody>}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateCorrespondenceTemplate>>, TError,{id: number;data: BodyType<UpdateCorrespondenceTemplateBody>}, TContext> => {
+
+const mutationKey = ['updateCorrespondenceTemplate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateCorrespondenceTemplate>>, {id: number;data: BodyType<UpdateCorrespondenceTemplateBody>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateCorrespondenceTemplate(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateCorrespondenceTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof updateCorrespondenceTemplate>>>
+    export type UpdateCorrespondenceTemplateMutationBody = BodyType<UpdateCorrespondenceTemplateBody>
+    export type UpdateCorrespondenceTemplateMutationError = ErrorType<void>
+
+    export const useUpdateCorrespondenceTemplate = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateCorrespondenceTemplate>>, TError,{id: number;data: BodyType<UpdateCorrespondenceTemplateBody>}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateCorrespondenceTemplate>>,
+        TError,
+        {id: number;data: BodyType<UpdateCorrespondenceTemplateBody>},
+        TContext
+      > => {
+      return useMutation(getUpdateCorrespondenceTemplateMutationOptions(options));
+    }
+
+export const getDeleteCorrespondenceTemplateUrl = (id: number,) => {
+
+
+
+
+  return `/api/correspondence-templates/${id}`
+}
+
+export const deleteCorrespondenceTemplate = async (id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteCorrespondenceTemplateUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteCorrespondenceTemplateMutationOptions = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCorrespondenceTemplate>>, TError,{id: number}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteCorrespondenceTemplate>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteCorrespondenceTemplate'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteCorrespondenceTemplate>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteCorrespondenceTemplate(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteCorrespondenceTemplateMutationResult = NonNullable<Awaited<ReturnType<typeof deleteCorrespondenceTemplate>>>
+
+    export type DeleteCorrespondenceTemplateMutationError = ErrorType<ApiErrorMessage | void>
+
+    export const useDeleteCorrespondenceTemplate = <TError = ErrorType<ApiErrorMessage | void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteCorrespondenceTemplate>>, TError,{id: number}, TContext>, }
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteCorrespondenceTemplate>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteCorrespondenceTemplateMutationOptions(options));
     }
 
 export const getListInvoicesUrl = (params?: ListInvoicesParams,) => {

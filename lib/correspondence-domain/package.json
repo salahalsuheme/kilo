@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/correspondence-domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@workspace/establishments-domain": "workspace:*",
+    "@workspace/storage-domain": "workspace:*",
+    "zod": "catalog:"
+  }
+}

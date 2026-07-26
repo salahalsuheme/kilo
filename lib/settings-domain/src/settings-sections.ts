@@ -12,6 +12,15 @@ import {
   validateNationalAddress,
   type NationalAddress,
 } from "./national-address.js";
+import {
+  buildPutNotificationEmailSettingsFields,
+  isNotificationEmailSettingsDirty,
+  notificationEmailSettingsToDraft,
+  validateNotificationEmailSettingsDraft,
+  type NotificationEmailSettings,
+  type NotificationEmailSettingsDraft,
+  type PutNotificationEmailSettingsFields,
+} from "./notification-email-settings.js";
 
 export interface CompanySettingsDraft {
   businessName: string;
@@ -25,9 +34,8 @@ export interface TaxSettingsDraft {
   taxNumber: string;
 }
 
-export interface NotificationSettingsDraft {
+export interface NotificationSettingsDraft extends NotificationEmailSettingsDraft {
   notificationEmailEnabled: boolean;
-  notificationSmsEnabled: boolean;
 }
 
 export type CompanySettingsPatch = Pick<CompanySettingsDraft, "businessName"> & {
@@ -41,7 +49,10 @@ export type TaxSettingsPatch = {
   taxNumber: string | null;
 };
 
-export type NotificationSettingsPatch = NotificationSettingsDraft;
+export type NotificationSettingsPatch = {
+  notificationEmailEnabled: boolean;
+  notificationEmail?: PutNotificationEmailSettingsFields;
+};
 
 export type NationalAddressSettingsPatch = {
   nationalAddress: NationalAddress;
@@ -88,13 +99,40 @@ export function buildNationalAddressSettingsPatch(
   return { nationalAddress: normalizeNationalAddress(draft) };
 }
 
+export function buildNotificationSettingsDraftFromSaved(
+  saved: SavedNotificationSettings,
+): NotificationSettingsDraft {
+  return {
+    notificationEmailEnabled: saved.notificationEmailEnabled,
+    ...notificationEmailSettingsToDraft(saved.notificationEmail),
+  };
+}
+
+export function validateNotificationSettingsDraft(
+  draft: NotificationSettingsDraft,
+  saved: SavedNotificationSettings,
+): string | null {
+  return validateNotificationEmailSettingsDraft(
+    draft.notificationEmailEnabled,
+    draft,
+    saved.notificationEmail,
+  );
+}
+
 export function buildNotificationSettingsPatch(
   draft: NotificationSettingsDraft,
+  saved: SavedNotificationSettings,
 ): NotificationSettingsPatch {
-  return {
+  const patch: NotificationSettingsPatch = {
     notificationEmailEnabled: draft.notificationEmailEnabled,
-    notificationSmsEnabled: draft.notificationSmsEnabled,
   };
+  if (draft.notificationEmailEnabled) {
+    patch.notificationEmail = buildPutNotificationEmailSettingsFields(
+      draft,
+      saved.notificationEmail,
+    );
+  }
+  return patch;
 }
 
 export interface SavedCompanySettings {
@@ -108,7 +146,10 @@ export interface SavedTaxSettings {
   taxNumber: string | null;
 }
 
-export type SavedNotificationSettings = NotificationSettingsDraft;
+export interface SavedNotificationSettings {
+  notificationEmailEnabled: boolean;
+  notificationEmail: NotificationEmailSettings;
+}
 
 export function isCompanySettingsDirty(
   draft: CompanySettingsDraft,
@@ -151,8 +192,11 @@ export function isNotificationSettingsDirty(
   draft: NotificationSettingsDraft,
   saved: SavedNotificationSettings,
 ): boolean {
-  return (
-    draft.notificationEmailEnabled !== saved.notificationEmailEnabled ||
-    draft.notificationSmsEnabled !== saved.notificationSmsEnabled
-  );
+  if (draft.notificationEmailEnabled !== saved.notificationEmailEnabled) {
+    return true;
+  }
+  if (!draft.notificationEmailEnabled) {
+    return false;
+  }
+  return isNotificationEmailSettingsDirty(draft, saved.notificationEmail);
 }
