@@ -12,6 +12,7 @@ import {
   mergeSettingsNotificationEmail,
   validateSettingsNotificationEmailPatch,
 } from "./domain/notification-email.js";
+import { getCorrespondenceEmailDeliveryStatus } from "./domain/correspondence-email-delivery-runtime.js";
 import {
   getOrCreateSettings,
   getOrgSettingsSmtpPassword,
@@ -101,11 +102,14 @@ export async function handlePutSettings(req: Request, res: Response): Promise<vo
         body.notificationEmail ?? undefined,
         storedPassword,
       );
+    const delivery = getCorrespondenceEmailDeliveryStatus();
     const notificationEmailError = validateSettingsNotificationEmailPatch(
       emailEnabled,
       nextEmailSettings,
       nextSmtpPassword,
       body.notificationEmail?.smtpPassword,
+      delivery.correspondenceEmailDeliveryMode,
+      delivery.resendApiKeyConfigured,
     );
     if (notificationEmailError) {
       res.status(400).json({ message: notificationEmailError });

@@ -3798,6 +3798,11 @@ components:
           type: boolean
         notificationEmail:
           $ref: "#/components/schemas/NotificationEmailSettings"
+        correspondenceEmailDeliveryMode:
+          $ref: "#/components/schemas/CorrespondenceEmailDeliveryMode"
+        resendApiKeyConfigured:
+          type: boolean
+          description: Whether RESEND_API_KEY is set on the API server (key is never exposed).
       required:
         - businessName
         - taxEnabled
@@ -3805,6 +3810,13 @@ components:
         - nationalAddress
         - notificationEmailEnabled
         - notificationEmail
+        - correspondenceEmailDeliveryMode
+        - resendApiKeyConfigured
+
+    CorrespondenceEmailDeliveryMode:
+      type: string
+      enum: [smtp, resend]
+      description: Active outbound email transport for correspondences (server configuration).
 
     NationalAddress:
       type: object

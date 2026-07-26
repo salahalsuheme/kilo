@@ -105,3 +105,18 @@ export function validateProductionEnv(): void {
     throw new Error("SESSION_SECRET must not use the development fallback in production.");
   }
 }
+
+export function resolveCorrespondenceEmailDeliveryMode(): import("@workspace/settings-domain").CorrespondenceEmailDeliveryMode {
+  const explicit = process.env.CORRESPONDENCE_EMAIL_DELIVERY_MODE?.trim().toLowerCase();
+  if (explicit === "resend") return "resend";
+  if (explicit === "smtp") return "smtp";
+  if (isProduction() && getResendApiKey()) {
+    return "resend";
+  }
+  return "smtp";
+}
+
+export function getResendApiKey(): string | null {
+  const key = process.env.RESEND_API_KEY?.trim();
+  return key ? key : null;
+}

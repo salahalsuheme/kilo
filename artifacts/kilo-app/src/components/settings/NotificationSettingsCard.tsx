@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import type { OrgSettings } from "@/lib/api-client-react-tenant";
 import {
+  CORRESPONDENCE_EMAIL_DELIVERY_LABELS,
   EMPTY_NOTIFICATION_EMAIL_SETTINGS,
   NOTIFICATION_EMAIL_FIELD_LABELS,
   buildNotificationSettingsDraftFromSaved,
   buildNotificationSettingsPatch,
+  describeCorrespondenceEmailDeliverySetup,
   describeNotificationEmailDeliverability,
   isNotificationSettingsDirty,
   normalizeNotificationEmailSettings,
@@ -39,6 +41,10 @@ export function NotificationSettingsCard({
   onSave,
   onValidationError,
 }: NotificationSettingsCardProps) {
+  const deliveryMode = settings.correspondenceEmailDeliveryMode ?? "smtp";
+  const resendApiKeyConfigured = settings.resendApiKeyConfigured ?? false;
+  const usesResend = deliveryMode === "resend";
+
   const [draft, setDraft] = useState<NotificationSettingsDraft>(() =>
     buildNotificationSettingsDraftFromSaved(savedNotificationSettings(settings)),
   );
@@ -49,12 +55,17 @@ export function NotificationSettingsCard({
 
   const saved = savedNotificationSettings(settings);
   const isDirty = isNotificationSettingsDirty(draft, saved);
-  const deliverabilityHint = draft.notificationEmailEnabled
-    ? describeNotificationEmailDeliverability(draft.fromEmail, draft.smtpUser)
-    : null;
+  const deliveryHint = describeCorrespondenceEmailDeliverySetup({
+    mode: deliveryMode,
+    resendApiKeyConfigured,
+  });
+  const deliverabilityHint =
+    draft.notificationEmailEnabled && !usesResend
+      ? describeNotificationEmailDeliverability(draft.fromEmail, draft.smtpUser)
+      : null;
 
   const handleSave = async () => {
-    const validationError = validateNotificationSettingsDraft(draft, saved);
+    const validationError = validateNotificationSettingsDraft(draft, saved, deliveryMode);
     if (validationError) {
       onValidationError(validationError);
       return;
@@ -69,17 +80,26 @@ export function NotificationSettingsCard({
   return (
     <SettingsCardShell
       title="إعدادات بريد الإشعارات"
-      description="SMTP لإشعارات النظام وإرسال المراسلات للعملاء"
+      description="إرسال المراسلات والإشعارات — SMTP محلياً أو Resend في الإنتاج"
       isDirty={isDirty}
       onSave={() => void handleSave()}
       isSaving={isSaving}
       contentClassName="space-y-4"
     >
+      <div className="rounded-xl border bg-muted/30 px-4 py-3 text-sm">
+        <p className="font-medium">
+          قناة الإرسال الحالية: {CORRESPONDENCE_EMAIL_DELIVERY_LABELS[deliveryMode]}
+        </p>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{deliveryHint}</p>
+      </div>
+
       <div className="flex items-center justify-between gap-3 rounded-xl border p-4">
         <div>
           <p className="font-medium">إشعارات البريد الإلكتروني</p>
           <p className="text-sm text-muted-foreground">
-            عند التفعيل أدخل إعدادات خادم الإرسال (مثل Gmail SMTP)
+            {usesResend
+              ? "فعّل الإرسال وحدّد البريد المرسل من نطاقك المتحقق في Resend"
+              : "أدخل إعدادات خادم SMTP (مثل Gmail)"}
           </p>
         </div>
         <Switch
@@ -93,65 +113,69 @@ export function NotificationSettingsCard({
       {draft.notificationEmailEnabled ? (
         <div className="space-y-4 rounded-xl border p-4">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="smtpHost">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpHost}</Label>
-              <Input
-                id="smtpHost"
-                placeholder="smtp.gmail.com"
-                value={draft.smtpHost}
-                onChange={(e) => updateDraft({ smtpHost: e.target.value })}
-                autoComplete="off"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="smtpPort">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpPort}</Label>
-              <Input
-                id="smtpPort"
-                inputMode="numeric"
-                placeholder="587"
-                value={draft.smtpPort}
-                onChange={(e) => updateDraft({ smtpPort: e.target.value })}
-                autoComplete="off"
-              />
-            </div>
-            <div className="flex flex-col gap-1 sm:col-span-2">
-              <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
-                <span className="text-sm">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpSecure}</span>
-                <Switch
-                  checked={draft.smtpSecure}
-                  onCheckedChange={(smtpSecure) => updateDraft({ smtpSecure })}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Gmail: المنفذ 587 — أوقف SSL (STARTTLS). المنفذ 465 — فعّل SSL.
-              </p>
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="smtpUser">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpUser}</Label>
-              <Input
-                id="smtpUser"
-                type="email"
-                placeholder="you@gmail.com"
-                value={draft.smtpUser}
-                onChange={(e) => updateDraft({ smtpUser: e.target.value })}
-                autoComplete="off"
-              />
-            </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="smtpPassword">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpPassword}</Label>
-              <Input
-                id="smtpPassword"
-                type="password"
-                placeholder={
-                  saved.notificationEmail.smtpPasswordConfigured
-                    ? "اتركه فارغاً للإبقاء على كلمة المرور المحفوظة"
-                    : "كلمة مرور التطبيق من Gmail"
-                }
-                value={draft.smtpPassword}
-                onChange={(e) => updateDraft({ smtpPassword: e.target.value })}
-                autoComplete="new-password"
-              />
-            </div>
+            {!usesResend ? (
+              <>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="smtpHost">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpHost}</Label>
+                  <Input
+                    id="smtpHost"
+                    placeholder="smtp.gmail.com"
+                    value={draft.smtpHost}
+                    onChange={(e) => updateDraft({ smtpHost: e.target.value })}
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="smtpPort">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpPort}</Label>
+                  <Input
+                    id="smtpPort"
+                    inputMode="numeric"
+                    placeholder="587"
+                    value={draft.smtpPort}
+                    onChange={(e) => updateDraft({ smtpPort: e.target.value })}
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 sm:col-span-2">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+                    <span className="text-sm">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpSecure}</span>
+                    <Switch
+                      checked={draft.smtpSecure}
+                      onCheckedChange={(smtpSecure) => updateDraft({ smtpSecure })}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Gmail: المنفذ 587 — أوقف SSL (STARTTLS). المنفذ 465 — فعّل SSL.
+                  </p>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="smtpUser">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpUser}</Label>
+                  <Input
+                    id="smtpUser"
+                    type="email"
+                    placeholder="you@gmail.com"
+                    value={draft.smtpUser}
+                    onChange={(e) => updateDraft({ smtpUser: e.target.value })}
+                    autoComplete="off"
+                  />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="smtpPassword">{NOTIFICATION_EMAIL_FIELD_LABELS.smtpPassword}</Label>
+                  <Input
+                    id="smtpPassword"
+                    type="password"
+                    placeholder={
+                      saved.notificationEmail.smtpPasswordConfigured
+                        ? "اتركه فارغاً للإبقاء على كلمة المرور المحفوظة"
+                        : "كلمة مرور التطبيق من Gmail"
+                    }
+                    value={draft.smtpPassword}
+                    onChange={(e) => updateDraft({ smtpPassword: e.target.value })}
+                    autoComplete="new-password"
+                  />
+                </div>
+              </>
+            ) : null}
             <div className="space-y-2">
               <Label htmlFor="fromEmail">{NOTIFICATION_EMAIL_FIELD_LABELS.fromEmail}</Label>
               <Input

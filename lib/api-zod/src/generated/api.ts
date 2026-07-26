@@ -2362,7 +2362,9 @@ export const GetSettingsResponse = zod.object({
   "smtpPasswordConfigured": zod.boolean().describe('يشير إلى وجود كلمة مرور محفوظة دون إرجاعها'),
   "fromEmail": zod.email().nullable(),
   "fromName": zod.string().nullable()
-})
+}),
+  "correspondenceEmailDeliveryMode": zod.enum(['smtp', 'resend']).describe('Active outbound email transport for correspondences (server configuration).'),
+  "resendApiKeyConfigured": zod.boolean().describe('Whether RESEND_API_KEY is set on the API server (key is never exposed).')
 })
 
 
@@ -2422,7 +2424,9 @@ export const PutSettingsResponse = zod.object({
   "smtpPasswordConfigured": zod.boolean().describe('يشير إلى وجود كلمة مرور محفوظة دون إرجاعها'),
   "fromEmail": zod.email().nullable(),
   "fromName": zod.string().nullable()
-})
+}),
+  "correspondenceEmailDeliveryMode": zod.enum(['smtp', 'resend']).describe('Active outbound email transport for correspondences (server configuration).'),
+  "resendApiKeyConfigured": zod.boolean().describe('Whether RESEND_API_KEY is set on the API server (key is never exposed).')
 })
 
 

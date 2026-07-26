@@ -2,7 +2,8 @@ import {
   mergeNotificationEmailSettings,
   normalizeNotificationEmailSettings,
   resolveNotificationSmtpPassword,
-  validateSettingsNotificationEmail,
+  validateSettingsNotificationEmailForDelivery,
+  type CorrespondenceEmailDeliveryMode,
   type NotificationEmailRow,
 } from "@workspace/settings-domain";
 import type { NotificationEmailSettings } from "@workspace/settings-domain";
@@ -24,8 +25,17 @@ export function validateSettingsNotificationEmailPatch(
   next: NotificationEmailSettings,
   storedPassword: string | null,
   passwordPatch: string | null | undefined,
+  deliveryMode: CorrespondenceEmailDeliveryMode,
+  resendApiKeyConfigured: boolean,
 ): string | null {
-  return validateSettingsNotificationEmail(enabled, next, storedPassword, passwordPatch);
+  return validateSettingsNotificationEmailForDelivery(
+    enabled,
+    next,
+    storedPassword,
+    passwordPatch,
+    deliveryMode,
+    resendApiKeyConfigured,
+  );
 }
 
 export function mergeSettingsNotificationEmail(

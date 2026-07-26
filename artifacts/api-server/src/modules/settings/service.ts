@@ -17,6 +17,7 @@ import {
 } from "./domain/notification-email.js";
 import { resolveSettingsTaxNumber } from "./domain/org-tax.js";
 import { resolveSettingsUnifiedNumber } from "./domain/org-unified-number.js";
+import { getCorrespondenceEmailDeliveryStatus } from "./domain/correspondence-email-delivery-runtime.js";
 
 function mapSettings(
   row: typeof orgSettings.$inferSelect,
@@ -34,6 +35,7 @@ function mapSettings(
     nationalAddress: mapNationalAddressRow(row),
     notificationEmailEnabled: row.notificationEmailEnabled,
     notificationEmail: mapNotificationEmailRow(row),
+    ...getCorrespondenceEmailDeliveryStatus(),
   };
 }
 

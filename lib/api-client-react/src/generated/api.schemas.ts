@@ -1025,6 +1025,17 @@ export interface PutNotificationEmailSettingsBody {
   fromName?: string | null;
 }
 
+/**
+ * Active outbound email transport for correspondences (server configuration).
+ */
+export type CorrespondenceEmailDeliveryMode = typeof CorrespondenceEmailDeliveryMode[keyof typeof CorrespondenceEmailDeliveryMode];
+
+
+export const CorrespondenceEmailDeliveryMode = {
+  smtp: 'smtp',
+  resend: 'resend',
+} as const;
+
 export interface OrgSettings {
   businessName: string;
   logoUrl?: string | null;
@@ -1041,6 +1052,9 @@ export interface OrgSettings {
   nationalAddress: NationalAddress;
   notificationEmailEnabled: boolean;
   notificationEmail: NotificationEmailSettings;
+  correspondenceEmailDeliveryMode: CorrespondenceEmailDeliveryMode;
+  /** Whether RESEND_API_KEY is set on the API server (key is never exposed). */
+  resendApiKeyConfigured: boolean;
 }
 
 export interface PutNationalAddressBody {

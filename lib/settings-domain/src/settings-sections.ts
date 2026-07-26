@@ -16,11 +16,12 @@ import {
   buildPutNotificationEmailSettingsFields,
   isNotificationEmailSettingsDirty,
   notificationEmailSettingsToDraft,
-  validateNotificationEmailSettingsDraft,
+  validateNotificationEmailSettingsDraftForDelivery,
   type NotificationEmailSettings,
   type NotificationEmailSettingsDraft,
   type PutNotificationEmailSettingsFields,
 } from "./notification-email-settings.js";
+import type { CorrespondenceEmailDeliveryMode } from "./correspondence-email-delivery.js";
 
 export interface CompanySettingsDraft {
   businessName: string;
@@ -111,11 +112,13 @@ export function buildNotificationSettingsDraftFromSaved(
 export function validateNotificationSettingsDraft(
   draft: NotificationSettingsDraft,
   saved: SavedNotificationSettings,
+  deliveryMode: CorrespondenceEmailDeliveryMode = "smtp",
 ): string | null {
-  return validateNotificationEmailSettingsDraft(
+  return validateNotificationEmailSettingsDraftForDelivery(
     draft.notificationEmailEnabled,
     draft,
     saved.notificationEmail,
+    deliveryMode,
   );
 }
 

@@ -79,3 +79,13 @@ export {
   describeNotificationEmailDeliverability,
   resolveNotificationMailIdentity,
 } from "./notification-email-deliverability.js";
+export {
+  CORRESPONDENCE_EMAIL_DELIVERY_LABELS,
+  CORRESPONDENCE_EMAIL_DELIVERY_MODES,
+  describeCorrespondenceEmailDeliverySetup,
+  isCorrespondenceEmailDeliveryMode,
+  validateCorrespondenceEmailBeforeSend,
+  validateNotificationEmailSettingsDraftForDelivery,
+  validateSettingsNotificationEmailForDelivery,
+  type CorrespondenceEmailDeliveryMode,
+} from "./correspondence-email-delivery.js";
