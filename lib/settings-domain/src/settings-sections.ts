@@ -16,12 +16,14 @@ import {
   buildPutNotificationEmailSettingsFields,
   isNotificationEmailSettingsDirty,
   notificationEmailSettingsToDraft,
-  validateNotificationEmailSettingsDraftForDelivery,
   type NotificationEmailSettings,
   type NotificationEmailSettingsDraft,
   type PutNotificationEmailSettingsFields,
 } from "./notification-email-settings.js";
-import type { CorrespondenceEmailDeliveryMode } from "./correspondence-email-delivery.js";
+import {
+  validateNotificationEmailSettingsDraftForDelivery,
+  type CorrespondenceEmailDeliveryMode,
+} from "./correspondence-email-delivery.js";
 
 export interface CompanySettingsDraft {
   businessName: string;
