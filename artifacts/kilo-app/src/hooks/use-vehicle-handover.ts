@@ -79,6 +79,7 @@ async function buildHandoverPrintBodyHtml(
   phase: VehicleHandoverPrintPhase,
   diagramDataUrl: string,
   newDamageMarkerCount: number,
+  receiptOdometer?: number,
 ): Promise<string> {
   const media = await resolveOrgMediaUrlsForPrint(ctx.orgStampUrl, ctx.orgSignatureUrl);
   return buildVehicleDamageFormPrintHtml({
@@ -95,7 +96,13 @@ async function buildHandoverPrintBodyHtml(
     establishmentName: ctx.establishmentName,
     establishmentFullName: ctx.establishmentFullName,
     newDamageMarkerCount: phase === "delivery" ? newDamageMarkerCount : 0,
+    receiptOdometer: phase === "receipt" ? receiptOdometer : undefined,
   });
+}
+
+async function loadReceiptOdometerForPrint(contract: Contract): Promise<number> {
+  const vehicle = await getVehicle(contract.carId);
+  return vehicle.odometer;
 }
 
 async function resolveHandoverPrintContext(
@@ -204,11 +211,14 @@ export function useVehicleHandover() {
       );
       const diagramDataUrl = await blobToDataUrl(blob);
       const ctx = await resolveHandoverPrintContext(contract, phase, orgSettings);
+      const receiptOdometer =
+        phase === "receipt" ? await loadReceiptOdometerForPrint(contract) : undefined;
       const bodyHtml = await buildHandoverPrintBodyHtml(
         ctx,
         phase,
         diagramDataUrl,
         newMarkers.length,
+        receiptOdometer,
       );
       const heading =
         phase === "delivery"
@@ -292,11 +302,16 @@ export function useVehicleHandover() {
       );
       const diagramDataUrl = await blobToDataUrl(blob);
       const ctx = await resolveHandoverPrintContext(dialogContract, handoverPhase, orgSettings);
+      const receiptOdometer =
+        handoverPhase === "receipt"
+          ? await loadReceiptOdometerForPrint(dialogContract)
+          : undefined;
       const bodyHtml = await buildHandoverPrintBodyHtml(
         ctx,
         handoverPhase,
         diagramDataUrl,
         markers.length,
+        receiptOdometer,
       );
       const heading =
         handoverPhase === "delivery"

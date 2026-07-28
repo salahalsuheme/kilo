@@ -23,6 +23,7 @@ export const VEHICLE_HANDOVER_PRINT_VEHICLE_LABELS = {
   chassisNumber: "رقم الهيكل",
   serialNumber: "رقم التسلسل",
   plateNumber: "رقم اللوحة",
+  odometer: "عداد السيارة",
 } as const;
 
 export type VehicleHandoverPrintLine = {
@@ -33,10 +34,11 @@ export type VehicleHandoverPrintLine = {
 
 export function buildContractHandoverVehiclePrintLines(
   vehicle: ContractHandoverVehicleInfo,
+  options?: { receiptOdometer?: number },
 ): VehicleHandoverPrintLine[] {
   const L = VEHICLE_HANDOVER_PRINT_VEHICLE_LABELS;
   const serial = vehicle.serialNumber?.trim() || "—";
-  return [
+  const lines: VehicleHandoverPrintLine[] = [
     { label: L.brand, value: vehicle.brand.trim() || "—" },
     { label: L.modelYear, value: String(vehicle.modelYear) },
     { label: L.coolingType, value: vehicle.coolingTypeLabel.trim() || "—" },
@@ -45,4 +47,12 @@ export function buildContractHandoverVehiclePrintLines(
     { label: L.serialNumber, value: serial, valueDir: serial !== "—" ? "ltr" : undefined },
     { label: L.plateNumber, value: vehicle.plateNumber.trim() || "—", valueDir: "ltr" },
   ];
+  if (options?.receiptOdometer != null) {
+    lines.push({
+      label: L.odometer,
+      value: `${options.receiptOdometer.toLocaleString("ar-SA")} كيلو`,
+      valueDir: "ltr",
+    });
+  }
+  return lines;
 }

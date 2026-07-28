@@ -33,6 +33,8 @@ export interface VehicleDamageFormPrintInput {
   printedAt?: string | null;
   /** For delivery print: count of new (red) markers; controls red legend visibility. */
   newDamageMarkerCount?: number;
+  /** محضر الاستلام — يُعرض في الطباعة تحت رقم اللوحة */
+  receiptOdometer?: number;
 }
 
 function documentTitle(phase: VehicleHandoverPrintPhase): string {
@@ -46,9 +48,16 @@ function formatUnifiedNumberDisplay(value: string | null | undefined): string {
   return trimmed || "—";
 }
 
-function buildHandoverInfoBoxHtml(contractNumber: string, vehicle: ContractHandoverVehicleInfo): string {
+function buildHandoverInfoBoxHtml(
+  contractNumber: string,
+  vehicle: ContractHandoverVehicleInfo,
+  phase: VehicleHandoverPrintPhase,
+  receiptOdometer?: number,
+): string {
   const header = VEHICLE_HANDOVER_PRINT_HEADER_LABELS;
-  const vehicleLines = buildContractHandoverVehiclePrintLines(vehicle)
+  const vehicleLines = buildContractHandoverVehiclePrintLines(vehicle, {
+    receiptOdometer: phase === "receipt" ? receiptOdometer : undefined,
+  })
     .map((line) => {
       const valueHtml =
         line.valueDir === "ltr"
@@ -129,7 +138,7 @@ export function buildVehicleDamageFormPrintHtml(input: VehicleDamageFormPrintInp
   return `
     <div class="vehicle-handover-print">
     <h1 class="print-title vehicle-handover-print-title">${escapeHtml(documentTitle(phase))}</h1>
-    ${buildHandoverInfoBoxHtml(input.contractNumber, input.vehicle)}
+    ${buildHandoverInfoBoxHtml(input.contractNumber, input.vehicle, phase, input.receiptOdometer)}
     <div class="vehicle-handover-print-diagram">
       <img src="${input.diagramDataUrl}" alt="${escapeHtml(alt)}" />
       ${buildDiagramLegendHtml(phase, labels, newDamageMarkerCount)}
