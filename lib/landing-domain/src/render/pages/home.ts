@@ -8,6 +8,7 @@ import {
 import { FAQ_ITEMS, FAQ_SECTION } from "../../content/faq.js";
 import { WHATSAPP_HOME } from "../../site-config.js";
 import { carRentalJsonLd, faqJsonLd, webPageJsonLd } from "../../seo/structured-data.js";
+import { renderFeatureIcon } from "../feature-icons.js";
 import { renderBackground, renderCtaButton, renderHead } from "../head.js";
 import { renderFooter, renderHeader, renderPageScripts, renderScrollHint } from "../layout.js";
 import { escapeHtml } from "../html.js";
@@ -35,7 +36,10 @@ export function renderHomePage(locale: Locale): string {
 
   const whyCards = WHY_KILO_ITEMS.map(
     (item) => `            <article class="feature-card">
-              <h3 class="feature-card__title">${escapeHtml(item.title[locale])}</h3>
+              <div class="feature-card__head">
+${renderFeatureIcon(item.icon)}
+                <h3 class="feature-card__title">${escapeHtml(item.title[locale])}</h3>
+              </div>
               <p class="feature-card__text">${escapeHtml(item.description[locale])}</p>
             </article>`,
   ).join("\n");

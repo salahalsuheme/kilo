@@ -44,6 +44,7 @@ export const WHY_KILO_SECTION = {
 
 export const WHY_KILO_ITEMS: FeatureItem[] = featureItemSchema.array().parse([
   {
+    icon: "delivery",
     title: {
       ar: "خدمة توصيل كيلو",
       en: "Kilo delivery service",
@@ -54,6 +55,7 @@ export const WHY_KILO_ITEMS: FeatureItem[] = featureItemSchema.array().parse([
     },
   },
   {
+    icon: "rental",
     title: {
       ar: "خدمة تأجير كيلو",
       en: "Kilo rental service",

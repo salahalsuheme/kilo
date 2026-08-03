@@ -15,7 +15,7 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "What vehicle types does Kilo offer?",
     },
     answer: {
-      ar: "نوفر حالياً سوزوكي فان مبرد وسوزوكي فان جاف موديلات 2026",
+      ar: "نوفر حالياً سوزوكي فان مبرد وسوزوكي فان جاف موديلات 2026.",
       en: "We currently offer 2026 Suzuki refrigerated van and Suzuki dry van models.",
     },
   },
@@ -35,7 +35,7 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "Does Kilo offer order delivery service?",
     },
     answer: {
-      ar: "نعم . كيلو لديها قسم خاص لتوصيل طلباتك بسهولة الى العميل وبسرعة حسب أعلى معايير توصيل الميل الأخير",
+      ar: "نعم . كيلو لديها قسم خاص لتوصيل طلباتك بسهولة الى العميل وبسرعة حسب أعلى معايير توصيل الميل الأخير.",
       en: "Yes. Kilo has a dedicated department to deliver your orders to customers easily and quickly, according to the highest last-mile delivery standards.",
     },
   },
@@ -45,7 +45,7 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "Does Kilo offer rental service?",
     },
     answer: {
-      ar: "نعم . كيلو لديها ايضا قسم خاص بتأجير مركبات النقل الخفيف الى الشركات والمؤسسات ويشمل التأمين والصيانة المجانية والتوصيل المجاني وتتبع المركبات المجاني ايضا",
+      ar: "نعم . كيلو لديها ايضا قسم خاص بتأجير مركبات النقل الخفيف الى الشركات والمؤسسات ويشمل التأمين والصيانة المجانية والتوصيل المجاني وتتبع المركبات المجاني ايضا.",
       en: "Yes. Kilo also has a dedicated department for renting light commercial vehicles to companies and institutions. It includes free insurance, free maintenance, free delivery, and free vehicle tracking.",
     },
   },
@@ -55,8 +55,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "How do I request the service?",
     },
     answer: {
-      ar: "اضغط هنا لطلب اي خدمة تريد من كيلو",
-      en: "Click here to request any service you need from Kilo",
+      ar: "اضغط هنا لطلب اي خدمة تريد من كيلو.",
+      en: "Click here to request any service you need from Kilo.",
     },
     whatsappLinkAnswer: {
       linkText: {
@@ -64,8 +64,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
         en: "Click here",
       },
       suffix: {
-        ar: " لطلب اي خدمة تريد من كيلو",
-        en: " to request any service you need from Kilo",
+        ar: " لطلب اي خدمة تريد من كيلو.",
+        en: " to request any service you need from Kilo.",
       },
     },
   },

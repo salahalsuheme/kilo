@@ -31,8 +31,8 @@ export const DELIVERY_FLEET_CTA = {
 
 export const FLEET_SECTION = {
   title: {
-    ar: "أسطولنا",
-    en: "Our fleet",
+    ar: "أسطول التأجير",
+    en: "Rental Fleet",
   },
   subtitle: {
     ar: "مركبات نقل خفيف جاهزة للتشغيل بعقود شهرية",
@@ -41,7 +41,10 @@ export const FLEET_SECTION = {
 };
 
 export const DELIVERY_FLEET_SECTION = {
-  title: FLEET_SECTION.title,
+  title: {
+    ar: "أسطول التوصيل",
+    en: "Delivery Fleet",
+  },
   subtitle: {
     ar: "مركبات نقل خفيف حديثة جاهزة لتوصيل طلباتك",
     en: "Modern light commercial vehicles ready to deliver your orders",
@@ -51,6 +54,11 @@ export const DELIVERY_FLEET_SECTION = {
 const DELIVERY_FLEET_REPLACEMENT_HIGHLIGHT = {
   ar: "موديلات حديثة لتوصيل طلباتك بسرعة",
   en: "Modern models to deliver your orders quickly",
+};
+
+const DELIVERY_FLEET_DRIVERS_HIGHLIGHT = {
+  ar: "سائقين مدربين على توصيل الطلبات اليومية",
+  en: "Drivers trained for daily order delivery",
 };
 
 export const FLEET_VEHICLES: FleetVehicle[] = fleetVehicleSchema.array().parse([
@@ -155,6 +163,9 @@ function mapDeliveryFleetHighlights(highlights: FleetVehicle["highlights"]): Fle
     }
     if (highlight.ar === "تتبع مركبات مجاني") {
       return [];
+    }
+    if (highlight.ar === "عقود شهرية وسنوية مرنة") {
+      return [DELIVERY_FLEET_DRIVERS_HIGHLIGHT];
     }
     return [highlight];
   });

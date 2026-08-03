@@ -11,6 +11,7 @@ export type NavItem = {
 };
 
 export type FeatureItem = {
+  icon: "delivery" | "rental";
   title: LocalizedText;
   description: LocalizedText;
 };

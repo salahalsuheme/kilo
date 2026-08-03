@@ -6,6 +6,7 @@ const localizedTextSchema = z.object({
 });
 
 export const featureItemSchema = z.object({
+  icon: z.enum(["delivery", "rental"]),
   title: localizedTextSchema,
   description: localizedTextSchema,
 });
