@@ -2,7 +2,7 @@ export type Locale = "ar" | "en";
 
 export type LocalizedText = Record<Locale, string>;
 
-export type PageId = "home" | "about" | "fleet" | "faq";
+export type PageId = "home" | "about" | "fleet" | "delivery-fleet" | "faq";
 
 export type NavItem = {
   id: PageId;

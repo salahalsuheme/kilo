@@ -1,10 +1,10 @@
 import { ABOUT_META } from "../content/about.js";
-import { FLEET_META } from "../content/fleet.js";
+import { DELIVERY_FLEET_META, FLEET_META } from "../content/fleet.js";
 import { HOME_META } from "../content/home.js";
 import { SITE_URL } from "../site-config.js";
 import { absoluteUrl } from "./page-meta.js";
 
-const PAGES = [HOME_META, ABOUT_META, FLEET_META];
+const PAGES = [HOME_META, ABOUT_META, FLEET_META, DELIVERY_FLEET_META];
 
 export function renderSitemapXml(): string {
   const urls = PAGES.flatMap((page) => [

@@ -29,5 +29,15 @@ export const WHATSAPP = {
   en: whatsappUrl("Hello, I would like to request corporate vehicle rental from Kilo."),
 } as const;
 
+export const WHATSAPP_HOME = {
+  ar: whatsappUrl("مرحباً، أرغب في طلب خدمة من كيلو."),
+  en: whatsappUrl("Hello, I would like to request service from Kilo."),
+} as const;
+
+export const WHATSAPP_DELIVERY = {
+  ar: whatsappUrl("مرحباً، أرغب في طلب خدمة توصيل من كيلو."),
+  en: whatsappUrl("Hello, I would like to request delivery service from Kilo."),
+} as const;
+
 /** Set via LANDING_GOOGLE_SITE_VERIFICATION at build time when available. */
 export const GOOGLE_SITE_VERIFICATION = process.env.LANDING_GOOGLE_SITE_VERIFICATION ?? "";

@@ -36,8 +36,10 @@ app.get("/", (_req, res) => {
 const cleanRoutes = {
   "/about": "about.html",
   "/fleet": "fleet.html",
+  "/delivery-fleet": "delivery-fleet.html",
   "/about-en": "about-en.html",
   "/fleet-en": "fleet-en.html",
+  "/delivery-fleet-en": "delivery-fleet-en.html",
 };
 
 for (const [route, file] of Object.entries(cleanRoutes)) {

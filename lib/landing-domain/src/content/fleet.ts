@@ -16,6 +16,19 @@ export const FLEET_META: PageMeta = {
   },
 };
 
+export const DELIVERY_FLEET_META: PageMeta = {
+  ...FLEET_META,
+  path: {
+    ar: "/delivery-fleet.html",
+    en: "/delivery-fleet-en.html",
+  },
+};
+
+export const DELIVERY_FLEET_CTA = {
+  ar: "اطلب خدمة التوصيل",
+  en: "Request delivery service",
+};
+
 export const FLEET_SECTION = {
   title: {
     ar: "أسطولنا",
@@ -27,6 +40,19 @@ export const FLEET_SECTION = {
   },
 };
 
+export const DELIVERY_FLEET_SECTION = {
+  title: FLEET_SECTION.title,
+  subtitle: {
+    ar: "مركبات نقل خفيف حديثة جاهزة لتوصيل طلباتك",
+    en: "Modern light commercial vehicles ready to deliver your orders",
+  },
+};
+
+const DELIVERY_FLEET_REPLACEMENT_HIGHLIGHT = {
+  ar: "موديلات حديثة لتوصيل طلباتك بسرعة",
+  en: "Modern models to deliver your orders quickly",
+};
+
 export const FLEET_VEHICLES: FleetVehicle[] = fleetVehicleSchema.array().parse([
   {
     id: "suzuki-van-refrigerated",
@@ -35,7 +61,7 @@ export const FLEET_VEHICLES: FleetVehicle[] = fleetVehicleSchema.array().parse([
       en: "Suzuki Van — Refrigerated",
     },
     description: {
-      ar: "مركبة نقل خفيف مبردة مناسبة لتوزيع المنتجات الحساسة حراريًا، مع تبريد موثوق وعزل ممتاز.",
+      ar: "مركبة نقل خفيف مبردة مناسبة لتوزيع المنتجات الحساسة حراريًا، مع عزل ممتاز.",
       en: "A refrigerated light commercial vehicle for temperature-sensitive distribution with reliable cooling and strong insulation.",
     },
     image: {
@@ -121,3 +147,20 @@ export const FLEET_VEHICLES: FleetVehicle[] = fleetVehicleSchema.array().parse([
     ],
   },
 ]);
+
+function mapDeliveryFleetHighlights(highlights: FleetVehicle["highlights"]): FleetVehicle["highlights"] {
+  return highlights.flatMap((highlight) => {
+    if (highlight.ar === "صيانة مجانية") {
+      return [DELIVERY_FLEET_REPLACEMENT_HIGHLIGHT];
+    }
+    if (highlight.ar === "تتبع مركبات مجاني") {
+      return [];
+    }
+    return [highlight];
+  });
+}
+
+export const DELIVERY_FLEET_VEHICLES: FleetVehicle[] = FLEET_VEHICLES.map((vehicle) => ({
+  ...vehicle,
+  highlights: mapDeliveryFleetHighlights(vehicle.highlights),
+}));

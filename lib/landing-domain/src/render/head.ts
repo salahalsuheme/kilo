@@ -78,8 +78,14 @@ export function renderBackground(): string {
       </div>`;
 }
 
-export function renderCtaButton(locale: Locale, className = "cta-button"): string {
-  const label = locale === "ar" ? "اطلب التأجير الآن" : "Request rental now";
+export function renderCtaButton(
+  locale: Locale,
+  className = "cta-button",
+  labelOverride?: string,
+  hrefOverride?: string,
+): string {
+  const label = labelOverride ?? (locale === "ar" ? "اطلب التأجير الآن" : "Request rental now");
+  const href = hrefOverride ?? WHATSAPP[locale];
   const variant = locale === "ar" ? "cta-button--ar" : "cta-button--en";
   const icon = `<span class="cta-button__icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -89,7 +95,7 @@ export function renderCtaButton(locale: Locale, className = "cta-button"): strin
   const labelHtml = `<span class="cta-button__label">${escapeHtml(label)}</span>`;
   const content = locale === "ar" ? `${labelHtml}\n              ${icon}` : `${icon}\n              ${labelHtml}`;
 
-  return `<a class="${className} ${variant}" href="${escapeHtml(WHATSAPP[locale])}" target="_blank" rel="noopener noreferrer">
+  return `<a class="${className} ${variant}" href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">
               ${content}
             </a>`;
 }

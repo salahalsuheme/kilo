@@ -2,13 +2,11 @@ import type { FaqItem, Locale } from "../../types.js";
 import {
   HOME_HERO,
   HOME_META,
-  HOW_IT_WORKS_SECTION,
-  HOW_IT_WORKS_STEPS,
   WHY_KILO_ITEMS,
   WHY_KILO_SECTION,
 } from "../../content/home.js";
 import { FAQ_ITEMS, FAQ_SECTION } from "../../content/faq.js";
-import { WHATSAPP } from "../../site-config.js";
+import { WHATSAPP_HOME } from "../../site-config.js";
 import { carRentalJsonLd, faqJsonLd, webPageJsonLd } from "../../seo/structured-data.js";
 import { renderBackground, renderCtaButton, renderHead } from "../head.js";
 import { renderFooter, renderHeader, renderPageScripts, renderScrollHint } from "../layout.js";
@@ -20,7 +18,7 @@ function renderFaqAnswer(item: FaqItem, locale: Locale): string {
   }
 
   const { linkText, suffix } = item.whatsappLinkAnswer;
-  return `<a class="faq-item__link" href="${escapeHtml(WHATSAPP[locale])}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkText[locale])}</a>${escapeHtml(suffix[locale])}`;
+  return `<a class="faq-item__link" href="${escapeHtml(WHATSAPP_HOME[locale])}" target="_blank" rel="noopener noreferrer">${escapeHtml(linkText[locale])}</a>${escapeHtml(suffix[locale])}`;
 }
 
 export function renderHomePage(locale: Locale): string {
@@ -40,16 +38,6 @@ export function renderHomePage(locale: Locale): string {
               <h3 class="feature-card__title">${escapeHtml(item.title[locale])}</h3>
               <p class="feature-card__text">${escapeHtml(item.description[locale])}</p>
             </article>`,
-  ).join("\n");
-
-  const steps = HOW_IT_WORKS_STEPS.map(
-    (step, index) => `            <li class="step-card">
-              <div class="step-card__head">
-                <span class="step-card__number">${index + 1}</span>
-                <h3 class="step-card__title">${escapeHtml(step.title[locale])}</h3>
-              </div>
-              <p class="step-card__text">${escapeHtml(step.description[locale])}</p>
-            </li>`,
   ).join("\n");
 
   const faqItems = FAQ_ITEMS.map(
@@ -72,7 +60,7 @@ ${renderHeader(locale, "home")}
                 <span class="headline-line-block headline-word headline-word--1">${escapeHtml(HOME_HERO.line1[locale])}</span>
                 <span class="headline-line-block headline-word headline-word--2">${escapeHtml(HOME_HERO.line2[locale])}</span>
               </h1>
-              <p class="cta-wrap">${renderCtaButton(locale)}</p>
+              <p class="cta-wrap">${renderCtaButton(locale, "cta-button", HOME_HERO.cta[locale], WHATSAPP_HOME[locale])}</p>
             </div>
           </div>
 ${renderScrollHint(locale)}
@@ -85,15 +73,6 @@ ${renderScrollHint(locale)}
             <div class="feature-grid">
 ${whyCards}
             </div>
-          </div>
-        </section>
-
-        <section class="content-section content-section--alt" id="how-it-works">
-          <div class="content-section__inner">
-            <h2 class="section-title section-title--accent section-title--glow">${escapeHtml(HOW_IT_WORKS_SECTION.title[locale])}</h2>
-            <ol class="steps-list">
-${steps}
-            </ol>
           </div>
         </section>
 

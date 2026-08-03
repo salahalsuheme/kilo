@@ -7,8 +7,13 @@ export const NAV_ITEMS: NavItem[] = [
     path: { ar: "/", en: "/landpage-en.html" },
   },
   {
+    id: "delivery-fleet",
+    label: { ar: "أسطول التوصيل", en: "Delivery Fleet" },
+    path: { ar: "/delivery-fleet.html", en: "/delivery-fleet-en.html" },
+  },
+  {
     id: "fleet",
-    label: { ar: "الأسطول", en: "Fleet" },
+    label: { ar: "أسطول التأجير", en: "Rental Fleet" },
     path: { ar: "/fleet.html", en: "/fleet-en.html" },
   },
   {

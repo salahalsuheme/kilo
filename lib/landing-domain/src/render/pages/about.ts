@@ -1,5 +1,6 @@
 import type { Locale } from "../../types.js";
 import { ABOUT_CONTENT, ABOUT_META } from "../../content/about.js";
+import { WHATSAPP_HOME } from "../../site-config.js";
 import { carRentalJsonLd, webPageJsonLd } from "../../seo/structured-data.js";
 import { renderBackground, renderCtaButton, renderHead } from "../head.js";
 import { renderFooter, renderHeader, renderPageScripts } from "../layout.js";
@@ -32,7 +33,7 @@ ${renderHeader(locale, "about")}
             <div class="prose">
 ${paragraphs}
             </div>
-            <p class="page-cta">${renderCtaButton(locale)}</p>
+            <p class="page-cta">${renderCtaButton(locale, "cta-button", ABOUT_CONTENT.cta[locale], WHATSAPP_HOME[locale])}</p>
           </div>
         </section>
 ${renderFooter(locale)}

@@ -15,8 +15,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "What vehicle types does Kilo offer?",
     },
     answer: {
-      ar: "نوفر حالياً سوزوكي فان مبرد وسوزوكي فان جاف لتأجير الشركات والمؤسسات.",
-      en: "We currently offer Suzuki refrigerated van and Suzuki dry van for corporate rental.",
+      ar: "نوفر حالياً سوزوكي فان مبرد وسوزوكي فان جاف ب أحدث الموديلات.",
+      en: "We currently offer Suzuki refrigerated van and Suzuki dry van in the latest models.",
     },
   },
   {
@@ -31,32 +31,22 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
   },
   {
     question: {
-      ar: "ماذا يشمل العقد الشهري؟",
-      en: "What is included in the monthly contract?",
+      ar: "هل كيلو تقدم خدمة توصيل الطلبات ؟",
+      en: "Does Kilo offer order delivery service?",
     },
     answer: {
-      ar: "يشمل العقد الصيانة والتأمين وسيارة بديلة عند التعطل ونظام تتبع للمركبات.",
-      en: "The monthly contract includes maintenance, insurance, a replacement vehicle during breakdowns, and fleet tracking.",
+      ar: "نعم . كيلو لديها قسم خاص لتوصيل طلباتك بسهولة الى العميل وبسرعة حسب أعلى معايير توصيل الميل الأخير",
+      en: "Yes. Kilo has a dedicated department to deliver your orders to customers easily and quickly, according to the highest last-mile delivery standards.",
     },
   },
   {
     question: {
-      ar: "لمن تقدمون خدمات التأجير؟",
-      en: "Who is your rental service for?",
+      ar: "هل كيلو تقدم خدمة التأجير؟",
+      en: "Does Kilo offer rental service?",
     },
     answer: {
-      ar: "نخدم كل الشركات والمؤسسات التي تحتاج مركبات نقل خفيف مبردة او جافة.",
-      en: "We serve all companies and institutions that need refrigerated or dry light commercial vehicles.",
-    },
-  },
-  {
-    question: {
-      ar: "كم أسعار التأجير ؟",
-      en: "What are the rental prices?",
-    },
-    answer: {
-      ar: "تبدأ الأسعار من 2600 ريال شامل الضريبة للعقد الشهري الواحد. وتختلف الاسعار حسب نوع السيارة.",
-      en: "Prices start from SAR 2,600 including VAT per monthly contract. Prices vary depending on the vehicle type.",
+      ar: "نعم . كيلو لديها ايضا قسم خاص بتأجير مركبات النقل الخفيف الى الشركات والمؤسسات ويشمل التأمين والصيانة المجانية والتوصيل المجاني وتتبع المركبات المجاني ايضا",
+      en: "Yes. Kilo also has a dedicated department for renting light commercial vehicles to companies and institutions. It includes free insurance, free maintenance, free delivery, and free vehicle tracking.",
     },
   },
   {
@@ -65,8 +55,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "How do I request the service?",
     },
     answer: {
-      ar: "اضغط هنا للطلب الفوري للتأجير",
-      en: "Click here for an instant rental request",
+      ar: "اضغط هنا لطلب اي خدمة تريد من كيلو",
+      en: "Click here to request any service you need from Kilo",
     },
     whatsappLinkAnswer: {
       linkText: {
@@ -74,8 +64,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
         en: "Click here",
       },
       suffix: {
-        ar: " للطلب الفوري للتأجير",
-        en: " for an instant rental request",
+        ar: " لطلب اي خدمة تريد من كيلو",
+        en: " to request any service you need from Kilo",
       },
     },
   },

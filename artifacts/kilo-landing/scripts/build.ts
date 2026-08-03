@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import {
   renderAboutPage,
+  renderDeliveryFleetPage,
   renderFleetPage,
   renderHomePage,
   renderRobotsTxt,
@@ -159,6 +160,8 @@ function writeGeneratedPages(publicDir: string, distDir: string): void {
     { file: "about-en.html", html: renderAboutPage("en") },
     { file: "fleet.html", html: renderFleetPage("ar") },
     { file: "fleet-en.html", html: renderFleetPage("en") },
+    { file: "delivery-fleet.html", html: renderDeliveryFleetPage("ar") },
+    { file: "delivery-fleet-en.html", html: renderDeliveryFleetPage("en") },
   ];
 
   for (const page of publicPages) {
