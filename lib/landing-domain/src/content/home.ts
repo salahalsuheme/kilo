@@ -3,8 +3,8 @@ import { featureItemSchema } from "../schemas/content.schema.js";
 
 export const HOME_META: PageMeta = {
   title: {
-    ar: "كيلو لتأجير مركبات الشركات",
-    en: "Kilo — Corporate Vehicle Rental",
+    ar: "كيلو اللوجستية",
+    en: "Kilo Logistics",
   },
   description: {
     ar: "تأجير مركبات للشركات والمؤسسات وتأجير مركبات مبردة",

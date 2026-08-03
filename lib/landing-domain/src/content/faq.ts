@@ -15,8 +15,8 @@ export const FAQ_ITEMS: FaqItem[] = faqItemSchema.array().parse([
       en: "What vehicle types does Kilo offer?",
     },
     answer: {
-      ar: "نوفر حالياً سوزوكي فان مبرد وسوزوكي فان جاف ب أحدث الموديلات.",
-      en: "We currently offer Suzuki refrigerated van and Suzuki dry van in the latest models.",
+      ar: "نوفر حالياً سوزوكي فان مبرد وسوزوكي فان جاف موديلات 2026",
+      en: "We currently offer 2026 Suzuki refrigerated van and Suzuki dry van models.",
     },
   },
   {
